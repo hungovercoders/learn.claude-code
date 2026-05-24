@@ -139,7 +139,7 @@ Wire two servers and feel the difference.
 
 ## My Verdict on MCP
 
-MCP is the most leverage-per-line-of-config feature in Claude Code. One install command brings a whole external system into the agent's reach, and the ecosystem is wide enough that the integration you want probably already exists. The protocol being open means anyone can write a server; the protocol being small means doing so is a weekend project, not a quarter.
+MCP is the most value-per-line-of-config feature in Claude Code. One install command brings a whole external system into the agent's reach, and the ecosystem is wide enough that the integration you want probably already exists. The protocol being open means anyone can write a server; the protocol being small means doing so is a weekend project, not a quarter.
 
 The cost discipline matters. Token cost compounds across servers, and it's easy to end up with a session that's 60% tool definitions before you've typed anything. The 10% Tool Search threshold helps, but the right habit is: *use the smallest set of MCP servers that does the job*.
 

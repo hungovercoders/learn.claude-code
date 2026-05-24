@@ -121,7 +121,7 @@ Build something real. Don't skip this lesson by reading-only.
 
 ## My Verdict on Custom Slash Commands
 
-Custom slash commands are the second-highest-leverage feature in Claude Code, after `CLAUDE.md`. They let you turn *prompts you'd otherwise retype* into reusable, version-controlled, share-with-the-team primitives. The `allowed-tools` field is what makes them safe to use in real codebases — without it, every command would carry the blast radius of a free-form session.
+Custom slash commands are the second-most-useful feature in Claude Code, after `CLAUDE.md`. They let you turn *prompts you'd otherwise retype* into reusable, version-controlled, share-with-the-team primitives. The `allowed-tools` field is what makes them safe to use in real codebases — without it, every command would carry the blast radius of a free-form session.
 
 The thing that surprised me: once I had three custom commands I used regularly, my muscle memory shifted. I stopped reaching for prose and started reaching for `/` first. That's a bigger productivity jump than any single command's content. The interface change is the real product.
 

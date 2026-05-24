@@ -19,7 +19,7 @@ I wanted Claude to grep across about 400 files without filling my main context w
 A subagent is a named, isolated Claude instance. It runs *inside* your Claude Code session — same machine, same authentication — but it has:
 
 - Its **own context window**, separate from yours
-- A **custom system prompt** that defines its specialty
+- A **custom system prompt** that defines its speciality
 - Its **own tool allow-list**, often narrower than the parent
 - Its **own model choice** (Sonnet for breadth, Opus for depth, Haiku for speed)
 
@@ -27,7 +27,7 @@ The parent calls a subagent via the `Task` tool. The subagent does its work — 
 
 That's the killer property: **context isolation**. A 400-file search that would have filled your main window with 50,000 tokens becomes a 200-token answer in the parent context. The subagent did the work; you got the conclusion.
 
-## When to Reach for a Subagent
+## When to Send Someone to the Bar
 
 Two situations:
 
@@ -37,7 +37,7 @@ Two situations:
 
 The catch on parallelism: subagents *don't share context in real time*. If subagent A's output changes what subagent B should do, you can't have them running at the same time. Sequential. Spawn A, wait, spawn B with A's output. Truly independent work is the parallel sweet spot.
 
-## Built-In Subagents
+## The Regulars Behind the Bar
 
 Claude Code ships with a handful of specialised subagents. The one you'll meet first is the **Explore** agent — a read-only search agent purpose-built for "find me X in the codebase". It can grep, read, and locate without touching the filesystem in any way that changes state. It's the right default for "where is this defined?", "which files reference Y?", "give me the call sites of Z".
 
@@ -66,7 +66,7 @@ Three independent reads. Three subagents:
 
 The main session orchestrates. Three Explore subagents fan out. Each one does its independent search, comes back with a list. The main session merges the three lists and presents them to you. Your context window contains *the summary*, not the underlying greps. The refactor proceeds with a known surface area.
 
-## The Subagent's Allow-List Matters
+## Who Gets Past the Velvet Rope
 
 By default, subagents inherit a sensible tool allow-list — Explore is read-only, general-purpose has more freedom. You can also create your own subagents via `/agents` and define their tool access yourself. Want a subagent that can run tests but never touch production secrets? Define it.
 

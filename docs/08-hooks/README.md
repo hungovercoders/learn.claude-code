@@ -14,7 +14,7 @@ I wanted Claude to *always* run the formatter after editing a file, not just whe
 - Comfort with shell scripts and exit codes
 - A repo where you've got at least one "this should always happen" rule
 
-## When Hooks Fire
+## Last Orders — When Hooks Fire
 
 Hooks run at lifecycle events. The ones you'll use most:
 
@@ -39,7 +39,7 @@ Hooks communicate with Claude Code via *exit code* and via *what they print to s
 
 The stderr-not-stdout detail is the bit I got wrong the first time. I wrote a PreToolUse hook that printed the deny reason to stdout and exited 2 — Claude got blocked but had no idea why, because the message went to the wrong stream. Print to stderr, always, when you want Claude to read the feedback.
 
-## Configuring Hooks
+## Wiring Up the Door
 
 Hooks live in `settings.json` under a `hooks` key. They can be at the user level (`~/.claude/settings.json`), project level (`.claude/settings.json`), or local-override (`.claude/settings.local.json`).
 
@@ -154,7 +154,7 @@ This is the bit the docs don't quite emphasise: **exit 2 reads stderr, not stdou
 
 The other quiet thing: don't put expensive work in `PreToolUse`. It fires before *every* tool call, so a 200ms hook adds 200ms × N to your session latency. Keep the bouncer fast. Audit logging belongs in `PostToolUse` (after the work is already done) or `UserPromptSubmit` (once per turn).
 
-## When NOT to Use a Hook
+## When the Bouncer Isn't the Answer
 
 A hook is not always the right answer.
 

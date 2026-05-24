@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(npm test:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(curl:*sudo*)",
+      "WebFetch(domain:internal.company.com)"
+    ]
+  },
+  "sandbox": {
+    "enabled": false,
+    "allowedDomains": ["github.com", "registry.npmjs.org"],
+    "deniedDomains": ["*"]
+  }
+}

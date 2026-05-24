@@ -64,4 +64,6 @@ You don't write code in this lesson — you set up the lay of the land. Try thes
 
 Claude Code is the version of an AI assistant I actually use every day. Not because the model is better than the one in the chat window — same model under the hood — but because *the integration is the product*. The agent sees what I see, runs what I'd run, and reads the same errors I'd read. That changes the work. The chat window is a clever consultant; Claude Code is a junior dev who stayed for the next round.
 
+What I'd do differently if I were learning this again: I'd spend less time reading the docs and more time pointing it at a real repo from day one. The shape of the tool only makes sense once it's working on something you actually care about.
+
 On to lesson 2, fellow hungovercoder — let's get the first round in.

@@ -25,7 +25,7 @@ The end state of a plan-mode session is a written plan — usually saved as a ma
 
 The pitch in one line: **plan mode lets you have the architecture conversation without paying for the implementation rollback.**
 
-## Three Ways to Enter
+## Three Doors Into the Snug
 
 Pick whichever fits your flow:
 
@@ -86,7 +86,7 @@ The workaround: when in doubt, type `/plan` again to explicitly re-enter, and av
 
 There's an active [GitHub issue](https://github.com/anthropics/claude-code/issues/32934) on this — worth a skim if you start using plan mode heavily.
 
-## When to Reach for Plan Mode (and When Not To)
+## When to Brew a Plan, When to Pour Straight
 
 Plan mode shines for:
 

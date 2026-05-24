@@ -6,7 +6,7 @@ description: "One realistic workflow that uses CLAUDE.md, custom skills, a hook,
 canonical_url: https://hungovercoders.com/training/claude-code/11-putting-it-together
 ---
 
-I wanted to feel whether all this layers into a tool that earns its keep, or whether it's just clever pieces that don't actually compose. The honest test is to build one workflow that uses several features in service of a real outcome — not a contrived demo. So this lesson is exactly that: a personal "content workshop" setup that I run from any directory on my machine, built from the pieces we covered across lessons 4 to 10. By the end you'll have something that turns three commands into a publishable draft, and you'll see how `CLAUDE.md`, skills, hooks, and subagents work together instead of in isolation.
+I wanted to feel whether all this layers into a tool that earns its keep, or whether it's just clever pieces that don't actually compose. The honest test is to build one workflow that uses several features in service of a real outcome — not a contrived demo. So this lesson is exactly that: a personal "content workshop" setup that I run from any directory on my machine, built from the pieces we covered earlier — `CLAUDE.md`, skills, hooks, and subagents. By the end you'll have something that turns three commands into a publishable draft, and you'll see how the pieces work together instead of in isolation.
 
 ## Pre-Requisites
 
@@ -39,13 +39,13 @@ This shape is doing a few things at once:
 
 The hungovercoders content workflow in `~/dev/hungovercoders/library/` is built on exactly this pattern — we built it across this very series of lessons. The shape generalises.
 
-## Step 1 — The Voice Layer (`voice/style-guide.md`)
+## Step 1 — Setting the House Style (`voice/style-guide.md`)
 
 The first file is the *opinion* of the system. It's not Claude Code config; it's the writing rules you want the agent to apply. For a writer it's a voice guide. For a code reviewer it'd be the code conventions. For a release-notes job it'd be the changelog format.
 
 The skills (next step) read this file at run time. It's the single source of truth for "how I want the output to sound".
 
-## Step 2 — The Skills (`skills/draft/`, `skills/polish/`)
+## Step 2 — Bringing In the Specialists (`skills/draft/`, `skills/polish/`)
 
 Two skills that bracket the writing process.
 
@@ -93,7 +93,7 @@ Two things to notice. The `draft` skill is plain — auto-invocation is fine bec
 
 The `polish` skill also uses the `Agent` tool to spawn subagents — three parallel reviewers, each with a narrow focus. The parent skill orchestrates; the subagents do the per-rule work; the unified feedback goes back to the parent. Context isolation in action.
 
-## Step 3 — The Hook (`hooks/word-count.sh`)
+## Step 3 — Keeping Tab on the Pints (`hooks/word-count.sh`)
 
 A small `PostToolUse` hook that fires after every `Edit` or `Write` and logs the word count of the file to a daily log. Not enforcement — just observability.
 
@@ -160,7 +160,7 @@ Wire the hook in:
 
 That's the whole config. Skills auto-load from `~/.claude/skills/`; the voice file is read by the skills at run time; the hook fires on every edit.
 
-## Step 6 — Using It
+## Step 6 — Pouring the Round
 
 From any directory:
 
@@ -196,6 +196,8 @@ This is the lesson where you build something real, not just read.
 Claude Code earns its keep when the pieces stop feeling like separate features and start composing into a workflow you actually use without thinking. The shape that worked for me — *library repo + install script + skills + hooks + voice files* — is the shape I now reach for whenever I'd otherwise be retyping the same instructions into a chat window. The portability matters; the composability matters; the source-control matters. None of those are technically *required* by Claude Code, but it's the combination that makes the tool worth more than the chat window.
 
 The big takeaway across the eleven lessons: **the agent isn't the product, the system you build around it is**. The model is the same model that powers Claude.ai. What makes Claude Code different is that it sits inside a configurable, scriptable, version-controllable shell where you can encode the way *you* work and have the agent follow it without retyping. That's the thing AI tutorials can't fake — your shape of the system is yours.
+
+The two lessons this capstone doesn't directly use — **plan mode** (5) and **MCP servers** (10) — slot in naturally as the library grows. Use plan mode whenever you're extending the library itself: refactoring a skill, splitting a hook, or rewriting the voice file. Add an MCP server to the library via a project-scope `.mcp.json` whenever the workflow needs to reach outside the local filesystem — GitHub for a release-notes library, Postgres for a query-generator library. The library shape generalises; the integrations specialise to the job.
 
 What I'd do differently if I were starting eleven lessons ago: I'd build the library *first*, before writing a single piece of content with Claude. Three skills and one voice file in a public repo would have saved me the first month of inconsistent results. The setup feels like overhead until you've got it; after that, every session starts from a known-good base, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
 

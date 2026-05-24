@@ -39,7 +39,7 @@ Permission rules live in `settings.json`. There are four layers, evaluated in or
 4. Local        .claude/settings.local.json                                      (gitignored, your personal repo overrides)
 ```
 
-A minimal user-level config that's saved me a lot of permission-prompt churn:
+A minimal user-level config that's saved me a lot of permission-prompt churn — there's a copy-paste-ready version alongside this lesson at `example-settings.json`:
 
 ```json
 {

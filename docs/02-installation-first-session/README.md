@@ -64,7 +64,7 @@ claude
 ```text
 Authenticating...
 Browser opened. Sign in to Claude.ai to continue.
-✓ Authenticated as you@example.com
+✓ Authenticated as dave@tinyrebel.co.uk
 ```
 
 The token gets stored in `~/.claude/config.json` (AES-256 encrypted). It stays active for 30 days of inactivity — so if you take a long holiday, expect to re-auth when you get back. Not a problem; the holiday is the point.

@@ -139,7 +139,7 @@ Get one repo's `CLAUDE.md` to a state you actually trust.
 
 ## My Verdict on CLAUDE.md
 
-`CLAUDE.md` is the highest-leverage configuration file in Claude Code. The agent reads it on every session, so a well-written one improves every interaction. But it punishes ambition — write too much and you train yourself to *think* the agent has the context, when really half the file is being skipped. The discipline is brevity.
+`CLAUDE.md` is the most-useful configuration file in Claude Code. The agent reads it on every session, so a well-written one improves every interaction. But it punishes ambition — write too much and you train yourself to *think* the agent has the context, when really half the file is being skipped. The discipline is brevity.
 
 The team-level upside of committing `CLAUDE.md` to your repo is real: every developer on the project gets a consistent agent, and the file itself becomes a kind of executable onboarding doc. Newcomers read it; the agent reads it; it stays accurate because both groups notice when it drifts.
 
