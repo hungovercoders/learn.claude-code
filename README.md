@@ -1,0 +1,3 @@
+# learn.claude-code
+
+A hands-on hungovercoders tutorial for Claude Code — Anthropic's terminal-based AI coding agent. The series takes you from "what is this thing" through installation, day-to-day use, custom slash commands, hooks, MCP servers, subagents, and the patterns that make Claude Code feel like part of your workflow rather than a novelty. It's for working developers who want to get real productivity out of Claude Code without buying into someone else's prompt theatre. Read the lessons in order at [hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code), or clone this repo and work through the examples locally.
