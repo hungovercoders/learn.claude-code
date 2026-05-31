@@ -58,7 +58,7 @@ canonical_url: https://hungovercoders.com/training/claude-code/NN-slug
 ---
 ```
 
-**Naming**: `docs/` directories use leading-zero numbering and kebab-case slugs — `01-what-is-claude-code`, `02-installation-first-session`, etc.
+**Naming**: `docs/` directories use leading-zero numbering and kebab-case slugs — `01-what-is-claude-code`, `02-installation-first-session`, etc. The exception is the cheat sheet at `docs/cheatsheet/` (no number, `order: 99` in frontmatter so the site sorts it last).
 
 **Shell commands in lessons** are shown in fenced code blocks tagged ```bash. Where a command's output matters, show the output in a second block tagged ```text below the command.
 
@@ -83,5 +83,6 @@ canonical_url: https://hungovercoders.com/training/claude-code/NN-slug
 | 9 | subagents-task-tool | `.claude/skills/audit/SKILL.md` |
 | 10 | mcp-servers | `.mcp.json`, `scripts/build-cinema-db.sh` |
 | 11 | putting-it-together | `install.sh` (and `project/README.md` for forkers) |
+| 99 | cheatsheet | No solution delta — reference page. Keys, built-in commands, lifecycle events, exit codes, file paths, the cinema-specific commands. Links each section back to its source lesson. |
 
-When adding or restructuring a lesson, update both this table and `project/` so they stay in lockstep.
+When adding or restructuring a lesson, update both this table and `project/` so they stay in lockstep. The cheat sheet is a reference *summary*, not a source of truth — when commands or shortcuts change, update the lesson first and then mirror the change in the cheat sheet.
