@@ -2,17 +2,16 @@
 title: "Skills"
 series: claude-code
 order: 7
-description: "The skills directory, SKILL.md, and the difference between a slash command and a skill that knows when to show up on its own"
+description: "Promote the cinema from slash commands to skills — /add-film with the disable-model-invocation safety belt, and /pair that reads films.json + CLAUDE.md as supporting files"
 canonical_url: https://hungovercoders.com/training/claude-code/07-skills
 ---
 
-I wanted to know whether the file should go in `.claude/commands/` or `.claude/skills/`. I'd written four custom prompts and split them across both directories based on what each tutorial happened to recommend. The agent worked, but I had no real model for which thing was which. After reading the docs properly and watching how the two behave in practice, here's the version of this I wish someone had handed me on day one. Skills aren't a new feature competing with slash commands — they're the same idea with a bigger toolkit.
+I wanted to know whether the next file should go in `.claude/commands/` or `.claude/skills/`. The cinema's two slash commands from lesson 6 work, but the next two things I want — a *write* command for `films.json` and a *pairings* recommendation that reads multiple supporting files — both want capabilities a plain slash command doesn't quite stretch to. Skills aren't a new feature competing with slash commands. They're the same idea with a bigger toolkit: supporting files alongside the prompt, and richer safety controls. Lesson 7 adds two of them to the cinema.
 
 ## Pre-Requisites
 
-- Lesson 6 finished (you've written a real slash command)
-- A workflow that needs supporting files (a template, a script, a sample config) — not just a prompt
-- Comfort with creating directories and `.md` files
+- Lesson 6 finished — `/film-pick` and `/film-suggest` working inside the cinema
+- The cinema seed, `CLAUDE.md`, and project-level settings in place
 
 ## Specialist Brewers — What a Skill Is
 
@@ -25,22 +24,7 @@ A skill is a *directory* containing a `SKILL.md` file and any supporting files t
 └── changelog.sh      ← a script the prompt asks Claude to run
 ```
 
-The contents of `SKILL.md` look almost identical to a slash command file:
-
-```markdown
----
-name: release-notes
-description: Generate release notes for the most recent version tag, using the project's template
-allowed-tools: Bash(git log:*), Bash(git tag:*), Read, Edit
-disable-model-invocation: false
----
-
-Use ./template.md as the structure. Get the most recent two tags with
-`git tag --sort=-v:refname | head -2`, then `git log <prev>..<latest> --oneline`,
-group commits by conventional-commit type, and write the output to RELEASE_NOTES.md.
-```
-
-Type `/release-notes` and the skill fires. Same interface as a slash command. The difference is that the prompt can reference `./template.md` and `./changelog.sh` — files that live next to it in the same directory.
+The contents of `SKILL.md` look almost identical to a slash command file. Type `/release-notes` and the skill fires. Same interface as a slash command. The difference is that the prompt can reference `./template.md` and `./changelog.sh` — files that live next to it in the same directory — and the safety controls go further.
 
 ## Two Locations, Same Story
 
@@ -51,7 +35,7 @@ Skills live in the same two locations as slash commands:
 ~/.claude/skills/<name>/SKILL.md          Personal, available across projects
 ```
 
-Project skills get shared with the team. Personal skills are yours. The hungovercoders setup uses both — personal ones for content workflows, project ones for repo-specific automations.
+Project skills get shared with the team. Personal skills are yours. The cinema's two new skills are project-scoped — they only make sense inside `~/dev/cinema/`. Personal skills would be your `/standup`, `/lint`, `/draft` — the cross-cutting ones that apply anywhere.
 
 ## The Bit That Confused Me — Skills vs Slash Commands
 
@@ -65,7 +49,9 @@ Here's what I had to look up to be sure I understood. Both `.claude/commands/<na
 | `disable-model-invocation` field | ✓ | ✓ |
 | Recommended for new work | for simple prompts | for anything more |
 
-The official guidance in 2026 is: **use a skill if the workflow needs supporting files or you want auto-invocation to work cleanly**. Use a plain slash command for tight, prompt-only workflows. There's no migration deadline — both keep working — but new functionality lands on skills first.
+The official guidance in 2026 is: **use a skill if the workflow needs supporting files or you want auto-invocation to work cleanly**. Use a plain slash command for tight, prompt-only workflows. Both keep working — but new functionality lands on skills first.
+
+The cinema's lesson 6 commands stayed as plain commands because they were one-line wrappers. The two we add here both need more: `/add-film` needs safety controls so the agent doesn't auto-invoke it, and `/pair` needs to read both `films.json` and `CLAUDE.md` as part of its reasoning.
 
 ## Auto-Invocation — When Claude Loads It Without Being Asked
 
@@ -73,73 +59,136 @@ The headline feature skills add over slash commands is *contextual auto-invocati
 
 Example: a skill described as `"Generate release notes from git history"` will get auto-loaded if you say *"can you write up the release notes for v2"*, without you needing to type `/release-notes`. The model reads the descriptions of available skills the same way it reads the descriptions of tools, and picks one when it fits.
 
-This is brilliant for skills that *help*. It's dangerous for skills that *do things*. You don't want Claude deciding to invoke `/deploy-production` because your code looks finished. The control is `disable-model-invocation: true`:
+This is brilliant for skills that *help*. It's dangerous for skills that *do things*. You don't want Claude deciding to invoke `/deploy-production` because your code looks finished. The control is `disable-model-invocation: true`. **As a rule of thumb: if the worst-case outcome would make you regret it, set `disable-model-invocation: true`.** That's exactly why `/add-film` below has it set and `/pair` doesn't.
 
-```yaml
+## The First Skill — `/add-film` With Both Safety Belts
+
+The cinema's `/add-film` skill is a *write* — it appends a new film to `films.json`. Writes are the precise category where you want a deliberate keystroke, not a model decision. Two frontmatter fields do the work: `allowed-tools` limits the toolbox to `Read` and `Edit` only (no Bash, no rm), and `disable-model-invocation: true` means the skill only fires when the human types `/add-film`.
+
+`~/dev/cinema/.claude/skills/add-film/SKILL.md`:
+
+```markdown
 ---
-name: deploy
-description: Deploy the current branch to production via the GitHub Actions deploy workflow
+name: add-film
+description: Add a film to films.json in the current directory
+allowed-tools: Read, Edit
+argument-hint: "<title>" <year> <mood> <runtime>
 disable-model-invocation: true
 ---
+
+The arguments are: $ARGUMENTS
+
+Parse them as: a quoted title (multi-word), then a year (4-digit
+integer), then a mood (single lowercase word), then a runtime in
+minutes (integer).
+
+Read `./films.json`. Append a new object `{ "title", "year", "mood",
+"runtime" }` to the end of the array, preserving the order and
+formatting of existing entries. Don't reformat the rest of the
+file — only add the new entry on its own line just before the
+closing `]`.
+
+If `films.json` does not exist in the current directory, stop and
+say so. Don't create it.
+
+The `films-validate.sh` PostToolUse hook will re-check the schema
+on the Edit — if you broke the structure, the hook will block the
+write and tell you why.
 ```
 
-That setting means: only the human can fire this skill. Claude can see it exists, but won't auto-invoke. Use it for anything with side effects, anything irreversible, anything that talks to a system outside your repo. **As a rule of thumb: if the worst-case outcome would make you regret it, set `disable-model-invocation: true`.**
+Fire it:
 
-## Building a Real Skill — The Themed Example
+```text
+> /add-film "Pride" 2014 wales 119
+```
 
-A simple skill that recommends a beer flight based on a meal. Drop it in `~/.claude/skills/beer-flight/SKILL.md`:
+The agent reads `films.json`, edits in the new row, and stops. The Edit can't go anywhere outside the file because `allowed-tools` doesn't list Bash, Write, or anything else. The lesson 8 hook will re-check the schema on the Edit — belt and braces.
+
+## The Second Skill — `/pair` With Two Supporting Files
+
+The cinema's `/pair` skill reads both `films.json` and `CLAUDE.md` to recommend a snack, a drink, and a co-watcher archetype for a given film or mood. It's a great example of the difference a skill makes — a plain slash command can reference `$ARGUMENTS` and tell Claude what to do, but a skill can tell Claude to *read these specific files* as part of every invocation. The skill becomes a tiny program with its own data sources.
+
+`~/dev/cinema/.claude/skills/pair/SKILL.md`:
 
 ```markdown
 ---
-name: beer-flight
-description: Recommend a three-beer flight from the Tiny Rebel range to pair with a meal
+name: pair
+description: Pair a film to a snack, a drink, and a co-watcher archetype
 allowed-tools: Read
-argument-hint: <meal — e.g. "Sunday roast", "Thai green curry">
-disable-model-invocation: false
+argument-hint: <title or mood>
 ---
 
-The user is eating: $ARGUMENTS
+Read `./films.json` and `./CLAUDE.md`.
 
-Read ./beers.md for the current Tiny Rebel range. Pick three beers that
-together form a flight matched to the meal. Order them from lightest to
-strongest. Explain each pairing in one sentence.
+The argument is either a film title from the catalogue or a mood
+word: $ARGUMENTS
 
-End with: "Cheers, fellow hungovercoder."
+If it's a mood, pick the best-fit film from the catalogue first.
+Then recommend:
+
+- **Snack** — one specific snack that fits the runtime and mood.
+  Pretzels for short comedies, slow-cooked nachos for anything over
+  two hours, toast for a homesick rewatch.
+- **Drink** — one Tiny Rebel beer or a non-alcoholic alternative.
+  Cwtch for cosy, Mango Punk for fun, a brew for the homesick ones.
+- **Co-watcher archetype** — one sentence describing the kind of
+  person this film is best watched with. "Someone who quotes Spaced
+  unprompted." "A parent who remembers the original."
+
+Keep each line one short paragraph. No bullets. Close with:
+"That's the round in. Enjoy, fellow hungovercoder."
 ```
 
-And alongside it, `~/.claude/skills/beer-flight/beers.md`:
-
-```markdown
-- Tiny IPA          3.5%  light, sessionable, citrus
-- Cwtch             4.6%  red ale, comforting, malty
-- Mango Punk        5.6%  IPA, bright, fruity
-- Clwb Tropica      5.5%  tropical pale ale, summer
-- Dirty Stout       6.5%  chocolate stout, rich
+```text
+> /pair "Twin Town"
 ```
 
-That `./beers.md` file is the bit a slash command couldn't do — supporting files referenced by the prompt. You can update the beer list without touching the prompt; you can write longer reference material in the supporting file without bloating `SKILL.md`.
+```text
+Twin Town is 99 minutes of Cardiff in-jokes — short enough that
+you want a snack that holds up through the second half. A bag of
+salt-and-vinegar Tayto crisps works hard here.
 
-The runnable version of both files is alongside this lesson at `example-skill/`. Copy the directory to `~/.claude/skills/beer-flight/` and fire it with `/beer-flight "Sunday roast"`.
+Drink: Tiny Rebel Cwtch. It's a Welsh red ale and the film is a
+Welsh comedy — house preferences in CLAUDE.md tell you exactly
+which way the pairing should land.
+
+Watch with someone who claims they once knew the Lewis brothers.
+There is always such a person and they will quote the bowls
+scene before you do.
+
+That's the round in. Enjoy, fellow hungovercoder.
+```
+
+Notice `/pair` doesn't have `disable-model-invocation` set. It's read-only — the worst it can do is recommend the wrong snack. Auto-invocation is fine; if the user says *"what should I pair with Hot Fuzz tonight?"*, Claude can reach for `/pair` without being asked. The skill ladder runs: *read-only and harmless → no safety belt needed*. *Writes or external side effects → disable model invocation*. *Both, with a tight `allowed-tools` list*.
 
 ## The Bit the Docs Don't Mention
 
 I'll be honest, the history of "commands vs skills" tripped me up for a couple of days. The two used to be genuinely distinct — different directories, different capabilities, different invocation models. Then Anthropic unified them: both produce a `/slash-command` interface, both can be auto-invoked, both support the same frontmatter fields. The naming inconsistency in the docs hasn't fully caught up, so you'll see articles from 2025 treating them as separate things. **In 2026, treat them as the same thing with different file shapes.** A skill is just "a slash command that lives in a directory with friends".
 
-## Have a Go
+## Have a Go — Add the Two Skills to the Cinema
 
-Build a skill, not a command.
+```
+~/dev/cinema/
+├── ...
+└── .claude/
+    ├── ...
+    └── skills/
+        ├── add-film/SKILL.md      ← lesson 7 adds
+        └── pair/SKILL.md          ← lesson 7 adds
+```
 
-1. Pick a workflow you'd written as a slash command. Promote it to a skill: create `.claude/skills/<name>/SKILL.md` and move any reference material into a supporting file alongside.
-2. Add `disable-model-invocation: true` to one of your existing skills that has side effects. Confirm it can only fire when you type `/<name>`.
-3. Write the `description` field for that skill carefully. Then leave a session running and notice whether Claude reaches for it in conversations where the topic matches.
-4. Make a skill with a deliberately bad `description` ("does stuff") and notice the difference. Description quality is the auto-invocation knob.
+1. Create both skills above. Or `cp -r docs/07-skills/solution/. ~/dev/cinema/` to drop them in.
+2. Fire `/add-film "Pride" 2014 wales 119` and confirm a new row appears at the end of `films.json`.
+3. Try to trigger `/add-film` *without* typing it — phrase a question like *"I just watched a great film called Pride from 2014, add it to the catalogue"* and notice the agent will *not* auto-invoke the skill because of `disable-model-invocation: true`. It'll suggest you run the command yourself.
+4. Fire `/pair "Hot Fuzz"` and watch the agent `Read` both `films.json` and `CLAUDE.md` before answering.
+5. Make a deliberately bad `description` on a copy of `/pair` and notice the difference in auto-invocation. Description quality is the auto-invocation knob.
 
 ## My Verdict on Skills
 
-Skills are the right shape for anything more than a one-shot prompt. The ability to keep supporting files next to the prompt — templates, sample data, reference lists, scripts — is genuinely useful, and the auto-invocation behaviour makes the agent feel proactive in a way slash commands never quite did.
+Skills are the right shape for anything more than a one-shot prompt. The ability to keep supporting files next to the prompt — templates, sample data, reference lists, scripts — is genuinely useful, and the auto-invocation behaviour makes the agent feel proactive in a way slash commands never quite did. The two skills the cinema added in this lesson use both features: `/add-film` leans on `allowed-tools` + `disable-model-invocation` to be a tight write-only tool; `/pair` leans on Read to cross-reference two files of supporting context.
 
 The risk is the same as with any "AI picks the action" feature: you have to be deliberate about which skills you let Claude reach for itself. `disable-model-invocation: true` is the load-bearing setting that separates "I want this skill ready when asked" from "I want Claude to use this when it judges fit". Get into the habit of setting it on anything irreversible from day one.
 
 What I'd do differently next time: I'd skip writing any plain slash commands altogether and go straight to skills, even for one-file prompts. The directory overhead is trivial; the upgrade path when you eventually need a supporting file is free. Future-me would thank past-me for not having two parallel directories of half-the-same-thing.
 
-On to lesson 8, fellow hungovercoder — let's put a bouncer on the door.
+On to lesson 8, fellow hungovercoder — let's put a bouncer on the cinema door.

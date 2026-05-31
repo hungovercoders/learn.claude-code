@@ -2,16 +2,16 @@
 title: "Permission Modes and Safety"
 series: claude-code
 order: 3
-description: "The five permission modes, the settings.json hierarchy, and the bouncer pattern that stops the agent doing something you didn't agree to"
+description: "The five permission modes, the settings.json hierarchy, and the bouncer pattern that stops the agent doing something you didn't agree to — wired to the cinema repo"
 canonical_url: https://hungovercoders.com/training/claude-code/03-permission-modes
 ---
 
-I wanted to stop saying yes to every permission prompt out of habit. After about my third day of using Claude Code I noticed I was clicking "allow" on `Bash` calls without reading what was in them. That's the precise moment an AI agent stops being a tool and starts being a liability — when you've decided to trust it instead of *seeing* what it's doing. So I went to the docs, read the whole permissions section, and built myself a config I actually understand. This is that config, plus the mental model behind it.
+I wanted to stop saying yes to every permission prompt out of habit. After about my third day of using Claude Code I noticed I was clicking "allow" on `Bash` calls without reading what was in them. That's the precise moment an AI agent stops being a tool and starts being a liability — when you've decided to trust it instead of *seeing* what it's doing. So I went to the docs, read the whole permissions section, and built myself a config I actually understand. This lesson is that config in two layers: a curated user-level default, and the first piece of Claude Code config that lands in your cinema repo.
 
 ## Pre-Requisites
 
 - Claude Code installed and authenticated (lesson 2)
-- A project repo open in a terminal where you can run `claude`
+- The cinema seed from lesson 1 (`~/dev/cinema/films.json` + `pick-film.sh`)
 - A text editor for `settings.json` files
 
 ## The Five Modes (and One Dangerous One)
@@ -39,7 +39,9 @@ Permission rules live in `settings.json`. There are four layers, evaluated in or
 4. Local        .claude/settings.local.json                                      (gitignored, your personal repo overrides)
 ```
 
-A minimal user-level config that's saved me a lot of permission-prompt churn — there's a copy-paste-ready version alongside this lesson at `example-settings.json`:
+You'll wire the cinema at the **project** layer in a moment. First the user-level shape, because it's the one that earns its keep across every project you touch.
+
+A minimal user-level config that's saved me a lot of permission-prompt churn:
 
 ```json
 {
@@ -80,6 +82,39 @@ Three rules cover almost every case:
 
 The rules use glob patterns, not regex. `Bash(npm test:*)` matches `npm test`, `npm test:unit`, `npm test --coverage`. It does **not** match `npm install` or `npm run test` (note the spaces and colons). When in doubt, run `/permissions` inside a session to see the active list and the source file each rule came from.
 
+## The First Cinema Config — Project-Level Permissions
+
+The cinema repo is the perfect place to learn project-level config. Lesson 2 asked you to approve `Bash(./pick-film.sh:*)` and `Bash(jq:*)` interactively. Now you'll commit those approvals to the repo so every future cinema session starts with them already trusted — and crucially, *only* in this project. Pour them into `~/.claude/settings.json` and you've widened them to every directory you ever `claude` into; pour them into `.claude/settings.json` in the cinema repo and they only apply when you're working on the cinema.
+
+```bash
+mkdir -p ~/dev/cinema/.claude
+```
+
+`~/dev/cinema/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(jq:*)",
+      "Bash(./pick-film.sh:*)",
+      "Bash(bash pick-film.sh:*)",
+      "Read(./films.json)",
+      "Read(./CLAUDE.md)",
+      "Edit(./films.json)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
+```
+
+The shape is the same as the user-level version. The contents are specific to this project. `Edit(./films.json)` is *also* the file your hook will police in lesson 8 — by the end of the series the cinema has *both* a permission rule that says "edits to films.json are pre-approved" *and* a hook that runs after every such edit and rolls back invalid ones. Belt and braces, picked deliberately for the file that holds the data.
+
+The deny rules are project-scoped guardrails. You're saying "in this project, never `rm`, never `git push` — because the cinema's tiny and the consequences of a wrong `rm` or a wrong push are real". You might keep a wider deny list at user level; the project one is the *additional* layer specific to this project's risk profile.
+
 ## The Sandbox — OS-Level Backup
 
 Permissions live inside Claude Code; the sandbox lives one layer below, at the OS level. The sandbox restricts what the `Bash` tool can do at the filesystem and network level — and unlike permission rules, it can't be argued with by a clever Claude. Two complementary layers:
@@ -94,7 +129,7 @@ Permissions live inside Claude Code; the sandbox lives one layer below, at the O
 }
 ```
 
-Enable the sandbox for any project where the cost of a wrong command is more than "annoying to undo". I leave it off for personal sandboxes and on for anything that touches production-adjacent code.
+Enable the sandbox for any project where the cost of a wrong command is more than "annoying to undo". I leave it off for personal sandboxes like the cinema, and on for anything that touches production-adjacent code.
 
 ## The Bit the Docs Don't Mention
 
@@ -112,14 +147,25 @@ You don't have to commit at launch time. Once inside a session:
 
 The `acceptEdits` flow is the one I lean on most for daytime work. Edits don't ask; Bash still does. Fast enough to keep momentum, safe enough to read what's actually being executed.
 
-## Have a Go
+## Have a Go — Add the First Claude Config to the Cinema
 
-Don't move on from this lesson until permissions feel comfortable.
+```
+~/dev/cinema/
+├── films.json
+├── pick-film.sh
+└── .claude/
+    └── settings.json      ← lesson 3 adds this
+```
 
-1. Create `~/.claude/settings.json` with the minimal config from the "Setting the House Rules" section above. Open a Claude Code session and run `/permissions` to confirm the rules loaded.
-2. Add a project-level `.claude/settings.json` to one of your repos. Put one project-specific allow rule in (e.g. `Bash(make build:*)`) and confirm it stacks on top of your user defaults.
-3. Try to get Claude to run `rm -rf node_modules`. Watch the deny rule win even when allow rules might otherwise have let it through.
-4. Launch with `claude --permission-mode plan`. Ask it to refactor a file and watch it refuse to edit anything. We'll properly meet plan mode in lesson 5.
+Get permissions feeling comfortable before lesson 4:
+
+1. Create `~/.claude/settings.json` with the user-level config from the "Setting the House Rules" section. Open a Claude Code session and run `/permissions` to confirm the rules loaded.
+2. Add `~/dev/cinema/.claude/settings.json` with the project-level config from the "First Cinema Config" section. Start a session in the cinema with `cd ~/dev/cinema && claude` and run `/permissions` again — confirm the project rules stack on top of the user defaults, and that `/permissions` shows the source file each came from.
+3. In the cinema session, ask Claude to run `./pick-film.sh wales`. It should run with no prompt — your project allow-list pre-approved it.
+4. Ask Claude to `rm films.json`. Watch the project deny rule win even though `Bash(rm:*)` would have asked.
+5. Launch with `claude --permission-mode plan` from inside the cinema. Ask it to refactor `pick-film.sh` and watch it refuse to edit anything. We'll properly meet plan mode in lesson 5.
+
+The full `solution/` for this lesson is the project-level settings.json above — `cp -r docs/03-permission-modes/solution/. ~/dev/cinema/` if you'd rather not retype it.
 
 ## My Verdict on the Permissions Model
 

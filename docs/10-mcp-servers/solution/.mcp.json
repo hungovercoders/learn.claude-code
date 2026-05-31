@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "cinema-db": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-sqlite",
+        "--db-path",
+        "${CLAUDE_PROJECT_DIR}/cinema.db"
+      ]
+    }
+  }
+}

@@ -2,23 +2,23 @@
 title: "MCP Servers"
 series: claude-code
 order: 10
-description: "Wire Claude Code to external systems via the Model Context Protocol — GitHub, filesystem, databases, and the tap to your own services"
+description: "Implement the lesson-5 plan — wire a local SQLite MCP server into the cinema so Claude can query films through SQL while films.json stays the human-editable source of truth"
 canonical_url: https://hungovercoders.com/training/claude-code/10-mcp-servers
 ---
 
-I wanted Claude to review a pull request without me having to copy the diff into the terminal. The agent already lived in my repo; the PR already lived on GitHub; what was missing was a pipe between the two. The Model Context Protocol — MCP — is that pipe. It's an open standard for connecting AI tools to external systems, and Claude Code ships with first-class support. This lesson is how I plugged the GitHub tap in, and what it cost me in tokens to keep it running.
+I wanted Claude to answer *"which mood has the fewest films?"* without shelling out to `jq` and parsing the result. The data already lived in `films.json`; the query language I wanted was SQL. The Model Context Protocol — MCP — is the pipe between an AI tool and an external system that speaks something other than the agent's native tool set. In this lesson the cinema gets one MCP server (`mcp-server-sqlite`) pointed at a local `cinema.db` built from `films.json`. The plan we wrote in lesson 5 with `--permission-mode plan` becomes the thing we wire up here.
 
 ## Pre-Requisites
 
-- Claude Code installed (lesson 2)
-- A GitHub account with a personal access token (for the example)
-- Node.js ≥ 18 if you want to install MCP servers via `npx`
+- The lesson-5 plan at `plans/lesson-05-mcp-feature.md` (we wrote it; this lesson executes it)
+- `uvx` or `uv` installed (`brew install uv` on macOS), or `pipx` as an alternative — used to launch the SQLite MCP server
+- `sqlite3` on your PATH (ships with macOS; `apt install sqlite3` on Debian/Ubuntu)
 
 ## Plugging in the External Tap — What MCP Is
 
 MCP servers run as separate processes that Claude Code connects to at startup. Each server exposes one or more *capabilities* — read files in a directory, query a database, call the GitHub API, search the web, drive a browser. The agent sees those capabilities as tools, the same way it sees built-in tools like `Read` and `Bash`.
 
-The ecosystem is wide. The official [MCP servers repo](https://github.com/modelcontextprotocol/servers) ships reference implementations for filesystem, GitHub, GitLab, Slack, Postgres, Redis, Brave Search, Puppeteer, and more. Third parties add their own. Need an integration that doesn't exist? Write your own server in any language — the protocol is small and documented.
+The ecosystem is wide. The official [MCP servers repo](https://github.com/modelcontextprotocol/servers) ships reference implementations for filesystem, GitHub, GitLab, Slack, Postgres, SQLite, Brave Search, Puppeteer, and more. Third parties add their own. Need an integration that doesn't exist? Write your own server in any language — the protocol is small and documented.
 
 ## Three Scopes for Config
 
@@ -30,80 +30,113 @@ Project     .mcp.json  Per-project, committed to the repo. Shared with the team.
 User        ~/.claude.json  Available in every project. Personal.
 ```
 
-Use project scope for servers that anyone working in the repo needs (the GitHub MCP for a repo where everyone reviews PRs). Use user scope for your personal kit (a filesystem server pointed at your notes directory). Local scope is the default when you don't pick.
+Use project scope for servers that anyone working in the repo needs (the cinema's SQLite server is exactly this — the database file lives inside the project and the server only makes sense pointed at it). Use user scope for your personal kit (a filesystem server pointed at your notes directory). Local scope is the default when you don't pick.
 
-## The First Tap — Filesystem MCP
+## The Cinema's Tap — SQLite via `mcp-server-sqlite`
 
-The cleanest one to start with is the filesystem MCP. It gives Claude controlled, sandboxed read/write access to a directory you choose — wider than the cwd it'd normally see, but restricted to the path you authorise.
+The plan from lesson 5 specifies SQLite, with `films.json` as the editable source of truth and `cinema.db` as a derived projection. The reasons restated: SQL is the right query language for "fewest films by mood", "average runtime", "everything with year > 2010", and the JSON file stays human-editable for `/add-film` and direct prods.
 
-Install it for the current session:
+Two files do all the wiring.
 
-```bash
-claude mcp add --transport stdio filesystem -- npx -y @modelcontextprotocol/server-filesystem /Users/me/notes
-```
-
-Now in a Claude Code session you can ask:
-
-```text
-> Search my notes directory for anything I've written about Tiny Rebel
-  brewing methods and summarise the three most useful notes.
-```
-
-The agent uses the filesystem MCP's tools (`read_file`, `list_directory`, `search_files`) to do the work. No copy-pasting; no symlinking; no faff.
-
-## The Second Tap — GitHub MCP
-
-The one that earned its keep fastest for me. Add it with:
-
-```bash
-claude mcp add --transport stdio \
-  --env GITHUB_TOKEN=$GITHUB_TOKEN \
-  github -- npx -y @modelcontextprotocol/server-github
-```
-
-Set `GITHUB_TOKEN` to a [personal access token](https://github.com/settings/tokens) with `repo` and `read:org` scopes. Now:
-
-```text
-> Review PR 142 in hungovercoders/site. Read the diff, check it against
-  the project's CLAUDE.md, and tell me whether it's safe to merge.
-```
-
-The agent fetches the PR via the GitHub MCP, reads the diff, cross-references your project conventions, and gives you the verdict. The whole loop happens without you leaving the terminal. For drive-by reviews this is the killer feature.
-
-## Project-Scope Config — `.mcp.json`
-
-If you want every developer on a project to share MCP config, commit it to the repo. Create `.mcp.json` at the project root:
+`~/dev/cinema/.mcp.json`:
 
 ```json
 {
   "mcpServers": {
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
-    },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres",
-               "postgresql://localhost/brewbook_dev"]
+    "cinema-db": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-sqlite",
+        "--db-path",
+        "${CLAUDE_PROJECT_DIR}/cinema.db"
+      ]
     }
   }
 }
 ```
 
-The `${GITHUB_TOKEN}` interpolates from the environment. **Never commit a literal token to `.mcp.json`.** The shape is "config the team agrees on; secrets each developer brings themselves".
+The `${CLAUDE_PROJECT_DIR}` interpolates to the project root at runtime, so the server resolves to `~/dev/cinema/cinema.db` whatever directory the agent is operating in. `uvx` launches the SQLite MCP server in an ephemeral environment — no global install, no version drift.
 
-## Listing and Removing
+The build script that creates the database from `films.json`:
+
+`~/dev/cinema/scripts/build-cinema-db.sh`:
 
 ```bash
-claude mcp list             # what's configured
-claude mcp remove github    # take a server out
-claude mcp restart github   # reconnect after a crash
+#!/bin/bash
+# Rebuilds cinema.db from films.json. Idempotent — drops and recreates.
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+DB="$HERE/cinema.db"
+JSON="$HERE/films.json"
+
+rm -f "$DB"
+sqlite3 "$DB" <<SQL
+CREATE TABLE films (
+  title    TEXT NOT NULL,
+  year     INTEGER NOT NULL,
+  mood     TEXT NOT NULL,
+  runtime  INTEGER NOT NULL,
+  watched_at TEXT
+);
+CREATE VIEW films_by_mood AS
+  SELECT mood, COUNT(*) AS n FROM films GROUP BY mood ORDER BY n DESC;
+SQL
+
+jq -r '.[] | [.title, .year, .mood, .runtime] | @csv' "$JSON" |
+  sqlite3 "$DB" ".mode csv" ".import /dev/stdin films" 2>/dev/null
+
+echo "cinema.db rebuilt: $(sqlite3 "$DB" 'SELECT COUNT(*) FROM films') films."
 ```
 
-A server can be added at any scope, and the resolution order is local → project → user — first match wins. If you've got a personal `github` server and the project also defines one, the project one wins inside that repo.
+Run it once after cloning the kit:
+
+```bash
+chmod +x ~/dev/cinema/scripts/build-cinema-db.sh
+~/dev/cinema/scripts/build-cinema-db.sh
+```
+
+```text
+cinema.db rebuilt: 5 films.
+```
+
+The `watched_at` column gets created but stays NULL — the plan-mode write specifically marked a watch-log write path as out of scope. The `films_by_mood` view answers the original question — "which mood has the fewest films?" — in one MCP call.
+
+## Adding It from the CLI Instead
+
+The cinema commits its config to `.mcp.json` so every forker gets the same server. If you'd rather add it imperatively for a one-off, the CLI does it too:
+
+```bash
+claude mcp add --transport stdio cinema-db -- \
+  uvx mcp-server-sqlite --db-path "$(pwd)/cinema.db"
+```
+
+Either path lands the server. The committed `.mcp.json` is the team-friendly version; the CLI is the personal-shell version.
+
+## Using It
+
+Open a session in the cinema:
+
+```bash
+cd ~/dev/cinema
+claude
+```
+
+Confirm the server is loaded:
+
+```text
+> /mcp
+```
+
+Should show `cinema-db` with the SQLite tool list. Then ask a question that the JSON catalogue alone wouldn't answer cleanly:
+
+```text
+> Which mood currently has the fewest films, and what's the average
+  runtime across the whole catalogue?
+```
+
+The agent uses the SQLite MCP's `read_query` tool to run `SELECT * FROM films_by_mood ORDER BY n ASC LIMIT 1` and `SELECT AVG(runtime) FROM films`. Two SQL queries, one English answer. No `jq` parsing, no manual aggregation, no copy-pasting from the terminal.
+
+That's the value. The agent gained a *query language*, not just a *data file*.
 
 ## The Token Cost — The Bit That Matters
 
@@ -112,37 +145,45 @@ Each MCP server exposes a set of tool definitions, and *every tool definition co
 Two mitigations:
 
 1. **Tool Search** — built-in to Claude Code on Sonnet 4+ and Opus 4. When tool definitions exceed 10% of the context window, the agent dynamically loads only the tool schemas it needs for the current task. Drops context usage from ~72,000 tokens to ~8,700 in the typical case. You don't need to enable this; it activates automatically when the threshold is hit.
-2. **Be selective about which servers are connected.** You don't need GitHub, Postgres, Puppeteer, and Brave Search all loaded for a session that's just reading some local files. Use user scope sparingly; favour project scope so the servers are only on when you're in the right repo.
+2. **Be selective about which servers are connected.** You don't need GitHub, Postgres, Puppeteer, and Brave Search all loaded for a session that's just querying cinema.db. Favour project scope so servers are only on when you're in the right repo — `.mcp.json` does exactly that. The cinema's server only loads inside `~/dev/cinema/`; everywhere else, it isn't there.
 
 ## The Bit the Docs Don't Mention
 
-First time I added the GitHub MCP I baked the token straight into my `~/.claude.json` because the install command suggested it. Worked fine — until I realised the file was getting backed up to a sync service, and the token went with it. Lesson learned: **`.claude.json` is not a secrets store.** Use environment variables and reference them in the config, or use a per-shell secret manager that injects them at startup. The `--env GITHUB_TOKEN=$GITHUB_TOKEN` form on the install command is the right pattern.
+First time I wired the SQLite MCP I forgot to rebuild the DB after using `/add-film` to add a row. The MCP server kept returning the pre-`/add-film` row count because the DB hadn't been regenerated. The fix is conscious: `films.json` is the source of truth, `cinema.db` is a derived projection, and the projection is stale until you run `build-cinema-db.sh`. That's a deliberate tradeoff — automatic sync via a watcher would be cleverer, but the manual rebuild keeps the kit small and the source-of-truth direction one-way. Live with the build step; gain the predictability.
 
-The other quiet thing: if a server fails to start, the agent silently doesn't get its tools — there's no loud error in the session. Check `claude mcp list` early in any session if you're expecting a server to be available and the agent is acting like it isn't.
+The other quiet thing: if a server fails to start, the agent silently doesn't get its tools — there's no loud error in the session. Check `/mcp` early in any session if you're expecting a server to be available and the agent is acting like it isn't. `claude mcp list` from the shell shows the same information from outside the session.
 
 ## When to Reach for an MCP Server
 
 Not every integration belongs as an MCP server. The honest criteria:
 
-- **Reach for MCP** when the integration is *bidirectional* and you want Claude to *operate* on it, not just read it (write to GitHub, query a live database, drive a browser)
-- **Skip MCP** when a single Bash call would do the same job (`gh pr view 142 --json` is sometimes simpler than wiring the GitHub MCP)
-- **Definitely use MCP** for anything you'd reach for repeatedly in the same way (review PRs, search internal docs, query a known database)
+- **Reach for MCP** when the integration is *bidirectional* and you want Claude to *operate* on it, not just read it (write to GitHub, query a live database, drive a browser). The cinema's SQLite is exactly this — read queries are tools the agent can call.
+- **Skip MCP** when a single Bash call would do the same job. `cat films.json` was fine; needing SQL is the trigger that justifies the server.
+- **Definitely use MCP** for anything you'd reach for repeatedly in the same way.
 
-## Have a Go
+## Have a Go — Wire the Cinema's MCP
 
-Wire two servers and feel the difference.
+```
+~/dev/cinema/
+├── ...
+├── .mcp.json                          ← lesson 10 adds
+├── scripts/
+│   └── build-cinema-db.sh             ← lesson 10 adds
+└── cinema.db                          ← generated, not committed
+```
 
-1. Add the filesystem MCP scoped to a directory of personal notes. Ask Claude to summarise something in that directory.
-2. Add the GitHub MCP (with a token from a throwaway scope if you're nervous). Ask Claude to review an open PR.
-3. Create a project-scope `.mcp.json` for one of your repos. Confirm it's used inside that repo and not elsewhere.
-4. Run `claude mcp list` and consider which servers are *always* worth the context cost vs *sometimes* worth it. Remove the sometimes ones.
+1. Drop in `.mcp.json` and `scripts/build-cinema-db.sh` (or `cp -r docs/10-mcp-servers/solution/. ~/dev/cinema/`).
+2. `chmod +x scripts/build-cinema-db.sh && ./scripts/build-cinema-db.sh`. Confirm `cinema.db` is created with the right row count.
+3. Inside `claude`, run `/mcp` and confirm `cinema-db` is loaded.
+4. Ask the agent the question from the lesson-5 plan: *"Which mood currently has the fewest films?"* Watch the SQL fly.
+5. Add a film via `/add-film`. Notice the MCP still reports the old count until you rerun `build-cinema-db.sh`. Make peace with the deliberate one-way sync, or pencil in a `SessionStart` hook that rebuilds the DB on every session — your call.
 
 ## My Verdict on MCP
 
 MCP is the most value-per-line-of-config feature in Claude Code. One install command brings a whole external system into the agent's reach, and the ecosystem is wide enough that the integration you want probably already exists. The protocol being open means anyone can write a server; the protocol being small means doing so is a weekend project, not a quarter.
 
-The cost discipline matters. Token cost compounds across servers, and it's easy to end up with a session that's 60% tool definitions before you've typed anything. The 10% Tool Search threshold helps, but the right habit is: *use the smallest set of MCP servers that does the job*.
+The cost discipline matters. Token cost compounds across servers, and it's easy to end up with a session that's 60% tool definitions before you've typed anything. The 10% Tool Search threshold helps, but the right habit is: *use the smallest set of MCP servers that does the job*. The cinema's single SQLite server is exactly this — one server, one well-scoped data source, project-scoped so it never pollutes other repos.
 
-What I'd do differently next time: I'd resist the urge to install every MCP server I read about. Twenty servers in `~/.claude.json` is a costume; three well-chosen ones in a per-project `.mcp.json` is a tool.
+What I'd do differently next time: I'd resist the urge to install every MCP server I read about. Twenty servers in `~/.claude.json` is a costume; one well-chosen server in a per-project `.mcp.json` is a tool.
 
 On to lesson 11, fellow hungovercoder — let's pour the whole round.

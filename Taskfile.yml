@@ -1,0 +1,32 @@
+version: '3'
+
+tasks:
+  verify-solutions:
+    desc: |
+      Merge every docs/NN-*/solution/ in lesson order and diff the result
+      against project/. Any drift means the per-lesson deltas and the
+      finished end-state are out of sync — fix one or the other.
+    cmds:
+      - |
+        set -euo pipefail
+        TMP=$(mktemp -d)
+        trap 'rm -rf "$TMP"' EXIT
+        for dir in $(ls -d docs/*/solution 2>/dev/null | sort); do
+          cp -R "$dir/." "$TMP/"
+        done
+        # Compare merged solutions to project/, ignoring this Taskfile and the project README
+        diff -r \
+          --exclude=README.md \
+          "$TMP" project/ \
+          || { echo ""; echo "✗ docs/*/solution deltas do not reassemble into project/"; exit 1; }
+        echo "✓ docs/*/solution deltas match project/ exactly"
+
+  smoke:
+    desc: Quick sanity check that the picker and validate hook work
+    dir: project
+    cmds:
+      - bash pick-film.sh wales
+      - |
+        cp films.json /tmp/films.json
+        echo '{"tool_input":{"file_path":"/tmp/films.json"}}' | ./.claude/hooks/films-validate.sh
+        echo "✓ films-validate hook accepts the seed catalogue"

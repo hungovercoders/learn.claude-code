@@ -2,18 +2,18 @@
 title: "Installation and First Session"
 series: claude-code
 order: 2
-description: "Install Claude Code, log in, and run the first session that proves the agent is actually doing something"
+description: "Install Claude Code, log in, and run the first session inside the cinema repo — the agent reads pick-film.sh on its own and proves the integration is the product"
 canonical_url: https://hungovercoders.com/training/claude-code/02-installation-first-session
 ---
 
-I wanted Claude Code on my machine in less than ten minutes, with no surprises. I'd seen enough "just `npm install -g` and you're away" blog posts to know they usually leave out the bit where the binary isn't on your PATH and you spend a quarter of an hour wondering whether you've broken `node`. So I went looking for the cleanest install path in 2026 — and it turns out Anthropic now ship a native binary that bypasses the npm faff entirely. Let's pour the first one.
+I wanted Claude Code on my machine in less than ten minutes, with no surprises. I'd seen enough "just `npm install -g` and you're away" blog posts to know they usually leave out the bit where the binary isn't on your PATH and you spend a quarter of an hour wondering whether you've broken `node`. So I went looking for the cleanest install path in 2026 — and it turns out Anthropic now ship a native binary that bypasses the npm faff entirely. Let's pour the first one and point it at the cinema seed you planted in lesson 1.
 
 ## Pre-Requisites
 
+- The cinema seed from lesson 1 (`~/dev/cinema/films.json` + `pick-film.sh`)
 - macOS, Linux, or Windows (with WSL)
 - A Claude.ai account on the Pro plan or higher (Claude Code isn't on the free tier)
 - A terminal you actually like — iTerm2, Warp, Ghostty, whatever
-- A real project repo to point it at (any git repo will do)
 - Optional: Node.js ≥ 20 if you want the npm install path
 
 ## Getting the First Round In
@@ -78,23 +78,37 @@ claude
 
 Claude Code will use the key and skip the OAuth dance.
 
-## First Sip — A Real Session
+## First Sip — The Cinema Repo Speaks Back
 
-The fastest way to feel what Claude Code is for is to point it at a real repo. Open a project — any project — and run:
+The fastest way to feel what Claude Code is for is to point it at the cinema you set up last lesson and ask it something it has to actually *do*.
 
 ```bash
-cd ~/code/your-project
+cd ~/dev/cinema
 claude
 ```
 
-You'll get a prompt that looks like a TUI chat. Type a real task. Try something it has to actually *do*, not just describe:
+You'll get a prompt that looks like a TUI chat. Type the kind of question you'd ask a junior dev who's just opened the repo:
 
 ```text
-> Look in src/ and tell me which file has the most TODO comments,
-  then read me the first three lines of each TODO.
+> Read pick-film.sh and explain in two sentences what the script does
+  and how it picks a film.
 ```
 
-What you'll see is a sequence of tool calls — `Bash grep`, then `Read` on each file it finds, then a summary at the end. Each tool call asks for your permission the first time it hits a new category. **Read each prompt before clicking through.** This is the muscle you want to build before lesson 3 turns the permission system into the proper bouncer.
+What you'll see is a sequence of tool calls — `Read` on `pick-film.sh`, possibly a `Read` on `films.json` to check the shape it's filtering against, then a short summary. Each tool call asks for your permission the first time it hits a new category. **Read each prompt before clicking through.** This is the muscle you want to build before lesson 3 turns the permission system into the proper bouncer.
+
+Try one more, this time making the agent run something:
+
+```text
+> Run pick-film.sh with the mood "comedy" and tell me what it prints.
+```
+
+You'll see a `Bash` permission prompt for the script. Approve it once, the agent runs the picker, and you get the answer:
+
+```text
+Hot Fuzz (2007) — 121min
+```
+
+That's the integration — the agent didn't describe what `pick-film.sh` would output, it actually ran it. That's the gap between Claude.ai and Claude Code, in two tool calls.
 
 ## The Bit the Docs Don't Mention
 
@@ -102,14 +116,16 @@ First time I ran Claude Code I assumed it would behave like the chat window — 
 
 The corollary: the more concrete your request, the better. "Improve my code" leaves it guessing what to do. "Find all the places we set a `Content-Type` header and tell me which ones use a different value to the rest" gives it a job. Once you start writing requests like the second one, the agent earns its keep fast.
 
-## Have a Go
+## Have a Go — Prove the Agent Sees Your Cinema
 
-Try these before moving on. Don't read the next lesson until you've done at least the first three.
+There's no new file to add in this lesson. The deliverable is *proof* — a transcript of Claude Code reading and running code from your cinema repo. Try all four:
 
-1. Install Claude Code via the native binary and confirm `claude --version` returns a version.
-2. Run `claude` in any git repo and ask it: *"What does this project do, in one paragraph?"*. Notice how it reads `README.md` before answering.
-3. Ask it a destructive-sounding question on purpose: *"Delete every file in `node_modules`."* and watch the permission prompt. Cancel before approving — we'll learn how to control these prompts properly in the next lesson.
+1. `cd ~/dev/cinema && claude`. Ask it: *"What does this project do, in one paragraph?"*. Notice it reads `films.json` and `pick-film.sh` before answering.
+2. Ask it: *"Run pick-film.sh with mood 'wales' and tell me the result."* Approve the Bash prompt. Confirm the answer matches `./pick-film.sh wales` on your own.
+3. Ask it a destructive-sounding question on purpose: *"Delete films.json."* and watch the permission prompt. Cancel before approving — we'll learn how to control these prompts properly in lesson 3.
 4. Run `claude --help` and skim the top-level flags. The `-c` (continue), `--resume`, and `-p` (print-only) flags are the ones I use most often.
+
+The cinema directory doesn't change in this lesson. Lesson 3 adds the first piece of Claude Code config — a project-level `.claude/settings.json` — and that's where the build starts in earnest.
 
 ## My Verdict on the Install Itself
 
