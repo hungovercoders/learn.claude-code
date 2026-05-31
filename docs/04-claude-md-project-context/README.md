@@ -2,15 +2,16 @@
 title: "CLAUDE.md and Project Context"
 series: claude-code
 order: 4
-description: "Write a project context file the agent will actually read, follow, and respect — without stuffing it like a Sunday roast"
+description: "Write the recipe card the cinema's agent reads at the start of every session — without stuffing it like a Sunday roast"
 canonical_url: https://hungovercoders.com/training/claude-code/04-claude-md-project-context
 ---
 
-I wanted the agent to stop forgetting that this project uses tabs not spaces, that we run tests with `bun test` not `npm test`, and that the database migrations live in `infra/db/` not `src/migrations/`. I'd been retyping the same five reminders into the opening prompt of every session. The fix is a `CLAUDE.md` file — but the catch is, the moment you treat it like a wiki page, Claude starts ignoring half of it. This lesson is about writing one that survives.
+I wanted the agent to stop asking what the data shape is, what `pick-film.sh` does, whether moods are lowercase, and whether new films go at the end of `films.json`. After three sessions in the cinema I'd retyped the same five reminders into every opening prompt. The fix is a `CLAUDE.md` — but the catch is, the moment you treat it like a wiki page, Claude starts ignoring half of it. This lesson is the one that earns its keep in every session that follows.
 
 ## Pre-Requisites
 
-- A repo with real conventions worth documenting (tabs vs spaces, custom test command, deploy script — anything you find yourself repeating to a new hire)
+- The cinema seed (`~/dev/cinema/films.json` + `pick-film.sh`)
+- The project-level `.claude/settings.json` from lesson 3
 - Claude Code installed and authenticated
 - About fifteen minutes to do the `/init` and prune cycle properly
 
@@ -28,13 +29,14 @@ The hierarchy:
 <repo>/<subdir>/CLAUDE.md     Sub-project context — read when work happens in that subdir.
 ```
 
-You can also point to other files using `@filename` syntax. A single line `@AGENTS.md` in `CLAUDE.md` means "load AGENTS.md at the same time" — useful if you've already got an `AGENTS.md` (as we do in this repo) and don't want to duplicate.
+You can also point to other files using `@filename` syntax. A single line `@AGENTS.md` in `CLAUDE.md` means "load AGENTS.md at the same time" — useful if you've already got an `AGENTS.md` (as we do in this very repo) and don't want to duplicate.
 
 ## Starting the Pour — `/init`
 
-Inside any repo, run:
+Inside the cinema, run:
 
 ```bash
+cd ~/dev/cinema
 claude
 ```
 
@@ -44,9 +46,9 @@ Then type:
 > /init
 ```
 
-Claude inspects the project structure and writes a starter `CLAUDE.md` for you. It'll look at your `package.json` (or `pyproject.toml`, or `Cargo.toml`), notice your test runner, scan a few files for code style, and produce a first draft.
+Claude inspects the project, notices `films.json`, reads `pick-film.sh`, scans the directory layout, and writes a starter `CLAUDE.md`. It'll get the data shape right and the picker's contract roughly correct.
 
-**Don't accept the first draft.** Read it, prune it, and rewrite the bits that don't match how you actually work. The starter is a base camp, not a destination.
+**Don't accept the first draft.** Read it, prune it, and rewrite the bits that don't match how you actually work. The starter is a base camp, not a destination — `/init` will pad it with things it can already see in the code, and those are the bits to delete.
 
 ## The WHY / WHAT / HOW Pattern
 
@@ -56,45 +58,61 @@ The cleanest mental model I've found for what goes in a `CLAUDE.md`:
 - **WHAT** — the architecture in one paragraph, the directories that matter, the boundaries to respect
 - **HOW** — the commands to run things (test, build, deploy), the conventions to follow, the things to never do
 
-Here's a real shape that earns its keep. This is the `CLAUDE.md` for a fictional Welsh craft beer ordering app I keep around as a reference:
+The cinema's version, pruned to the lines that actually earn their keep:
 
 ```markdown
-# brewbook — agent context
+# cinema — agent context
 
-## What this project is
+## What this is
 
-A small ordering app for Tiny Rebel pop-up bars. Customers tap a tablet at the
-door, pick a flight of three beers from the current keg list, and the kitchen
-gets a ticket. Bun + SQLite + htmx. Single binary deploy.
+A small CLI for picking a film by mood, plus a Claude Code kit that
+extends it. Bash + jq + a JSON catalogue. No Python, no Node, no
+dependencies beyond `jq`.
 
-## Repo layout
+The kit grows across the eleven `learn.claude-code` lessons — by
+lesson eleven this directory holds the picker, two slash commands,
+two skills, a validation hook, an MCP wiring, and an install script
+that symlinks the whole `.claude/` directory into `~/.claude/`.
 
-- `src/server/`  — Bun HTTP handlers
-- `src/web/`     — htmx templates (no React, no SPA — keep it that way)
-- `db/`          — SQLite schema, migrations, and the `keg-list.sql` seed file
-- `scripts/`     — deploy and ops scripts
+## Files
 
-## Commands
+- `films.json`   — array of `{title, year, mood, runtime}` objects.
+                   Append new films to the end; never reorder.
+- `pick-film.sh` — the picker script. One argument (a mood) → one
+                   matching film.
+- `install.sh`   — run once after cloning. Symlinks `.claude/` into
+                   `~/.claude/` so the skills and hook are live from
+                   any directory.
 
-- `bun dev`           — start the dev server
-- `bun test`          — run all tests (DO NOT use `npm test` — this is a Bun project)
-- `bun db:migrate`    — apply pending migrations
-- `./scripts/deploy`  — single-command deploy to the Pi at the bar
+## Conventions
 
-## Code style
+- Moods are single lowercase words ("fun", "homesick", "cardiff",
+  "cosy", "comedy", "wales", "big-night").
+- Welsh and modern releases preferred. Twin Town, Hedd Wyn, How
+  Green Was My Valley, anything Mandalorian.
+- Runtime in minutes (integer). Year is a four-digit integer.
 
-- Tabs, not spaces
-- British English everywhere (`flavour`, `colour`, `behaviour`)
-- No comments unless the *why* is non-obvious — the code should explain itself
+## Adding films
 
-## Things to never do
+Either edit `films.json` directly, or use the `/add-film` skill —
+`/add-film "Title" 2026 mood 105`. The `films-validate.sh` hook
+fires on every edit and refuses writes that break the schema.
 
-- Add a JavaScript framework to `src/web/` — the htmx-only constraint is load-bearing
-- Edit the seed file `db/keg-list.sql` to add test fixtures; use a separate
-  seed file in `db/test-fixtures/` instead
+## What lives where
+
+- Slash commands and skills under `.claude/commands/` and
+  `.claude/skills/` are project-scoped. They only make sense inside
+  this repo.
+- The `films-validate.sh` hook is *also* project-scoped — it knows
+  the films.json schema specifically. A general JSON validator
+  would live at user level instead (`~/.claude/hooks/`).
+- The MCP server config under `.mcp.json` is project-scoped and
+  speaks to a local `cinema.db` SQLite file.
 ```
 
-That whole file is under 40 lines. It tells the agent everything it can't infer from the code. **It does not** restate things Claude can see for itself (the language, the obvious file layout, what `package.json` already declares).
+Under fifty lines. It tells the agent everything it can't infer from the code. **It does not** restate things Claude can see for itself — there's no point telling it the project is bash, it can read the shebang.
+
+It also mentions files we haven't built yet (`install.sh`, `films-validate.sh`, `.mcp.json`). That's deliberate — the `CLAUDE.md` describes the *intended shape*, not just today's state. As the cinema grows the description stays accurate, and Claude reads the same file every session.
 
 ## Progressive Disclosure — The Real Discipline
 
@@ -105,43 +123,50 @@ The fix is *progressive disclosure*: don't put information in `CLAUDE.md` — pu
 Instead of:
 
 ```markdown
-## Architecture
+## The picker algorithm
 
-The system has three components:
-1. The order intake service receives tablet taps via WebSocket...
-[200 more lines]
+`pick-film.sh` takes a mood, runs a jq filter on films.json that selects
+all matching rows, then prints the first one. The mood matching is exact
+(no fuzzy matching), case-sensitive, and...
+[40 more lines]
 ```
 
 Write:
 
 ```markdown
-## Architecture
+## The picker algorithm
 
-See `docs/architecture.md` for the full system diagram. The headline:
-intake service → ticket queue → kitchen display. Each is a separate Bun
-process talking over Unix sockets.
+See `pick-film.sh`. One-line summary: jq filters films.json by exact
+mood match, prints the first row formatted as "Title (Year) — Nmin".
 ```
 
 The agent reads the headline. If it needs the detail, it knows where to look. Your `CLAUDE.md` stays under the 150-line ceiling where Claude actually pays attention to every word.
 
 ## The Bit the Docs Don't Mention
 
-This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get followed about 70% of the time. For anything that must always happen — "never commit secrets", "always run `bun test` before declaring done" — **don't put it in `CLAUDE.md`, put it in a hook**. Lesson 8 covers hooks. The short version: instructions in `CLAUDE.md` are suggestions; hooks are enforcement. Use the right tool for the right job.
+This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get followed about 70% of the time. For anything that must always happen — "never commit secrets", "always run tests before declaring done", "films.json must keep its schema" — **don't put it in `CLAUDE.md`, put it in a hook**. Lesson 8 covers hooks. The short version: instructions in `CLAUDE.md` are suggestions; hooks are enforcement. Use the right tool for the right job. That's exactly what we'll do for `films.json` schema validation — `CLAUDE.md` says "don't break the schema", the lesson 8 hook *enforces* it.
 
-## Have a Go
+## Have a Go — Add CLAUDE.md to the Cinema
 
-Get one repo's `CLAUDE.md` to a state you actually trust.
+```
+~/dev/cinema/
+├── films.json
+├── pick-film.sh
+├── CLAUDE.md             ← lesson 4 adds this
+└── .claude/
+    └── settings.json
+```
 
-1. Run `/init` in a repo. Read every line of the generated file before saving.
-2. Prune it down to under 50 lines. Delete anything Claude could infer from `package.json`, the README, or a five-second `ls`.
-3. Add a `## Things to never do` section with three real entries from your project. (Real ones — not "be careful with `rm`". Things specific to *this* codebase.)
-4. Start a new session and ask Claude something that should require the `CLAUDE.md` to answer correctly (e.g. *"What's the command to run the tests?"*). Confirm it uses your custom command, not the default it would have guessed.
+1. `/init` in the cinema. Read every line of the generated file before saving.
+2. Replace the generated content with the cinema version above (or `cp docs/04-claude-md-project-context/solution/CLAUDE.md ~/dev/cinema/`).
+3. Start a new session and ask Claude something only the `CLAUDE.md` can answer correctly: *"What schema do films.json entries follow?"* or *"What's the mood convention?"*. Confirm the answer matches the file you just wrote.
+4. Ask it a question the `CLAUDE.md` doesn't cover (e.g. *"How many films are currently in the catalogue?"*) and watch it `Read` `films.json` to find out — `CLAUDE.md` for the rules, the code for the detail.
 
 ## My Verdict on CLAUDE.md
 
 `CLAUDE.md` is the most-useful configuration file in Claude Code. The agent reads it on every session, so a well-written one improves every interaction. But it punishes ambition — write too much and you train yourself to *think* the agent has the context, when really half the file is being skipped. The discipline is brevity.
 
-The team-level upside of committing `CLAUDE.md` to your repo is real: every developer on the project gets a consistent agent, and the file itself becomes a kind of executable onboarding doc. Newcomers read it; the agent reads it; it stays accurate because both groups notice when it drifts.
+The team-level upside of committing `CLAUDE.md` to your repo is real: every developer on the project gets a consistent agent, and the file itself becomes a kind of executable onboarding doc. Newcomers read it; the agent reads it; it stays accurate because both groups notice when it drifts. The cinema's `CLAUDE.md` is also the file that links the lessons together — every future lesson assumes the agent has read it.
 
 What I'd do differently next time: start the file at *ten lines*, not the `/init` starter. Force myself to justify every section as I add it. The starter is convenient but it's full of things that *look* useful and are actually noise.
 

@@ -23,7 +23,7 @@ This series diverges from the per-lesson-freestanding pattern other `learn.*` re
 Two non-negotiables:
 
 1. **Every lesson adds at least one concrete artefact** to the reader's local `cinema/` directory. Even concept-only lessons (`05-plan-mode`, `09-subagents-task-tool`) produce something tangible — a saved plan file, a written audit report.
-2. **Every lesson's deliverable lives in `docs/NN-slug/solution/`** as the *delta* — only the new or changed files for that lesson. A forker who falls behind can `cp -r docs/06-custom-slash-commands/solution/. ~/dev/cinema/` and pick up where the lesson ended.
+2. **Every lesson's deliverable lives in `docs/NN-slug/solution/`** as the *delta* — only the new or changed files for that lesson. A forker who falls behind can `cp -r docs/06-custom-slash-commands/solution/. ~/dev/cinema/` and pick up where the lesson ended. Lessons whose deliverable is *proof* rather than a file (e.g. lesson 2's "run claude in your cinema repo") omit the `solution/` directory entirely.
 
 The full set of `solution/` deltas, merged in lesson order, must equal `project/` file-by-file. `task verify-solutions` enforces this — any drift fails the check.
 
