@@ -1,0 +1,10 @@
+[
+  { "title": "The Mandalorian and Grogu", "year": 2026, "mood": "fun",      "runtime": 105 },
+  { "title": "Twin Town",                  "year": 1997, "mood": "cardiff",  "runtime": 99  },
+  { "title": "How Green Was My Valley",    "year": 1941, "mood": "homesick", "runtime": 118 },
+  { "title": "Hedd Wyn",                   "year": 1992, "mood": "wales",    "runtime": 123 },
+  { "title": "Hot Fuzz",                   "year": 2007, "mood": "comedy",   "runtime": 121 },
+  { "title": "Pride",                      "year": 2014, "mood": "wales",    "runtime": 119 },
+  { "title": "Submarine",                  "year": 2010, "mood": "cosy",     "runtime": 97  },
+  { "title": "Dredd",                      "year": 2012, "mood": "big-night", "runtime": 95  }
+]
