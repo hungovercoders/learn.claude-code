@@ -1,5 +1,0 @@
-- Tiny IPA          3.5%  light, sessionable, citrus
-- Cwtch             4.6%  red ale, comforting, malty
-- Mango Punk        5.6%  IPA, bright, fruity
-- Clwb Tropica      5.5%  tropical pale ale, summer
-- Dirty Stout       6.5%  chocolate stout, rich

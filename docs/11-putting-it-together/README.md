@@ -2,203 +2,162 @@
 title: "Putting It Together"
 series: claude-code
 order: 11
-description: "One realistic workflow that uses CLAUDE.md, custom skills, a hook, and a subagent — proof that the pieces compose into a system"
+description: "Wire the cinema's install.sh so the whole kit runs from any directory — the capstone that turns ten lessons of files into one portable workflow"
 canonical_url: https://hungovercoders.com/training/claude-code/11-putting-it-together
 ---
 
-I wanted to feel whether all this layers into a tool that earns its keep, or whether it's just clever pieces that don't actually compose. The honest test is to build one workflow that uses several features in service of a real outcome — not a contrived demo. So this lesson is exactly that: a personal "content workshop" setup that I run from any directory on my machine, built from the pieces we covered earlier — `CLAUDE.md`, skills, hooks, and subagents. By the end you'll have something that turns three commands into a publishable draft, and you'll see how the pieces work together instead of in isolation.
+Across the previous ten lessons your `~/dev/cinema/` directory has accumulated a `films.json`, a `pick-film.sh`, a `CLAUDE.md`, a project-level `settings.json`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and a plan-mode artefact. This is the lesson where they stop feeling like ten separate pieces and start composing into one workflow you actually use. We do one last thing — write an `install.sh` that symlinks the cinema's `.claude/` contents into your user-level `~/.claude/` — and then we use the kit end-to-end from a directory that isn't the cinema. That portability is what earns the kit its keep.
 
 ## Pre-Requisites
 
 - All previous lessons (you don't need to remember every line, but the *shapes* should be familiar)
-- A repo where you write *anything* repeatedly — blog posts, lesson content, release notes, design docs
-- Ten minutes for setup and twenty for a real test run
+- A `~/dev/cinema/` that's grown over the lessons (or `cp -r learn.claude-code/project/. ~/dev/cinema/` for the impatient route — same end state)
 
-## The Whole Round — The Setup
-
-Here's the shape we're building. It's a personal library that lives in one git repo and gets symlinked into your user-level Claude Code directory by an install script. Once installed, the skills are available from any directory; the project where you actually *use* them doesn't need to know the library exists.
+## The Whole Round — What We've Got
 
 ```
-~/dev/my-writing-lib/
-├── install.sh                  Symlinks skills + voice content into ~/.claude/
-├── voice/
-│   └── style-guide.md          Your voice rules. AI-loaded at run time.
-├── skills/
-│   ├── draft/SKILL.md          /draft — kick off a new draft
-│   └── polish/SKILL.md         /polish — review and tighten a draft
-└── hooks/
-    └── word-count.sh           PostToolUse hook — logs word count after every edit
+~/dev/cinema/
+├── films.json                     (lesson 1)
+├── pick-film.sh                   (lesson 1)
+├── CLAUDE.md                      (lesson 4)
+├── plans/lesson-05-mcp-feature.md (lesson 5)
+├── scripts/build-cinema-db.sh     (lesson 10)
+├── .mcp.json                      (lesson 10)
+└── .claude/
+    ├── settings.json              (lessons 3, 8)
+    ├── commands/                  (lesson 6)
+    │   ├── film-pick.md
+    │   └── film-suggest.md
+    ├── skills/                    (lessons 7, 9)
+    │   ├── add-film/SKILL.md
+    │   ├── pair/SKILL.md
+    │   └── audit/SKILL.md
+    └── hooks/                     (lesson 8)
+        └── films-validate.sh
 ```
 
-This shape is doing a few things at once:
+Eleven files of behaviour, one JSON catalogue, one shell script. The Cinema Companion isn't a fictional demo any more — it picks films, validates writes, recommends pairings, audits its own data, and queries itself via SQL. The last thing we add is the one that makes it *portable*.
 
-- **Source of truth in one repo** so the workflow itself is version-controlled
-- **Symlinked into user-level Claude Code dirs** so the skills work from anywhere
-- **A `CLAUDE.md` in each writing repo** that points the agent at the project-specific rules without restating the voice rules
-- **A hook that fires automatically** to keep a writing log
+## Step 1 — The Install Script
 
-The hungovercoders content workflow in `~/dev/hungovercoders/library/` is built on exactly this pattern — we built it across this very series of lessons. The shape generalises.
+The cinema's behaviour lives in `~/dev/cinema/.claude/`. By default Claude Code only loads project-level skills, commands, and hooks when you're working *inside* `~/dev/cinema/`. Useful — but I want `/pair` and `/film-suggest` available from anywhere on my machine, so I can ask them about a film while I'm in a totally different repo writing a blog post about it. The fix is symlinks: the cinema is still the source of truth, but the user-level Claude Code directories point at it.
 
-## Step 1 — Setting the House Style (`voice/style-guide.md`)
-
-The first file is the *opinion* of the system. It's not Claude Code config; it's the writing rules you want the agent to apply. For a writer it's a voice guide. For a code reviewer it'd be the code conventions. For a release-notes job it'd be the changelog format.
-
-The skills (next step) read this file at run time. It's the single source of truth for "how I want the output to sound".
-
-## Step 2 — Bringing In the Specialists (`skills/draft/`, `skills/polish/`)
-
-Two skills that bracket the writing process.
-
-`skills/draft/SKILL.md`:
-
-```markdown
----
-name: draft
-description: Start a new draft on a topic, following the style guide
-allowed-tools: Read, Write, WebSearch
-argument-hint: <topic>
----
-
-Read ~/.claude/my-writing-lib/voice/style-guide.md for the voice rules.
-
-The topic is: $ARGUMENTS
-
-Research the topic with WebSearch — find the official docs and one
-real-world example. Then write a 500-word draft following the voice
-rules. Save the draft to ./draft.md in the current directory.
-```
-
-`skills/polish/SKILL.md`:
-
-```markdown
----
-name: polish
-description: Polish an existing draft against the style guide, spawning parallel reviewers
-allowed-tools: Read, Edit, Agent
-disable-model-invocation: true
----
-
-Read ./draft.md and ~/.claude/my-writing-lib/voice/style-guide.md.
-
-Spawn three parallel subagents to review the draft:
-1. One checks for voice rule violations (filler words, "leverage", "robust")
-2. One checks for structural issues (does it open with a want? does it close with energy?)
-3. One checks for missing opinion beats (honest moment, verdict, what-I'd-do-differently)
-
-Take the union of their feedback and apply the changes via Edit. Don't
-rewrite — only fix what was flagged.
-```
-
-Two things to notice. The `draft` skill is plain — auto-invocation is fine because it only writes a new file. The `polish` skill has `disable-model-invocation: true` because polishing rewrites existing work and I want to be the one who decides when. Same pattern, two different safety postures.
-
-The `polish` skill also uses the `Agent` tool to spawn subagents — three parallel reviewers, each with a narrow focus. The parent skill orchestrates; the subagents do the per-rule work; the unified feedback goes back to the parent. Context isolation in action.
-
-## Step 3 — Keeping Tab on the Pints (`hooks/word-count.sh`)
-
-A small `PostToolUse` hook that fires after every `Edit` or `Write` and logs the word count of the file to a daily log. Not enforcement — just observability.
-
-```bash
-#!/bin/bash
-input=$(cat)
-file=$(echo "$input" | jq -r '.tool_input.file_path // ""')
-[ -f "$file" ] || exit 0
-
-words=$(wc -w < "$file")
-mkdir -p "$HOME/.claude/logs"
-echo "[$(date -Iseconds)] $words words in $file" >> "$HOME/.claude/logs/writing.log"
-exit 0
-```
-
-Three months later, that log tells you which projects you actually write in. Useful for retrospectives, useful for not lying to yourself.
-
-## Step 4 — The Install Script (`install.sh`)
-
-The bit that makes the whole library portable. Run it once after cloning the repo; rerun it whenever you move the library.
+`~/dev/cinema/install.sh`:
 
 ```bash
 #!/bin/bash
 set -euo pipefail
-LIB="$(cd "$(dirname "$0")" && pwd)"
+HERE="$(cd "$(dirname "$0")" && pwd)"
 
-mkdir -p ~/.claude/skills ~/.claude/hooks ~/.claude/my-writing-lib/voice
+mkdir -p ~/.claude/skills ~/.claude/hooks ~/.claude/commands
 
-for s in "$LIB"/skills/*/; do
+for c in "$HERE"/.claude/commands/*.md; do
+  ln -sf "$c" ~/.claude/commands/$(basename "$c")
+done
+
+for s in "$HERE"/.claude/skills/*/; do
   ln -sf "$s" ~/.claude/skills/$(basename "$s")
 done
 
-for h in "$LIB"/hooks/*.sh; do
+for h in "$HERE"/.claude/hooks/*.sh; do
   ln -sf "$h" ~/.claude/hooks/$(basename "$h")
 done
 
-for v in "$LIB"/voice/*; do
-  ln -sf "$v" ~/.claude/my-writing-lib/voice/$(basename "$v")
-done
-
-echo "writing library installed. Skills, hooks, and voice content symlinked."
+echo "cinema kit installed. Slash commands, skills, and hooks symlinked from $HERE."
+echo "The films-validate hook still only fires when settings.json wires it — see lesson 8."
 ```
 
-The library can live anywhere — the install script captures `pwd` and symlinks from there. Move the library, rerun the script, everything keeps working.
-
-## Step 5 — The Settings (`~/.claude/settings.json`)
-
-Wire the hook in:
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          { "type": "command", "command": "$HOME/.claude/hooks/word-count.sh" }
-        ]
-      }
-    ]
-  }
-}
+```bash
+chmod +x ~/dev/cinema/install.sh
+~/dev/cinema/install.sh
 ```
 
-That's the whole config. Skills auto-load from `~/.claude/skills/`; the voice file is read by the skills at run time; the hook fires on every edit.
+```text
+cinema kit installed. Slash commands, skills, and hooks symlinked from /Users/dave/dev/cinema.
+The films-validate hook still only fires when settings.json wires it — see lesson 8.
+```
 
-## Step 6 — Pouring the Round
+The cinema's `.claude/` directory stays in one place; the user-level Claude Code dirs point at it. You can move the cinema to a different folder, rerun `install.sh`, and everything keeps working — because the script captures `pwd` and rewrites the symlinks. Move the library, rerun the script, the kit follows.
+
+The deliberate omission: the script does *not* wire `films-validate.sh` as a global hook. The hook is project-specific — it knows the cinema's schema. Globalising it would fire jq schema checks against random JSON files in unrelated repos. The hook stays project-scoped via the cinema's `.claude/settings.json`; the install script only globalises the things that are safe to globalise (commands and skills with no side effects, the hook *script* itself if you want to wire it manually elsewhere).
+
+## Step 2 — Pouring the Round
 
 From any directory:
 
-```text
-> /draft "Quick Beer with Bento"
+```bash
+cd ~/dev/some-other-project
+claude
 ```
 
-The agent reads the voice guide, researches Bento, writes a 500-word draft to `./draft.md`.
-
 ```text
-> /polish
+> /film-suggest "Friday night, knackered"
 ```
 
-Three subagents fan out and review in parallel. The parent applies their feedback. The hook silently logs the word count on every edit.
+The agent reads `films.json` via the symlinked `/film-suggest` command. Wait — `films.json` lives at `~/dev/cinema/`, not in this directory. Two options. Either the command's body specifies an absolute path (rewrite the skill to read `~/dev/cinema/films.json`), or the command stays directory-relative and you only invoke it from inside the cinema. The honest answer for a *catalogue-bound* command is the second: `/film-suggest` and `/film-pick` make sense in the cinema. *They* don't generalise.
 
-Three commands, four features (CLAUDE.md if your repo has one, skills, hooks, subagents), one publishable draft. The pieces compose.
+The *shape* generalises, though. That's the next step.
+
+## Step 3 — The Whole Kit, Cinema-Sized
+
+Inside the cinema, the full kit becomes one composed workflow. Three real commands, in order, on a Friday night:
+
+```text
+> /audit
+```
+
+Three subagents fan out. The unified report comes back: one duplicate, one mood that drifted from the conventions. You note them mentally; the data quality is good enough to pour.
+
+```text
+> /film-suggest "knackered Tuesday"
+```
+
+The agent reads `films.json` and `CLAUDE.md` and recommends *Twin Town*.
+
+```text
+> /pair "Twin Town"
+```
+
+The agent reads both files again, recommends salt-and-vinegar Tayto crisps, a pint of Cwtch, and a co-watcher who claims to remember the Lewis brothers.
+
+Three commands, five features (CLAUDE.md, two skills, the audit's subagents, the validate hook silently guarding the catalogue), one chosen film, one paired round. The pieces compose.
 
 ## The Bit the Docs Don't Mention
 
-I'll be honest, the first time I tried this exact pattern I had the skills in the right place but the voice guide *not* symlinked — I'd just hardcoded the path to wherever the library happened to live. Everything worked until I moved the library to a different folder, and then nothing worked, and I had no idea why because all the slash commands still appeared in `/help`. **Install scripts that symlink reference content into stable user-level paths are the difference between "this is portable" and "this works on the machine you built it on".** That's not a Claude Code lesson per se, but it's the lesson the official docs don't quite spell out for personal libraries.
+I'll be honest, the first time I tried this exact pattern in a writing library I had the skills in the right place but a voice file *not* symlinked — I'd just hardcoded the path to wherever the library happened to live. Everything worked until I moved the library to a different folder, and then nothing worked, and I had no idea why because all the slash commands still appeared in `/help`. **Install scripts that symlink reference content into stable user-level paths are the difference between "this is portable" and "this works on the machine you built it on".** That's not a Claude Code lesson per se, but it's the lesson the official docs don't quite spell out for personal libraries.
 
-## Have a Go
+The cinema's `install.sh` is deliberately small — three symlink loops, twenty lines, no error handling beyond `set -euo pipefail`. That's the right starting size. The temptation will be to add idempotency checks, log files, dry-run modes; resist that until the workflow demands them.
 
-This is the lesson where you build something real, not just read.
+## Have a Go — Install and Run the Kit
 
-1. Create a writing library (or a code-review library, or a release-notes library — whatever your actual job involves) with the same shape: `voice/`, `skills/`, `hooks/`, `install.sh`.
-2. Write two skills that bracket your most-repeated workflow: one to kick off, one to wrap up.
-3. Add one hook that observes (logs, counts, notifies). Don't make it block on the first version — observability earns its keep faster than enforcement.
-4. Run the workflow on a real piece of work. Notice what's slow, what's clunky, what works first time. Iterate the library.
+```
+~/dev/cinema/
+├── ...
+└── install.sh                    ← lesson 11 adds
+```
 
-## My Verdict on the System as a Whole
+1. Drop in `install.sh` (or `cp docs/11-putting-it-together/solution/install.sh ~/dev/cinema/`).
+2. `chmod +x ~/dev/cinema/install.sh && ~/dev/cinema/install.sh`.
+3. Confirm the symlinks exist: `ls -la ~/.claude/commands/ ~/.claude/skills/ ~/.claude/hooks/`. The cinema's files should be reachable from those user-level paths.
+4. Open a session from inside the cinema and run the three-command Friday-night workflow above. Notice that all the pieces wire together — the audit, the suggestion, the pairing — without you having to retype any context.
+5. Move the cinema directory somewhere else (`mv ~/dev/cinema ~/dev/another/cinema`), rerun `install.sh` from the new location, and confirm everything still works.
 
-Claude Code earns its keep when the pieces stop feeling like separate features and start composing into a workflow you actually use without thinking. The shape that worked for me — *library repo + install script + skills + hooks + voice files* — is the shape I now reach for whenever I'd otherwise be retyping the same instructions into a chat window. The portability matters; the composability matters; the source-control matters. None of those are technically *required* by Claude Code, but it's the combination that makes the tool worth more than the chat window.
+## The Verdict on the System as a Whole
+
+Claude Code earns its keep when the pieces stop feeling like separate features and start composing into a workflow you actually use without thinking. The shape that worked for the cinema — *one project repo + a small install script + CLAUDE.md + slash commands + skills + a hook + an MCP server* — is the shape I now reach for whenever I'd otherwise be retyping the same instructions into a chat window. The portability matters; the composability matters; the source-control matters. None of those are technically *required* by Claude Code, but it's the combination that makes the tool worth more than the chat window.
 
 The big takeaway across the eleven lessons: **the agent isn't the product, the system you build around it is**. The model is the same model that powers Claude.ai. What makes Claude Code different is that it sits inside a configurable, scriptable, version-controllable shell where you can encode the way *you* work and have the agent follow it without retyping. That's the thing AI tutorials can't fake — your shape of the system is yours.
 
-The two lessons this capstone doesn't directly use — **plan mode** (5) and **MCP servers** (10) — slot in naturally as the library grows. Use plan mode whenever you're extending the library itself: refactoring a skill, splitting a hook, or rewriting the voice file. Add an MCP server to the library via a project-scope `.mcp.json` whenever the workflow needs to reach outside the local filesystem — GitHub for a release-notes library, Postgres for a query-generator library. The library shape generalises; the integrations specialise to the job.
+## Where the Cinema Shape Goes Next
 
-What I'd do differently if I were starting eleven lessons ago: I'd build the library *first*, before writing a single piece of content with Claude. Three skills and one voice file in a public repo would have saved me the first month of inconsistent results. The setup feels like overhead until you've got it; after that, every session starts from a known-good base, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
+The cinema shape generalises. The same five pieces — a small data file, a script that operates on it, a `CLAUDE.md` that explains it, skills that wrap it, a hook that polices it — fit a hundred other workflows. Three real ones I've used the shape for:
+
+- **A writing library.** Replace `films.json` with `voice/style-guide.md`, the slash commands with `/draft` and `/polish`, the schema hook with a word-count log. The hungovercoders content library at `~/dev/hungovercoders/library/` is built on exactly this shape — same install script, same skills + hook + voice file pattern. The cinema was the warm-up.
+- **A release-notes library.** `changelogs/<version>.md` as the catalogue, `format-release-notes.sh` as the picker, a `/release-notes` skill that bundles the most recent tag, a hook that refuses pushes without an unreleased entry.
+- **A code-review library.** A `voice/review-style.md` as the rules, a `/review` skill that walks a diff against them, a hook that logs review outcomes per repo.
+
+Each of those is the cinema's shape, repotted into a different domain. The directories are different; the *pattern* is the same. You build one of these and the second one takes a tenth of the time, because the install script and the settings.json wiring carry over.
+
+What I'd do differently if I were starting eleven lessons ago: I'd build the cinema *first*, before adopting Claude Code for any real work. The series exists because I learned the lessons in the wrong order; you don't have to. Three files (`films.json`, `pick-film.sh`, `CLAUDE.md`) and one weekend afternoon would have saved me the first month of inconsistent results. The setup feels like overhead until you've got it; after that, every session starts from a known-good base, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
 
 Well done on the series, fellow hungovercoder. Cheers — and watch this space for more.
