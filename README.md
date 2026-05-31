@@ -28,6 +28,8 @@ project/
 
 Each lesson directory under [`docs/`](./docs/) ships a `solution/` containing only the new files that lesson adds. If you get stuck, `cp -r docs/06-custom-slash-commands/solution/. ~/dev/cinema/` and carry on. The full set of `solution/` deltas reassembles into `project/` — that's what `task verify-solutions` checks.
 
+There's also a one-page [cheat sheet](./docs/cheatsheet/) — keyboard shortcuts, built-in slash commands, permission modes, hook exit codes, file paths, and the cinema-specific commands you've added by lesson eleven. Reference shape, links every section back to its source lesson. Keep it open while you work.
+
 ## Fork and follow
 
 ```bash
