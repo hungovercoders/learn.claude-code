@@ -118,7 +118,7 @@ Both paths leave you with the same `~/dev/cinema/` — eight lines of bash and a
 Also worth a skim before lesson two:
 
 1. The [Claude Code overview docs](https://code.claude.com/docs/en/overview) — get the shape, don't read every section.
-2. The [Claude Code best-practices page](https://code.claude.com/docs/en/best-practices) — find the bit about CLAUDE.md being overstuffed. We'll come back to that in lesson 4.
+2. The [Claude Code best-practices page](https://code.claude.com/docs/en/best-practices) — find the bit about CLAUDE.md being overstuffed. We'll come back to that in lessons 3 and 6.
 3. `node -v` in your terminal — confirm you've got Node ≥ 20 if you'd rather install Claude Code via npm than the native binary.
 
 ## My Verdict at the End of Lesson One

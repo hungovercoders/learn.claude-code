@@ -22,8 +22,10 @@ This series diverges from the per-lesson-freestanding pattern other `learn.*` re
 
 Two non-negotiables:
 
-1. **Every lesson adds at least one concrete artefact** to the reader's local `cinema/` directory. Even concept-only lessons (`05-plan-mode`, `09-subagents-task-tool`) produce something tangible — a saved plan file, a written audit report.
-2. **Every lesson's deliverable lives in `docs/NN-slug/solution/`** as the *delta* — only the new or changed files for that lesson. A forker who falls behind can `cp -r docs/06-custom-slash-commands/solution/. ~/dev/cinema/` and pick up where the lesson ended. Lessons whose deliverable is *proof* rather than a file (e.g. lesson 2's "run claude in your cinema repo") omit the `solution/` directory entirely.
+1. **Every lesson adds at least one concrete artefact** to the reader's local `cinema/` directory. Even concept-only lessons (`07-plan-mode`, `11-subagents-task-tool`) produce something tangible — a saved plan file, a written audit report.
+2. **Every lesson's deliverable lives in `docs/NN-slug/solution/`** as the *delta* — only the new or changed files for that lesson. A forker who falls behind can `cp -r docs/08-custom-slash-commands/solution/. ~/dev/cinema/` and pick up where the lesson ended. Lessons whose deliverable is *proof* or lives *outside the project tree* (e.g. lesson 2's "run claude in your cinema repo", lesson 3's `~/.claude/CLAUDE.md` template) omit the `solution/` directory entirely.
+
+**The auto-mode destination.** The arc is deliberate: each lesson 4 onward adds a *cage layer* that makes auto-mode (`claude --dangerously-skip-permissions` plus the harness Auto Mode bias) incrementally safer on the cinema. Lesson 13 is the proof — launch auto-mode and watch the layers catch every failure mode. When writing or editing a lesson, frame the deliverable not just as "feature N" but as "the layer that lets you trust the agent with X more rope."
 
 The full set of `solution/` deltas, merged in lesson order, must equal `project/` file-by-file. `task verify-solutions` enforces this — any drift fails the check.
 
@@ -39,9 +41,9 @@ solution/               Files the reader adds in this lesson (the delta)
 Hands-on lessons that introduce a config file, hook script, custom slash command, or MCP server keep the example file *only* under `solution/` — not duplicated alongside `README.md`. The lesson prose embeds the file contents inline in fenced code blocks for the reader, and points to `solution/` as the canonical copy.
 
 ```
-docs/06-custom-slash-commands/README.md                            ← lesson prose
-docs/06-custom-slash-commands/solution/.claude/commands/film-pick.md   ← delta
-docs/06-custom-slash-commands/solution/.claude/commands/film-suggest.md ← delta
+docs/08-custom-slash-commands/README.md                            ← lesson prose
+docs/08-custom-slash-commands/solution/.claude/commands/film-pick.md   ← delta
+docs/08-custom-slash-commands/solution/.claude/commands/film-suggest.md ← delta
 ```
 
 ## Conventions
@@ -70,19 +72,25 @@ canonical_url: https://hungovercoders.com/training/claude-code/NN-slug
 
 ## The Cinema Companion arc — what each lesson adds
 
-| # | Lesson | Solution delta |
-| - | - | - |
-| 1 | what-is-claude-code | `films.json`, `pick-film.sh` (the seed) |
-| 2 | installation-first-session | No new files — proof of a working `claude` session against the seed |
-| 3 | permission-modes | `~/.claude/settings.json` (user-level allowlist for `jq` and `bash pick-film.sh`) |
-| 4 | claude-md-project-context | `CLAUDE.md` |
-| 5 | plan-mode | `plans/lesson-05-mcp-feature.md` |
-| 6 | custom-slash-commands | `.claude/commands/film-pick.md`, `.claude/commands/film-suggest.md` |
-| 7 | skills | `.claude/skills/add-film/SKILL.md`, `.claude/skills/pair/SKILL.md` |
-| 8 | hooks | `.claude/hooks/films-validate.sh`, project `.claude/settings.json` (hook wiring) |
-| 9 | subagents-task-tool | `.claude/skills/audit/SKILL.md` |
-| 10 | mcp-servers | `.mcp.json`, `scripts/build-cinema-db.sh` |
-| 11 | putting-it-together | `install.sh` (and `project/README.md` for forkers) |
-| 99 | cheatsheet | No solution delta — reference page. Keys, built-in commands, lifecycle events, exit codes, file paths, the cinema-specific commands. Links each section back to its source lesson. |
+| # | Lesson | Solution delta | Cage layer |
+| - | - | - | - |
+| 1 | what-is-claude-code | `films.json`, `pick-film.sh` (the seed) | — |
+| 2 | installation-first-session | No new files — proof of a working `claude` session against the seed | — |
+| 3 | user-level-claude-md | No project delta — `~/.claude/CLAUDE.md` template embedded in the lesson prose | Personal defaults applied to every session everywhere |
+| 4 | branch-and-draft-pr | `.github/pull_request_template.md` | Branch isolation; every change visible on remote |
+| 5 | permission-modes | `.claude/settings.json` (permissions block) | Project-scoped allow + deny; deny wins |
+| 6 | claude-md-project-context | `CLAUDE.md` | Conventions + "never do" encoded |
+| 7 | plan-mode | `plans/mcp-feature.md` | Plan-before-execute discipline |
+| 8 | custom-slash-commands | `.claude/commands/film-pick.md`, `.claude/commands/film-suggest.md` | `allowed-tools` narrowing per command |
+| 9 | skills | `.claude/skills/add-film/SKILL.md`, `.claude/skills/pair/SKILL.md` | `disable-model-invocation` on writes + tight `allowed-tools` |
+| 10 | hooks | `.claude/hooks/films-validate.sh`, project `.claude/settings.json` (hook wiring) | Schema enforcement — the agent cannot break the catalogue |
+| 11 | subagents-task-tool | `.claude/skills/audit/SKILL.md` | Context isolation |
+| 12 | mcp-servers | `.mcp.json`, `scripts/build-cinema-db.sh` | Bounded external access via typed tools |
+| 13 | putting-it-together-auto-mode | `install.sh` (and `project/README.md` for forkers) | The proof — auto-mode runs safely because of layers 4–12 |
+| 99 | cheatsheet | No solution delta — reference page. Keys, built-in commands, lifecycle events, exit codes, file paths, the cinema-specific commands, the branch/PR workflow, the auto-mode safety checklist. Links each section back to its source lesson. | — |
 
 When adding or restructuring a lesson, update both this table and `project/` so they stay in lockstep. The cheat sheet is a reference *summary*, not a source of truth — when commands or shortcuts change, update the lesson first and then mirror the change in the cheat sheet.
+
+## Lessons 4 onwards commit + push
+
+Every lesson from 4 onwards ends with a `git commit` + `git push` step. The reader is on a feature branch with a draft PR opened in lesson 4; each subsequent lesson lands one commit on that PR. By lesson 13 the PR diff is the whole build, ready for review or merge. When writing or editing a lesson's "Have a Go", keep this closing step.

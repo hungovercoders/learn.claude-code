@@ -1,9 +1,9 @@
 ---
 title: "CLAUDE.md and Project Context"
 series: claude-code
-order: 4
+order: 6
 description: "Write the recipe card the cinema's agent reads at the start of every session — without stuffing it like a Sunday roast"
-canonical_url: https://hungovercoders.com/training/claude-code/04-claude-md-project-context
+canonical_url: https://hungovercoders.com/training/claude-code/06-claude-md-project-context
 ---
 
 I wanted the agent to stop asking what the data shape is, what `pick-film.sh` does, whether moods are lowercase, and whether new films go at the end of `films.json`. After three sessions in the cinema I'd retyped the same five reminders into every opening prompt. The fix is a `CLAUDE.md` — but the catch is, the moment you treat it like a wiki page, Claude starts ignoring half of it. This lesson is the one that earns its keep in every session that follows.
@@ -11,15 +11,16 @@ I wanted the agent to stop asking what the data shape is, what `pick-film.sh` do
 ## Pre-Requisites
 
 - The cinema seed (`~/dev/cinema/films.json` + `pick-film.sh`)
-- The project-level `.claude/settings.json` from lesson 3
-- Claude Code installed and authenticated
+- Your user-level `~/.claude/CLAUDE.md` from lesson 3 — this lesson's project-level file *composes* with it
+- The cinema on a feature branch with a draft PR open (lesson 4)
+- The project-level `.claude/settings.json` from lesson 5
 - About fifteen minutes to do the `/init` and prune cycle properly
 
 ## The Recipe Card the Agent Reads First
 
 `CLAUDE.md` is a markdown file at the root of your project that Claude Code reads into context at the start of every session. Anything in here is part of every conversation about this codebase. It's the closest thing the agent has to institutional memory.
 
-There's a user-level version too — `~/.claude/CLAUDE.md` — which gets loaded for *every* session across every project. Use that for your personal preferences (terse responses, conventional commits, no emoji unless asked). Use the project-level one for things specific to *this* repo.
+You wrote the user-level version in lesson 3 — `~/.claude/CLAUDE.md` — which gets loaded for *every* session across every project, encoding your personal defaults (terse responses, conventional commits, no emoji unless asked). This lesson layers the *project-level* file on top, for things specific to *this* repo.
 
 The hierarchy:
 
@@ -144,7 +145,7 @@ The agent reads the headline. If it needs the detail, it knows where to look. Yo
 
 ## The Bit the Docs Don't Mention
 
-This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get followed about 70% of the time. For anything that must always happen — "never commit secrets", "always run tests before declaring done", "films.json must keep its schema" — **don't put it in `CLAUDE.md`, put it in a hook**. Lesson 8 covers hooks. The short version: instructions in `CLAUDE.md` are suggestions; hooks are enforcement. Use the right tool for the right job. That's exactly what we'll do for `films.json` schema validation — `CLAUDE.md` says "don't break the schema", the lesson 8 hook *enforces* it.
+This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get followed about 70% of the time. For anything that must always happen — "never commit secrets", "always run tests before declaring done", "films.json must keep its schema" — **don't put it in `CLAUDE.md`, put it in a hook**. Lesson 10 covers hooks. The short version: instructions in `CLAUDE.md` are suggestions; hooks are enforcement. Use the right tool for the right job. That's exactly what we'll do for `films.json` schema validation — `CLAUDE.md` says "don't break the schema", the lesson 10 hook *enforces* it.
 
 ## Have a Go — Add CLAUDE.md to the Cinema
 
@@ -152,7 +153,7 @@ This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get fol
 ~/dev/cinema/
 ├── films.json
 ├── pick-film.sh
-├── CLAUDE.md             ← lesson 4 adds this
+├── CLAUDE.md             ← lesson 6 adds this
 └── .claude/
     └── settings.json
 ```
@@ -161,6 +162,13 @@ This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get fol
 2. Replace the generated content with the cinema version above (or `cp docs/04-claude-md-project-context/solution/CLAUDE.md ~/dev/cinema/`).
 3. Start a new session and ask Claude something only the `CLAUDE.md` can answer correctly: *"What schema do films.json entries follow?"* or *"What's the mood convention?"*. Confirm the answer matches the file you just wrote.
 4. Ask it a question the `CLAUDE.md` doesn't cover (e.g. *"How many films are currently in the catalogue?"*) and watch it `Read` `films.json` to find out — `CLAUDE.md` for the rules, the code for the detail.
+5. Commit the new `CLAUDE.md` to your feature branch and push:
+
+```bash
+git add CLAUDE.md
+git commit -m "lesson 6: project CLAUDE.md"
+git push
+```
 
 ## My Verdict on CLAUDE.md
 
@@ -170,4 +178,4 @@ The team-level upside of committing `CLAUDE.md` to your repo is real: every deve
 
 What I'd do differently next time: start the file at *ten lines*, not the `/init` starter. Force myself to justify every section as I add it. The starter is convenient but it's full of things that *look* useful and are actually noise.
 
-On to lesson 5, fellow hungovercoder — let's brew the plan before we pour anything.
+On to lesson 7, fellow hungovercoder — let's brew the plan before we pour anything.
