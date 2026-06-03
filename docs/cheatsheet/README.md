@@ -2,7 +2,7 @@
 title: "Cheat Sheet"
 series: claude-code
 order: 99
-description: "Keyboard shortcuts, built-in commands, lifecycle events, and the cinema-specific commands you've added across the eleven lessons — one page to keep open while you work"
+description: "Keyboard shortcuts, built-in commands, lifecycle events, branch + PR workflow, auto-mode safety checklist, and the cinema-specific commands you've added across the thirteen lessons — one page to keep open while you work"
 canonical_url: https://hungovercoders.com/training/claude-code/cheatsheet
 ---
 
@@ -12,7 +12,7 @@ One page to keep open while you work. Reference shape, not narrative — every r
 
 | Shortcut | What it does |
 | - | - |
-| **Shift-Tab** | Cycle permission mode: default → acceptEdits → plan → default ([lesson 3](../03-permission-modes/), [lesson 5](../05-plan-mode/)) |
+| **Shift-Tab** | Cycle permission mode: default → acceptEdits → plan → default ([lesson 5](../05-permission-modes/), [lesson 7](../07-plan-mode/)) |
 | **Esc** | Cancel the current tool call (the prompt is preserved) |
 | **Ctrl-C** | Cancel the in-flight turn |
 | **Ctrl-C twice** | Exit the session |
@@ -45,25 +45,70 @@ claude
 | `--resume <id>` | Resume a specific past session |
 | `-p`, `--print` | One-shot non-interactive prompt, prints result and exits |
 | `--permission-mode <mode>` | Launch in `default` / `acceptEdits` / `plan` / `dontAsk` / `bypassPermissions` |
-| `--dangerously-skip-permissions` | No prompts at all. Sandboxes only. **Never on a real repo.** |
+| `--dangerously-skip-permissions` | Auto-mode. No prompts. Safe on the cinema by [lesson 13](../13-putting-it-together-auto-mode/) because of the cage. Not safe in general. |
 | `--model <id>` | Override session model (e.g. `claude-sonnet-4-6`) |
 | `--help` | All flags |
+
+## Auto-mode + safety ([lesson 13](../13-putting-it-together-auto-mode/))
+
+Two complementary postures:
+
+- **`--dangerously-skip-permissions`** — the CLI flag. The agent stops asking before tool calls. *Deny rules and hooks still apply.*
+- **Harness Auto Mode bias** — the agent stops asking clarifying questions and bias toward action.
+
+Compose them on a project where the cage exists; never on a project where it doesn't.
+
+### The cage checklist (lessons 4–12)
+
+Auto-mode is safe on a project when all of these are in place:
+
+- [ ] On a feature branch, never `main` ([lesson 4](../04-branch-and-draft-pr/))
+- [ ] Draft PR open; every commit visible on remote ([lesson 4](../04-branch-and-draft-pr/))
+- [ ] Project `.claude/settings.json` with a *deny* list ([lesson 5](../05-permission-modes/))
+- [ ] Project `CLAUDE.md` encoding the conventions and "never do" rules ([lesson 6](../06-claude-md-project-context/))
+- [ ] Slash commands and skills with tight `allowed-tools` ([lesson 8](../08-custom-slash-commands/), [lesson 9](../09-skills/))
+- [ ] `disable-model-invocation: true` on anything that writes or has external side effects ([lesson 9](../09-skills/))
+- [ ] PostToolUse hook enforcing the load-bearing invariants ([lesson 10](../10-hooks/))
+- [ ] MCP servers exposing typed tools instead of free-form Bash ([lesson 12](../12-mcp-servers/))
+
+If three or more are missing, drop back to `default` or `acceptEdits` mode.
+
+## Branch + draft PR workflow ([lesson 4](../04-branch-and-draft-pr/))
+
+```bash
+# At project init
+git checkout -b feat/build
+git push -u origin feat/build
+gh pr create --draft --title "..." --body "..."
+gh pr view --web
+
+# After each lesson's deliverable
+git add <files>
+git commit -m "lesson N: <one-line description>"
+git push
+
+# When something goes wrong under auto-mode
+git reset --hard origin/feat/build~N    # roll back the last N commits
+```
+
+The PR template at `.github/pull_request_template.md` (lesson 4 ships one) populates the description with a cage checklist you tick as each lesson lands.
 
 ## Built-in slash commands
 
 | Command | Purpose |
 | - | - |
 | `/help` | List available commands |
-| `/init` | Generate a starter `CLAUDE.md` for this project ([lesson 4](../04-claude-md-project-context/)) |
-| `/permissions` | View + edit active permission rules, show source file per rule ([lesson 3](../03-permission-modes/)) |
+| `/init` | Generate a starter `CLAUDE.md` for this project ([lesson 6](../06-claude-md-project-context/)) |
+| `/memory` | Show the loaded CLAUDE.md files in this session ([lesson 3](../03-user-level-claude-md/)) |
+| `/permissions` | View + edit active permission rules, show source file per rule ([lesson 5](../05-permission-modes/)) |
 | `/sandbox` | Toggle the OS-level sandbox |
-| `/plan` | Switch the active session into plan mode ([lesson 5](../05-plan-mode/)) |
-| `/agents` | Manage subagents (definitions live in `.claude/agents/<name>.md`) ([lesson 9](../09-subagents-task-tool/)) |
-| `/mcp` | List MCP servers currently connected and their tools ([lesson 10](../10-mcp-servers/)) |
+| `/plan` | Switch the active session into plan mode ([lesson 7](../07-plan-mode/)) |
+| `/agents` | Manage subagents (definitions live in `.claude/agents/<name>.md`) ([lesson 11](../11-subagents-task-tool/)) |
+| `/mcp` | List MCP servers currently connected and their tools ([lesson 12](../12-mcp-servers/)) |
 | `/clear` | Reset the current session's context |
 | `/model` | Switch model mid-session |
 
-## Permission modes ([lesson 3](../03-permission-modes/))
+## Permission modes ([lesson 5](../05-permission-modes/))
 
 | Mode | Behaviour |
 | - | - |
@@ -86,17 +131,17 @@ Rule evaluation: **deny wins**, then `ask`, then `allow`. First match wins withi
 
 Later layers override earlier ones, with the deny-wins rule on top.
 
-## `CLAUDE.md` layout ([lesson 4](../04-claude-md-project-context/))
+## `CLAUDE.md` layout ([lesson 3](../03-user-level-claude-md/), [lesson 6](../06-claude-md-project-context/))
 
 ```
-~/.claude/CLAUDE.md                Personal defaults — every project
-<repo>/CLAUDE.md                   Project context — every session in this repo
+~/.claude/CLAUDE.md                Personal defaults — every project (lesson 3)
+<repo>/CLAUDE.md                   Project context — every session in this repo (lesson 6)
 <repo>/<subdir>/CLAUDE.md          Sub-project context
 ```
 
-Use `@filename` inside a CLAUDE.md to inline-load another file (e.g. `@AGENTS.md`). Keep the file under ~150 lines; use progressive disclosure (point at detail, don't restate it).
+User-level reads first; project layers on top. Use `@filename` inside a CLAUDE.md to inline-load another file (e.g. `@AGENTS.md`). Keep each file under ~150 lines; progressive disclosure beats wiki-page exhaustiveness.
 
-## Custom slash commands + skills ([lesson 6](../06-custom-slash-commands/), [lesson 7](../07-skills/))
+## Custom slash commands + skills ([lesson 8](../08-custom-slash-commands/), [lesson 9](../09-skills/))
 
 | Shape | Lives at | When to use |
 | - | - | - |
@@ -115,7 +160,7 @@ Frontmatter fields that matter:
 
 Argument substitution: `$ARGUMENTS` (everything after the command name), `$1`, `$2` for positional.
 
-## Hooks ([lesson 8](../08-hooks/))
+## Hooks ([lesson 10](../10-hooks/))
 
 | Event | Cadence | Best for |
 | - | - | - |
@@ -134,9 +179,9 @@ Argument substitution: `$ARGUMENTS` (everything after the command name), `$1`, `
 | `2` | **Blocking.** Tool call halts; **stderr is fed back to Claude as feedback**. |
 | any other non-zero | Non-blocking error. stderr shown to the human only. |
 
-Wiring lives in `settings.json` under `hooks.<event>` with an optional `matcher` regex on tool names (e.g. `"Edit|Write"`).
+Wiring lives in `settings.json` under `hooks.<event>` with an optional `matcher` regex on tool names (e.g. `"Edit|Write"`). **Hooks still fire under `--dangerously-skip-permissions`** — they're the load-bearing safety belt for auto-mode.
 
-## Subagents ([lesson 9](../09-subagents-task-tool/))
+## Subagents ([lesson 11](../11-subagents-task-tool/))
 
 Spawn via the `Task` tool. Built-in agents:
 
@@ -148,7 +193,7 @@ Spawn via the `Task` tool. Built-in agents:
 
 Custom subagents: define via `/agents` or as `.claude/agents/<name>.md`. Rule of thumb: subagents earn their keep when the inline alternative would dump more than ~5,000 tokens of noise into the parent context.
 
-## MCP ([lesson 10](../10-mcp-servers/))
+## MCP ([lesson 12](../12-mcp-servers/))
 
 ```bash
 claude mcp list                              # what's connected
@@ -172,33 +217,34 @@ Resolution order: local → project → user. **Never commit literal tokens** �
 | Path | What's there |
 | - | - |
 | `~/.claude/settings.json` | User-level permissions, hooks, MCP |
-| `~/.claude/CLAUDE.md` | User-level project context (every session) |
+| `~/.claude/CLAUDE.md` | User-level project context (every session) — [lesson 3](../03-user-level-claude-md/) |
 | `~/.claude/commands/<name>.md` | User-level slash commands |
 | `~/.claude/skills/<name>/SKILL.md` | User-level skills |
 | `~/.claude/hooks/<name>.sh` | User-level hook scripts |
 | `~/.claude/plans/<file>.md` | Default location for plan-mode artefacts |
 | `~/.claude/logs/` | Where hook scripts write logs (by convention) |
 | `~/.claude/config.json` | Encrypted auth token — **not a secrets store** |
-| `<repo>/CLAUDE.md` | Project context |
+| `<repo>/CLAUDE.md` | Project context — [lesson 6](../06-claude-md-project-context/) |
 | `<repo>/.claude/settings.json` | Project-level permissions + hooks |
 | `<repo>/.claude/settings.local.json` | Personal overrides (gitignored) |
 | `<repo>/.claude/commands/<name>.md` | Project-level slash commands |
 | `<repo>/.claude/skills/<name>/SKILL.md` | Project-level skills |
 | `<repo>/.claude/hooks/<name>.sh` | Project-level hook scripts |
 | `<repo>/.mcp.json` | Project-level MCP server config |
+| `<repo>/.github/pull_request_template.md` | PR template — [lesson 4](../04-branch-and-draft-pr/) |
 | `${CLAUDE_PROJECT_DIR}` | Resolves to the project root at runtime (use in settings.json paths) |
 
-## The Cinema Companion — what you typed by lesson eleven
+## The Cinema Companion — what you typed by lesson thirteen
 
 After the install script:
 
 | Command | What it does |
 | - | - |
-| `/film-pick <mood>` | Wrap `pick-film.sh` — deterministic pick from films.json ([lesson 6](../06-custom-slash-commands/)) |
-| `/film-suggest <mood>` | Claude-reasoned suggestion that reads films.json + CLAUDE.md ([lesson 6](../06-custom-slash-commands/)) |
-| `/add-film "<title>" <year> <mood> <runtime>` | Skill — append to films.json. `disable-model-invocation: true`. ([lesson 7](../07-skills/)) |
-| `/pair <title-or-mood>` | Skill — snack + Tiny Rebel beer + co-watcher archetype ([lesson 7](../07-skills/)) |
-| `/audit` | Skill — three parallel Explore subagents over films.json ([lesson 9](../09-subagents-task-tool/)) |
+| `/film-pick <mood>` | Wrap `pick-film.sh` — deterministic pick from films.json ([lesson 8](../08-custom-slash-commands/)) |
+| `/film-suggest <mood>` | Claude-reasoned suggestion that reads films.json + CLAUDE.md ([lesson 8](../08-custom-slash-commands/)) |
+| `/add-film "<title>" <year> <mood> <runtime>` | Skill — append to films.json. `disable-model-invocation: true`. ([lesson 9](../09-skills/)) |
+| `/pair <title-or-mood>` | Skill — snack + Tiny Rebel beer + co-watcher archetype ([lesson 9](../09-skills/)) |
+| `/audit` | Skill — three parallel Explore subagents over films.json ([lesson 11](../11-subagents-task-tool/)) |
 
 The `films-validate.sh` PostToolUse hook fires automatically on every `Edit|Write` and refuses writes that break the films.json schema.
 
@@ -206,6 +252,7 @@ The `films-validate.sh` PostToolUse hook fires automatically on every `Edit|Writ
 ~/dev/cinema/install.sh             # symlink .claude/* into ~/.claude/
 ~/dev/cinema/scripts/build-cinema-db.sh   # rebuild cinema.db for the MCP server
 ~/dev/cinema/pick-film.sh <mood>    # still runs from the shell, no claude required
+claude --dangerously-skip-permissions     # auto-mode, safe because of the cage (lesson 13)
 ```
 
 ## When in doubt
@@ -215,3 +262,5 @@ The `films-validate.sh` PostToolUse hook fires automatically on every `Edit|Writ
 - MCP server not available → `/mcp` inside the session, or `claude mcp list` from the shell.
 - Plan mode stuck → `/plan` to re-enter explicitly. Avoid combining with `--dangerously-skip-permissions`.
 - Cinema preview mismatched → rerun `./scripts/build-cinema-db.sh` after `/add-film` (one-way sync is deliberate).
+- Auto-mode about to do something irreversible → confirm a `deny` rule covers it, or the operation is on a feature branch you can `git reset --hard` from.
+- User-level CLAUDE.md not loading → `/memory` lists which CLAUDE.md files are in scope. If `~/.claude/CLAUDE.md` is missing, check the exact path (case-sensitive).
