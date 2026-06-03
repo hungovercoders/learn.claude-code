@@ -1,8 +1,8 @@
 ---
-title: "Branch and Draft PR from Session One"
+title: "Branch, Draft PR, and Worktrees from Session One"
 series: claude-code
 order: 4
-description: "Get the cinema onto a feature branch with a draft PR open before any Claude Code config lands — main becomes untouchable, every later lesson's deliverable pushes to a visible review surface, and auto-mode at lesson 13 starts from solid ground"
+description: "Two layers of isolation before any Claude Code config lands — a feature branch with a draft PR (so main is untouchable) plus git worktrees (so parallel Claude sessions can't tread on each other). The floor the auto-mode lesson stands on."
 canonical_url: https://hungovercoders.com/training/claude-code/04-branch-and-draft-pr
 ---
 
@@ -152,6 +152,58 @@ git push
 
 That commit shows up on the draft PR. The lesson 4 box stays ticked; the rest get ticked as you go. By lesson 13 the PR description is the build's table of contents.
 
+## The Second Layer — Worktrees for Parallel Isolation
+
+The branch + draft PR pattern protects you from the agent touching `main`. It does not protect you from *yourself* — specifically, from the muscle memory mistake of running `git checkout main` in the middle of an active Claude session because you wanted to check something. The session's working tree flips under it, half-staged files vanish into the index of whichever branch you switched to, and ten minutes later you're trying to remember whether `films-validate.sh` lived on `feat/cinema-build` or `feat/experiment`. Been there. Several times.
+
+The fix is **git worktrees**. A worktree is a separate working directory that points at the same `.git` (so it shares history and objects) but has its own branch, its own index, its own staged state. You don't switch branches in one directory; you have a directory per branch. Each Claude session lives in its own working tree and cannot accidentally trip the others.
+
+The minimum useful set of commands:
+
+```bash
+# Add a worktree at a sibling path, on a new branch
+git worktree add ../cinema-experiment -b feat/experiment
+
+# List every worktree this repo has
+git worktree list
+
+# Remove a worktree when you're done with it (don't `rm -rf`)
+git worktree remove ../cinema-experiment
+git branch -d feat/experiment   # delete the branch too if you don't need it
+```
+
+Applied to the cinema: keep your main build at `~/dev/cinema/` on `feat/cinema-build`. When you want to try something risky — a different hook shape, an experimental skill, an auto-mode session with a sharp-edged prompt — spin a worktree:
+
+```bash
+cd ~/dev/cinema
+git worktree add ../cinema-experiment -b feat/experiment
+cd ../cinema-experiment
+claude
+```
+
+The experiment runs in a completely separate working directory. If it goes wrong you `git worktree remove ../cinema-experiment` and the failure leaves no trace in the main build. Two parallel `claude` sessions — one in `~/dev/cinema/` working on the lesson-by-lesson build, one in `~/dev/cinema-experiment/` exploring — share history through `.git` but can't see each other's uncommitted work. That's the second layer of isolation. The branch protects `main`; the worktree protects parallel work from itself.
+
+There's an auto-mode payoff too. Lesson 13 lets the agent run with `--dangerously-skip-permissions`. The safest place to do that on something you genuinely care about is a *fresh worktree* — if the agent does something surprising, the worktree gets removed and your main build is untouched. We'll come back to this in lesson 13.
+
+### The Bit the Docs Don't Mention About Worktrees
+
+Three things tripped me up the first month of using them.
+
+**Never `rm -rf` a worktree directory.** Use `git worktree remove`. Removing the directory directly leaves stale metadata in `.git/worktrees/` that won't bite you immediately, but accumulates over a few months until `git worktree list` becomes confusing. `git worktree prune` cleans up after the fact — but the discipline is to use `git worktree remove` in the first place.
+
+**The index is per-worktree; the stash is shared.** Each worktree has its own `index` and its own `HEAD`, which is what saves you from the branch-swap problem. But `git stash` operates on a *single repo-wide stash list* — so if you stash work in one worktree and `git stash pop` in another, you get the stashed changes in the wrong directory. For Claude Code use, *commit early instead of stash*. Commits are per-branch (and you're on different branches in each worktree), so they never cross over.
+
+**The first worktree (the one at the original repo root) is the "main" worktree.** You can't `git worktree remove` it. If you want to delete it you have to move one of the other worktrees into its place first. Worth knowing once, never bites again.
+
+### When Not to Use a Worktree
+
+A worktree is for *parallel work you want to keep going at the same time*. If you'd be done with the experiment in five minutes and going back to `feat/cinema-build`, a worktree is overkill — just `git stash`, switch, switch back, `git stash pop`. The worktree pattern earns its keep when:
+
+- The experiment will take more than one Claude session
+- You want both directories visible in your editor at the same time
+- You want to run `claude` in both simultaneously
+- You're about to use `--dangerously-skip-permissions` and want a throwaway working tree as the safety net
+
 ## The Cadence — How Every Future Lesson Ends
 
 This is the discipline you carry from here:
@@ -191,11 +243,12 @@ A small honesty pass: for a one-line config tweak to your personal `~/.claude/se
 4. Add `.github/pull_request_template.md` from the template above (or `cp` the solution). Commit, push.
 5. Refresh the PR in your browser — the PR description should now show the cage checklist with lesson 4's box ticked.
 6. Try, just to feel the safety net: pretend to mess up. Create a junk file, commit it. Run `git reset --hard HEAD~1`. The file is gone, your branch is clean, and `main` was never involved. That's the floor you've built.
+7. **Add a worktree as a dry run.** From `~/dev/cinema/`, run `git worktree add ../cinema-experiment -b feat/experiment`. `cd ../cinema-experiment` and `ls` — the cinema files are there, but you're on `feat/experiment` and `git status` is its own clean slate. Open `claude` in this new directory if you've got energy and try the same first-session prompt from lesson 2. Then `cd ~/dev/cinema && git worktree remove ../cinema-experiment` to clean up. The pattern is now in your hands.
 
-## My Verdict on the Branch + Draft PR Pattern
+## My Verdict on the Branch + Draft PR + Worktree Pattern
 
-The pattern is the cheapest insurance Claude Code offers. Three commands at the start of a build (`git checkout -b`, `git push`, `gh pr create --draft`) and a five-second commit-and-push at the end of each lesson. Total overhead: maybe two minutes per lesson, generously. What you gain: a fully reversible build, a remote-visible diff at every step, a structured PR description with the cage checklist as you go, and a load-bearing safety floor for the auto-mode lesson at the end.
+The pattern is the cheapest insurance Claude Code offers. Three commands at the start of a build (`git checkout -b`, `git push`, `gh pr create --draft`) and a five-second commit-and-push at the end of each lesson. Total overhead: maybe two minutes per lesson, generously. What you gain: a fully reversible build, a remote-visible diff at every step, a structured PR description with the cage checklist as you go, and a load-bearing safety floor for the auto-mode lesson at the end. Worktrees add the second axis: parallel safety. One `git worktree add` and you can run two Claude sessions on the same repo without either one stepping on the other's working state.
 
-What I'd do differently next time: I'd build the branch-and-draft-PR habit into *every* multi-lesson tutorial I work through, not just this one. The cost is tiny and the upside is "I can roll back any lesson cleanly." That's a useful learning posture in general, not just for AI agents.
+What I'd do differently next time: I'd build the branch-and-draft-PR habit into *every* multi-lesson tutorial I work through, not just this one — and I'd reach for `git worktree add` the moment I felt the urge to `git checkout` in the middle of a Claude session. Both habits are tiny in setup cost and saved me hours the second month of daily use.
 
 On to lesson 5, fellow hungovercoder — let's wire the project's first set of allow and deny rules.

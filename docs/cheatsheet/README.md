@@ -64,6 +64,7 @@ Auto-mode is safe on a project when all of these are in place:
 
 - [ ] On a feature branch, never `main` ([lesson 4](../04-branch-and-draft-pr/))
 - [ ] Draft PR open; every commit visible on remote ([lesson 4](../04-branch-and-draft-pr/))
+- [ ] For risky auto-mode runs, in a throwaway `git worktree` ([lesson 4](../04-branch-and-draft-pr/))
 - [ ] Project `.claude/settings.json` with a *deny* list ([lesson 5](../05-permission-modes/))
 - [ ] Project `CLAUDE.md` encoding the conventions and "never do" rules ([lesson 6](../06-claude-md-project-context/))
 - [ ] Slash commands and skills with tight `allowed-tools` ([lesson 8](../08-custom-slash-commands/), [lesson 9](../09-skills/))
@@ -92,6 +93,39 @@ git reset --hard origin/feat/build~N    # roll back the last N commits
 ```
 
 The PR template at `.github/pull_request_template.md` (lesson 4 ships one) populates the description with a cage checklist you tick as each lesson lands.
+
+## Worktrees — parallel session isolation ([lesson 4](../04-branch-and-draft-pr/))
+
+A worktree is a separate working directory pointing at the same `.git`. Each worktree has its own branch, index, and HEAD — so two Claude sessions in two worktrees can't trip each other.
+
+```bash
+# Spin a worktree on a new branch at a sibling path
+git worktree add ../cinema-experiment -b feat/experiment
+
+# List every worktree this repo has
+git worktree list
+
+# Remove a worktree when done (don't rm -rf — leaves stale metadata)
+git worktree remove ../cinema-experiment
+git branch -d feat/experiment
+
+# Clean up after a previous rm -rf if it happened
+git worktree prune
+```
+
+When to reach for a worktree:
+
+- Parallel work you want to keep running for more than a few minutes
+- Both directories visible in your editor at the same time
+- Two `claude` sessions running simultaneously on the same repo
+- About to use `--dangerously-skip-permissions` and want a throwaway working tree as a safety net (auto-mode in a fresh worktree blast-radius-contains itself)
+
+When *not* to:
+
+- A five-minute swap to check something — `git stash` then `git stash pop` is faster
+- Read-only inspection of another branch — `git show` or `git log` is enough
+
+**Gotchas:** stash is repo-wide (don't share state across worktrees that way — commit instead). The original/root worktree can't be removed. Each worktree has its own index, so staged files in one are invisible to another.
 
 ## Built-in slash commands
 
