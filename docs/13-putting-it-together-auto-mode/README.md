@@ -133,14 +133,18 @@ Now we let it run.
 
 Claude Code's `--dangerously-skip-permissions` flag is the CLI side of auto-mode. It removes the permission prompts. Combined with the harness Auto Mode bias — the agent acts without stopping to ask clarifying questions — you get "set the task, walk away, come back to a finished diff." Both postures compose; you can use either on its own, but the lesson is the pair.
 
-Launch:
+Launch — and if you want the extra belt, do it in a fresh worktree spun off your build branch so the entire blast radius is one directory you can delete afterwards:
 
 ```bash
 cd ~/dev/cinema
+git worktree add ../cinema-automode feat/automode-demo
+cd ../cinema-automode
 claude --dangerously-skip-permissions
 ```
 
-You're now in a session with no prompts. Whatever the agent tries to do, it does. The *only* thing protecting your repo is the cage from lessons 4–12.
+(Skip the worktree step if you're confident; the cage works either way. The worktree is the "I'd like a second seatbelt" option from lesson 4.)
+
+You're now in a session with no prompts. Whatever the agent tries to do, it does. The *only* thing protecting your repo is the cage from lessons 4–12 — plus, if you took the worktree path, the fact that the working directory is a throwaway you can remove with one command.
 
 Give it a task that exercises the kit:
 
@@ -168,7 +172,7 @@ Open the PR in your browser:
 gh pr view --web
 ```
 
-The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 13 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt.
+The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 13 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt. And if you ran the demo inside a worktree, the nuclear option is one line — `cd ~/dev/cinema && git worktree remove ../cinema-automode && git branch -D feat/automode-demo` — and the entire experiment is gone, your main build untouched.
 
 ## The Bit the Docs Don't Mention
 
