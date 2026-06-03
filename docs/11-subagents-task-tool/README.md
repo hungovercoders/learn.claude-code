@@ -1,16 +1,16 @@
 ---
 title: "Subagents and the Task Tool"
 series: claude-code
-order: 9
+order: 11
 description: "Add the cinema's /audit skill — three parallel Explore subagents that find duplicates, mood drift, and field issues in films.json without polluting the parent context"
-canonical_url: https://hungovercoders.com/training/claude-code/09-subagents-task-tool
+canonical_url: https://hungovercoders.com/training/claude-code/11-subagents-task-tool
 ---
 
-I wanted Claude to audit `films.json` for duplicate titles, mood drift away from the conventions in `CLAUDE.md`, and any rows the lesson-8 hook would have rejected if they'd been written today — *without* filling my main context window with three full reads of the file and three full chains of reasoning. Subagents are the fix. The Task tool lets the main session spawn three junior Claudes in parallel, hand each one a narrow question, and get back one unified report. In this lesson the cinema gets its `audit` skill, which is itself a skill that spawns three subagents.
+I wanted Claude to audit `films.json` for duplicate titles, mood drift away from the conventions in `CLAUDE.md`, and any rows the lesson-10 hook would have rejected if they'd been written today — *without* filling my main context window with three full reads of the file and three full chains of reasoning. Subagents are the fix. The Task tool lets the main session spawn three junior Claudes in parallel, hand each one a narrow question, and get back one unified report. In this lesson the cinema gets its `audit` skill, which is itself a skill that spawns three subagents.
 
 ## Pre-Requisites
 
-- Comfortable with hooks, skills, and slash commands (lessons 6–8)
+- Comfortable with hooks, skills, and slash commands (lessons 8–10)
 - The cinema's films.json with a few rows in it (more is better — the seed five is the minimum for the audit to find anything interesting)
 - An understanding that an agent's context window is a finite, valuable resource
 
@@ -119,14 +119,21 @@ The other quiet thing: subagents return a *summary*, not the raw result. If the 
     └── skills/
         ├── add-film/SKILL.md
         ├── pair/SKILL.md
-        └── audit/SKILL.md           ← lesson 9 adds
+        └── audit/SKILL.md           ← lesson 11 adds
 ```
 
 1. Drop in the skill (or `cp -r docs/09-subagents-task-tool/solution/. ~/dev/cinema/`).
-2. Add a few deliberately-dodgy films to your catalogue before running the audit — a duplicate, a mood that doesn't exist in your `CLAUDE.md` conventions, a row with a bad year. Use `/add-film` or edit `films.json` by hand (the lesson-8 hook will refuse anything that breaks the schema; for these tests you need the row to be valid JSON but conceptually dodgy).
+2. Add a few deliberately-dodgy films to your catalogue before running the audit — a duplicate, a mood that doesn't exist in your `CLAUDE.md` conventions, a row with a bad year. Use `/add-film` or edit `films.json` by hand (the lesson-10 hook will refuse anything that breaks the schema; for these tests you need the row to be valid JSON but conceptually dodgy).
 3. Fire `/audit`. Watch the three subagents run. Read the unified report — does it catch what you planted?
 4. Time `/audit` versus running the same three questions inline as separate prompts. Notice the parallelism win on wall-clock and the context-isolation win on token cost.
 5. Try `/agents` and look at the built-in subagent definitions. The Explore agent is the one the cinema's audit reaches for; the others are there for different shapes of work.
+6. Commit and push:
+
+```bash
+git add .claude/skills/audit/
+git commit -m "lesson 11: audit skill spawning parallel subagents"
+git push
+```
 
 ## My Verdict on Subagents
 
@@ -136,4 +143,4 @@ The risk is over-use. Every subagent costs tokens and time, and a session that d
 
 What I'd do differently next time: I'd lean on the built-in **Explore** agent harder. I spent two weeks writing my own subagent prompts for "find X in the codebase" before realising the built-in one was already tuned for exactly that job and didn't need any of my prompt engineering.
 
-On to lesson 10, fellow hungovercoder — time to plug the external tap into the cinema.
+On to lesson 12, fellow hungovercoder — time to plug the external tap into the cinema.

@@ -1,9 +1,9 @@
 ---
-title: "Putting It Together"
+title: "Putting It Together and Safe Auto-Mode"
 series: claude-code
-order: 11
-description: "Wire the cinema's install.sh so the whole kit runs from any directory — the capstone that turns ten lessons of files into one portable workflow"
-canonical_url: https://hungovercoders.com/training/claude-code/11-putting-it-together
+order: 13
+description: "Wire the cinema's install.sh, then prove the kit makes auto-mode safe — launch with --dangerously-skip-permissions and watch the cage you built across twelve lessons keep the agent honest"
+canonical_url: https://hungovercoders.com/training/claude-code/13-putting-it-together-auto-mode
 ---
 
 Across the previous ten lessons your `~/dev/cinema/` directory has accumulated a `films.json`, a `pick-film.sh`, a `CLAUDE.md`, a project-level `settings.json`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and a plan-mode artefact. This is the lesson where they stop feeling like ten separate pieces and start composing into one workflow you actually use. We do one last thing — write an `install.sh` that symlinks the cinema's `.claude/` contents into your user-level `~/.claude/` — and then we use the kit end-to-end from a directory that isn't the cinema. That portability is what earns the kit its keep.

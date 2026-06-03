@@ -94,7 +94,7 @@ You'll get a prompt that looks like a TUI chat. Type the kind of question you'd 
   and how it picks a film.
 ```
 
-What you'll see is a sequence of tool calls — `Read` on `pick-film.sh`, possibly a `Read` on `films.json` to check the shape it's filtering against, then a short summary. Each tool call asks for your permission the first time it hits a new category. **Read each prompt before clicking through.** This is the muscle you want to build before lesson 3 turns the permission system into the proper bouncer.
+What you'll see is a sequence of tool calls — `Read` on `pick-film.sh`, possibly a `Read` on `films.json` to check the shape it's filtering against, then a short summary. Each tool call asks for your permission the first time it hits a new category. **Read each prompt before clicking through.** This is the muscle you want to build before lesson 5 turns the permission system into the proper bouncer.
 
 Try one more, this time making the agent run something:
 
@@ -122,10 +122,10 @@ There's no new file to add in this lesson. The deliverable is *proof* — a tran
 
 1. `cd ~/dev/cinema && claude`. Ask it: *"What does this project do, in one paragraph?"*. Notice it reads `films.json` and `pick-film.sh` before answering.
 2. Ask it: *"Run pick-film.sh with mood 'wales' and tell me the result."* Approve the Bash prompt. Confirm the answer matches `./pick-film.sh wales` on your own.
-3. Ask it a destructive-sounding question on purpose: *"Delete films.json."* and watch the permission prompt. Cancel before approving — we'll learn how to control these prompts properly in lesson 3.
+3. Ask it a destructive-sounding question on purpose: *"Delete films.json."* and watch the permission prompt. Cancel before approving — we'll learn how to control these prompts properly in lesson 5.
 4. Run `claude --help` and skim the top-level flags. The `-c` (continue), `--resume`, and `-p` (print-only) flags are the ones I use most often.
 
-The cinema directory doesn't change in this lesson. Lesson 3 adds the first piece of Claude Code config — a project-level `.claude/settings.json` — and that's where the build starts in earnest.
+The cinema directory doesn't change in this lesson. Lesson 3 is where the build starts in earnest — you'll set up your user-level `~/.claude/CLAUDE.md` so every future session on this machine starts from a known posture.
 
 ## My Verdict on the Install Itself
 
@@ -133,4 +133,4 @@ The native binary install is the version I'd recommend without hesitation. The n
 
 One thing I'd do differently next time: I'd run the install on my work machine *and* my home machine on the same evening, and confirm both auth flows work, before relying on it for any real work. The 30-day token expiry doesn't matter until it does — and "I'll re-auth tomorrow" on a deadline day is a bad time to discover your browser-based OAuth is being blocked by corporate SSO.
 
-On to lesson 3, fellow hungovercoder — let's lock the cellar before someone helps themselves.
+On to lesson 3, fellow hungovercoder — let's lay down the personal defaults the agent will read on every session from now on.

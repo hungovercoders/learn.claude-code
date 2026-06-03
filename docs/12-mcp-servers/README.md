@@ -1,16 +1,16 @@
 ---
 title: "MCP Servers"
 series: claude-code
-order: 10
-description: "Implement the lesson-5 plan — wire a local SQLite MCP server into the cinema so Claude can query films through SQL while films.json stays the human-editable source of truth"
-canonical_url: https://hungovercoders.com/training/claude-code/10-mcp-servers
+order: 12
+description: "Implement the lesson-7 plan — wire a local SQLite MCP server into the cinema so Claude can query films through SQL while films.json stays the human-editable source of truth"
+canonical_url: https://hungovercoders.com/training/claude-code/12-mcp-servers
 ---
 
-I wanted Claude to answer *"which mood has the fewest films?"* without shelling out to `jq` and parsing the result. The data already lived in `films.json`; the query language I wanted was SQL. The Model Context Protocol — MCP — is the pipe between an AI tool and an external system that speaks something other than the agent's native tool set. In this lesson the cinema gets one MCP server (`mcp-server-sqlite`) pointed at a local `cinema.db` built from `films.json`. The plan we wrote in lesson 5 with `--permission-mode plan` becomes the thing we wire up here.
+I wanted Claude to answer *"which mood has the fewest films?"* without shelling out to `jq` and parsing the result. The data already lived in `films.json`; the query language I wanted was SQL. The Model Context Protocol — MCP — is the pipe between an AI tool and an external system that speaks something other than the agent's native tool set. In this lesson the cinema gets one MCP server (`mcp-server-sqlite`) pointed at a local `cinema.db` built from `films.json`. The plan we wrote in lesson 7 with `--permission-mode plan` becomes the thing we wire up here.
 
 ## Pre-Requisites
 
-- The lesson-5 plan at `plans/lesson-05-mcp-feature.md` (we wrote it; this lesson executes it)
+- The lesson-7 plan at `plans/mcp-feature.md` (we wrote it; this lesson executes it)
 - `uvx` or `uv` installed (`brew install uv` on macOS), or `pipx` as an alternative — used to launch the SQLite MCP server
 - `sqlite3` on your PATH (ships with macOS; `apt install sqlite3` on Debian/Ubuntu)
 
@@ -34,7 +34,7 @@ Use project scope for servers that anyone working in the repo needs (the cinema'
 
 ## The Cinema's Tap — SQLite via `mcp-server-sqlite`
 
-The plan from lesson 5 specifies SQLite, with `films.json` as the editable source of truth and `cinema.db` as a derived projection. The reasons restated: SQL is the right query language for "fewest films by mood", "average runtime", "everything with year > 2010", and the JSON file stays human-editable for `/add-film` and direct prods.
+The plan from lesson 7 specifies SQLite, with `films.json` as the editable source of truth and `cinema.db` as a derived projection. The reasons restated: SQL is the right query language for "fewest films by mood", "average runtime", "everything with year > 2010", and the JSON file stays human-editable for `/add-film` and direct prods.
 
 Two files do all the wiring.
 
@@ -166,17 +166,24 @@ Not every integration belongs as an MCP server. The honest criteria:
 ```
 ~/dev/cinema/
 ├── ...
-├── .mcp.json                          ← lesson 10 adds
+├── .mcp.json                          ← lesson 12 adds
 ├── scripts/
-│   └── build-cinema-db.sh             ← lesson 10 adds
+│   └── build-cinema-db.sh             ← lesson 12 adds
 └── cinema.db                          ← generated, not committed
 ```
 
 1. Drop in `.mcp.json` and `scripts/build-cinema-db.sh` (or `cp -r docs/10-mcp-servers/solution/. ~/dev/cinema/`).
 2. `chmod +x scripts/build-cinema-db.sh && ./scripts/build-cinema-db.sh`. Confirm `cinema.db` is created with the right row count.
 3. Inside `claude`, run `/mcp` and confirm `cinema-db` is loaded.
-4. Ask the agent the question from the lesson-5 plan: *"Which mood currently has the fewest films?"* Watch the SQL fly.
+4. Ask the agent the question from the lesson-7 plan: *"Which mood currently has the fewest films?"* Watch the SQL fly.
 5. Add a film via `/add-film`. Notice the MCP still reports the old count until you rerun `build-cinema-db.sh`. Make peace with the deliberate one-way sync, or pencil in a `SessionStart` hook that rebuilds the DB on every session — your call.
+6. Commit and push:
+
+```bash
+git add .mcp.json scripts/build-cinema-db.sh
+git commit -m "lesson 12: MCP server + cinema.db build script"
+git push
+```
 
 ## My Verdict on MCP
 
@@ -186,4 +193,4 @@ The cost discipline matters. Token cost compounds across servers, and it's easy 
 
 What I'd do differently next time: I'd resist the urge to install every MCP server I read about. Twenty servers in `~/.claude.json` is a costume; one well-chosen server in a per-project `.mcp.json` is a tool.
 
-On to lesson 11, fellow hungovercoder — let's pour the whole round.
+On to lesson 13, fellow hungovercoder — let's pour the whole round and turn the agent loose.

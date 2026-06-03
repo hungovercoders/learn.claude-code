@@ -1,16 +1,16 @@
 ---
 title: "Hooks"
 series: claude-code
-order: 8
+order: 10
 description: "Add the cinema's schema-checking PostToolUse hook — the bouncer that refuses films.json writes that break the rules CLAUDE.md only suggests"
-canonical_url: https://hungovercoders.com/training/claude-code/08-hooks
+canonical_url: https://hungovercoders.com/training/claude-code/10-hooks
 ---
 
-I wanted `films.json` to *always* parse as JSON and *always* satisfy its schema, not just when Claude felt like it. The `CLAUDE.md` from lesson 4 says "moods are single lowercase words" and "runtime is between 60 and 240" — and from a few sessions in, Claude was following the rule maybe seven times out of ten. The rest of the time a bad row slipped in. Hooks are the fix: shell scripts that fire automatically at points in the session, with exit codes that can outright block or silently allow. They're the bouncer who actually checks the wristband, not the bar manager who *hopes* people respect the dress code.
+I wanted `films.json` to *always* parse as JSON and *always* satisfy its schema, not just when Claude felt like it. The `CLAUDE.md` from lesson 6 says "moods are single lowercase words" and "runtime is between 60 and 240" — and from a few sessions in, Claude was following the rule maybe seven times out of ten. The rest of the time a bad row slipped in. Hooks are the fix: shell scripts that fire automatically at points in the session, with exit codes that can outright block or silently allow. They're the bouncer who actually checks the wristband, not the bar manager who *hopes* people respect the dress code.
 
 ## Pre-Requisites
 
-- Lessons 6 and 7 finished — slash commands and skills installed in the cinema
+- Lessons 8 and 9 finished — slash commands and skills installed in the cinema
 - Comfort with shell scripts and exit codes
 - `jq` installed (you've been using it since lesson 1)
 
@@ -93,7 +93,7 @@ The `case "$file"` switch is doing the cinema-scoping. It only runs the jq schem
 
 ## Updating `settings.json` — Both Blocks Now
 
-Lesson 3 wired the `permissions` block. Lesson 8 adds the `hooks` block alongside it. The full project `settings.json`:
+Lesson 5 wired the `permissions` block. Lesson 10 adds the `hooks` block alongside it. The full project `settings.json`:
 
 `~/dev/cinema/.claude/settings.json`:
 
@@ -159,7 +159,7 @@ fi
 exit 0
 ```
 
-Wire it as a `PreToolUse` hook with matcher `Bash` in `~/.claude/settings.json`. Now any session on this machine, in any project, can't `rm -rf` through Claude Code. The cinema's project-level `deny: ["Bash(rm:*)"]` from lesson 3 is the same belt, narrower.
+Wire it as a `PreToolUse` hook with matcher `Bash` in `~/.claude/settings.json`. Now any session on this machine, in any project, can't `rm -rf` through Claude Code. The cinema's project-level `deny: ["Bash(rm:*)"]` from lesson 5 is the same belt, narrower.
 
 **User-level auto-format on Edit/Write** (the cleaner). Same pattern as `films-validate.sh` but runs `prettier`/`ruff`/`gofmt` instead of jq. Best as a user-level `PostToolUse` so it covers every project.
 
@@ -189,7 +189,7 @@ A hook is not always the right answer.
 └── .claude/
     ├── settings.json                    ← updated with hooks block
     └── hooks/
-        └── films-validate.sh            ← lesson 8 adds
+        └── films-validate.sh            ← lesson 10 adds
 ```
 
 1. Drop in the hook and the updated `settings.json`. Or `cp -r docs/08-hooks/solution/. ~/dev/cinema/` for the lazy path.
@@ -197,6 +197,13 @@ A hook is not always the right answer.
 3. Try `/add-film "Bad" 999 BIG 10000`. Watch the hook block and the feedback get passed back to Claude.
 4. Try `/add-film "Pride" 2014 wales 119`. Watch it succeed silently.
 5. (Optional) Add the user-level `guard-rm.sh` from above to `~/.claude/hooks/` and `~/.claude/settings.json`. Different scope, same shape.
+6. Commit and push:
+
+```bash
+git add .claude/hooks/ .claude/settings.json
+git commit -m "lesson 10: films-validate hook + settings wiring"
+git push
+```
 
 ## My Verdict on Hooks
 
@@ -206,4 +213,4 @@ For the cinema specifically, the films-validate hook is the file that *makes the
 
 What I'd do differently next time: I'd write the validate hook on day one. It's twenty lines of shell, takes ten minutes to wire up, and it permanently raises the floor on what the agent can do to your catalogue by accident.
 
-On to lesson 9, fellow hungovercoder — let's send three subagents to audit the catalogue at the same time.
+On to lesson 11, fellow hungovercoder — let's send three subagents to audit the catalogue at the same time.

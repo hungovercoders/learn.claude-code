@@ -1,16 +1,16 @@
 ---
 title: "Custom Slash Commands"
 series: claude-code
-order: 6
+order: 8
 description: "Write the cinema's first two slash commands — /film-pick and /film-suggest — and turn repeatable prompts into one-line invocations"
-canonical_url: https://hungovercoders.com/training/claude-code/06-custom-slash-commands
+canonical_url: https://hungovercoders.com/training/claude-code/08-custom-slash-commands
 ---
 
 I wanted to stop typing the same six-sentence prompt every time I asked Claude to pick a film for the evening. Three sentences setting the rules, two pointing at `films.json`, one closing line. By the end of the week I'd typed it eight times. The fix is a custom slash command: write the prompt once as a markdown file, fire it with `/your-name` from anywhere. This lesson is two of them — `/film-pick` (a thin wrapper around `pick-film.sh`) and `/film-suggest` (Claude-reasoned recommendation). Both live in the cinema and get used through the rest of the series.
 
 ## Pre-Requisites
 
-- The cinema with `CLAUDE.md` and project-level settings (lessons 1–5)
+- The cinema with `CLAUDE.md`, project-level settings, and a plan-mode artefact (lessons 1–7)
 - Claude Code installed and authenticated
 - A text editor
 
@@ -134,12 +134,12 @@ The second quiet thing: command files are *also* read into context when the agen
 ├── films.json
 ├── pick-film.sh
 ├── CLAUDE.md
-├── plans/lesson-05-mcp-feature.md
+├── plans/mcp-feature.md
 └── .claude/
     ├── settings.json
     └── commands/
-        ├── film-pick.md          ← lesson 6 adds
-        └── film-suggest.md       ← lesson 6 adds
+        ├── film-pick.md          ← lesson 8 adds
+        └── film-suggest.md       ← lesson 8 adds
 ```
 
 1. Create the two files above. Or `cp -r docs/06-custom-slash-commands/solution/. ~/dev/cinema/` if you'd rather not retype.
@@ -147,6 +147,13 @@ The second quiet thing: command files are *also* read into context when the agen
 3. Compare the two: `/film-pick fun` and `/film-suggest fun` against the same catalogue. Watch how the deterministic wrapper differs from the reasoned suggestion.
 4. Try the empty-result path on both: `/film-pick disco`. `pick-film.sh` returns "No film for mood: disco" — `/film-pick` suggests a closer mood, `/film-suggest` suggests adding `disco` to the catalogue. Same input, different shape of helpfulness.
 5. Look at your own work for a workflow you'd write into a personal command at `~/.claude/commands/`. Pick the most annoying one — write the smallest possible version, with a tight `allowed-tools` list.
+6. Commit and push:
+
+```bash
+git add .claude/commands/
+git commit -m "lesson 8: /film-pick and /film-suggest"
+git push
+```
 
 ## My Verdict on Custom Slash Commands
 
@@ -156,4 +163,4 @@ The thing that surprised me: once I had `/film-pick` and `/film-suggest` in musc
 
 What I'd do differently next time: I'd write the *first* command as a personal one in `~/.claude/commands/` before I tried writing a project command. Project commands tempt you to over-engineer because they're for the team; personal ones force you to keep it shabby and useful, which is the right starting energy.
 
-On to lesson 7, fellow hungovercoder — let's meet skills, the newer cousin who shares a flat with slash commands.
+On to lesson 9, fellow hungovercoder — let's meet skills, the newer cousin who shares a flat with slash commands.
