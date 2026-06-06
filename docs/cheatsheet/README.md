@@ -60,6 +60,8 @@ Compose them on a project where the cage exists; never on a project where it doe
 
 ### The cage checklist (lessons 4–13)
 
+![The full cage in one image: eleven layers stacked from personal posture at the base to bounded external access at the top, with auto-mode as the safe surface that runs on top.](/assets/training/claude-code/cage-stack.svg)
+
 Auto-mode is safe on a project when all of these are in place:
 
 - [ ] On a feature branch, never `main` ([lesson 4](../04-branch-and-draft-pr/))
@@ -158,6 +160,8 @@ When *not* to:
 Rule evaluation: **deny wins**, then `ask`, then `allow`. First match wins within a category. Globs, not regex — `Bash(npm test:*)` does **not** match `npm install`.
 
 ## Settings file hierarchy
+
+![The four settings.json layers (Enterprise, User, Project, Local) shown stacked, with the deny > ask > allow rule precedence sieve on the right.](/assets/training/claude-code/settings-hierarchy.svg)
 
 ```
 1. Enterprise   /Library/Application Support/ClaudeCode/managed-settings.json

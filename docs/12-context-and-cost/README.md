@@ -35,33 +35,7 @@ The two built-in commands that put you in charge of this are `/context` and `/co
 
 What you'll see (the categories vary slightly by model and version):
 
-```text
-Context Usage — Opus 4.7 (1M context)
-686.8k / 1m tokens (69%)
-
-Estimated usage by category:
-  System prompt       8.8k     0.9%
-  System tools       15.4k     1.5%
-  Memory files        865      0.1%
-  Skills              2.6k     0.3%
-  Messages          672.7k    67.3%
-  Free space        299.6k    30.0%
-
-Memory files
-  ~/.claude/CLAUDE.md                              577 tokens
-  ~/.claude/projects/<...>/memory/MEMORY.md        288 tokens
-
-Skills
-  hc-write-lessons   ~40 tokens
-  hc-review-blog     ~40 tokens
-  hc-launch          ~30 tokens
-  ...
-
-MCP tools (deferred)
-  mcp__linear__create_issue                        290 tokens
-  mcp__linear__list_issues                         275 tokens
-  ...
-```
+![A typical /context output. Terminal-style screenshot: header reading "Context Usage — Opus 4.7 (1M context)", 686.8k of 1m tokens used (69%), a horizontal usage bar showing the category split with most of the bar consumed by Messages (67.3%) and 30% free space. Category breakdown table: System prompt 8.8k (0.9%), System tools 15.4k (1.5%), Memory files 865 (0.1%), Skills 2.6k (0.3%), Messages 672.7k (67.3%), Free space 299.6k (30.0%). Below: Memory files lists ~/.claude/CLAUDE.md and the project CLAUDE.md with their token counts. Below that: Skills lists add-film, pair, audit, checkpoint as the loaded skills with combined token count.](/assets/training/claude-code/context-output-mockup.svg)
 
 Three columns of useful information:
 

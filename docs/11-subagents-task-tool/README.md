@@ -27,6 +27,8 @@ The parent calls a subagent via the `Task` tool. The subagent does its work — 
 
 That's the killer property: **context isolation**. A 400-file search that would have filled your main window with 50,000 tokens becomes a 200-token answer in the parent context. The subagent did the work; you got the conclusion.
 
+![Subagent context isolation diagram. At the top, the parent session with a small focused context window. Below it, three subagent windows (each an Explore agent: find duplicates, find mood drift, find field issues), each with its own isolated context that contains the files it read and the work it did. Task-tool arrows show the parent dispatching three jobs in parallel; summary-only return arrows show each subagent sending back a short paragraph. The combined result: 47k tokens of subagent work stayed in their own windows, only about 600 tokens of summary landed in the parent context.](/assets/training/claude-code/subagent-isolation.svg)
+
 ## When to Send Someone to the Bar
 
 Two situations:

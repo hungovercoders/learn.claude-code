@@ -111,7 +111,11 @@ Three commands, five features (CLAUDE.md, two skills, the audit's subagents, the
 
 ## Step 3 — The Cage You Built
 
-Before we turn the agent loose, take stock of what the last thirteen lessons earned you. Each lesson added one *cage layer* — a constraint, a guardrail, an enforcement point — that narrows what the agent can do unsupervised. The whole cage:
+Before we turn the agent loose, take stock of what the last thirteen lessons earned you. Each lesson added one *cage layer* — a constraint, a guardrail, an enforcement point — that narrows what the agent can do unsupervised. The whole cage, top to bottom:
+
+![The cage you build across thirteen lessons. A vertical stack of eleven cage layers added across lessons 3 through 13, each labelled with the lesson number, the layer name, and one line on what it stops. From the base up: personal posture (lesson 3), branch isolation (lesson 4), permissions allow + deny (lesson 5), project conventions (lesson 6), plan-before-execute (lesson 7), tool narrowing (lesson 8), write safety belts (lesson 9), schema enforcement (lesson 10), context isolation (lesson 11), context awareness (lesson 12), bounded external access via MCP (lesson 13). The surface on top is lesson 14: auto-mode runs safely with --dangerously-skip-permissions because the cage is in place underneath.](/assets/training/claude-code/cage-stack.svg)
+
+The same data in a tabular form:
 
 | Layer | Where it came from | What it stops |
 | - | - | - |

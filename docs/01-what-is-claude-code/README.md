@@ -43,7 +43,9 @@ The seed is two files — `films.json` and `pick-film.sh`. They are the same two
 └── pick-film.sh      ← lesson 1
 ```
 
-By lesson fourteen that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point.
+By lesson fourteen that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point — here's the full kit as it'll sit when you reach the capstone:
+
+![The Cinema Companion kit — how the pieces compose. Directory tree on the left with films.json, pick-film.sh, CLAUDE.md, the commands, skills and hooks folders, and the MCP wiring. Annotation cards on the right show how each piece is consumed: CLAUDE.md as context the agent reads on every session, commands and skills with tight allowed-tools, the films-validate hook on PostToolUse, and the cinema-db MCP server.](/assets/training/claude-code/kit-composition.svg)
 
 ## The Bit the Docs Don't Mention
 

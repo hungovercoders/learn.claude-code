@@ -32,14 +32,9 @@ The last one — `--dangerously-skip-permissions` on the command line — is for
 
 ## Setting the House Rules — `settings.json`
 
-Permission rules live in `settings.json`. There are four layers, evaluated in order:
+Permission rules live in `settings.json`. There are four layers, merged in order, and within each layer rules resolve **deny > ask > allow**:
 
-```
-1. Enterprise   /Library/Application Support/ClaudeCode/managed-settings.json   (macOS — locked-down by IT)
-2. User         ~/.claude/settings.json                                          (your personal defaults)
-3. Project      .claude/settings.json                                            (committed to the repo)
-4. Local        .claude/settings.local.json                                      (gitignored, your personal repo overrides)
-```
+![Settings hierarchy and rule precedence diagram. Left: the four settings.json layers stacked, Enterprise → User → Project → Local, with a merge-order arrow on the side. Right: the rule precedence sieve showing deny first (first match wins, nothing overrides it), then ask, then allow. A worked example shows a user-level allow Bash(rm:*) overridden by a project-level deny Bash(rm:*) — denied because deny is additive and cannot be overruled.](/assets/training/claude-code/settings-hierarchy.svg)
 
 You'll wire the cinema at the **project** layer in a moment. First the user-level shape, because it's the one that earns its keep across every project you touch.
 
