@@ -6,7 +6,7 @@ description: "An honest first look at Anthropic's terminal-based coding agent, t
 canonical_url: https://hungovercoders.com/training/claude-code/01-what-is-claude-code
 ---
 
-I'll be honest about why I'm here. I was happy using Copilot in an agentic chat interface and felt I was doing OK there. What made me reach for Claude Code was outside pressure: the industry trumpets and increased usage around me made me want to see what the fuss was about and ensure I was skilled in something becoming increasingly common. The love came later — it's now awesome, including straight from the terminal, and using it with multi-threaded terminal tools like cmux or zed has really opened my eyes. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
+I'll be honest about why I'm here. I was happy using Copilot in an agentic chat interface and felt I was doing OK there. What made me reach for Claude Code was outside pressure: the industry trumpets and increased usage around me made me want to see what the fuss was about and ensure I was skilled in something becoming increasingly common. The love came later — it's now awesome, including straight from the terminal, and using it with multi-threaded terminal tools like [cmux](https://github.com/coder/cmux) or [zed](https://zed.dev) has really opened my eyes. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
 
 ## Texting a Mate vs Sitting Next to One
 
