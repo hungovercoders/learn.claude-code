@@ -6,11 +6,11 @@ description: "Write the recipe card the cinema's agent reads at the start of eve
 canonical_url: https://hungovercoders.com/training/claude-code/06-claude-md-project-context
 ---
 
-I wanted the agent to stop asking what the data shape is, what `pick-film.sh` does, whether moods are lowercase, and whether new films go at the end of `films.json`. After three sessions in the cinema I'd retyped the same five reminders into every opening prompt. The fix is a `CLAUDE.md` — but the catch is, the moment you treat it like a wiki page, Claude starts ignoring half of it. This lesson is the one that earns its keep in every session that follows.
+Lesson 3 was the personal-defaults CLAUDE.md — the things you'd want true in every session everywhere. This one is the project-level layer that tells Claude what's specific to *this* repo: in our case the cinema's data shape, what `pick-film.sh` does, the mood conventions, where new films go in `films.json`. Without a project CLAUDE.md you find yourself retyping the same project-specific context into every opening prompt; with one, the agent reads it on session start and you can get to the work. The catch is, the moment you treat it like a wiki page, Claude starts ignoring half of it. This lesson is the one that earns its keep in every session that follows.
 
 ## Pre-Requisites
 
-- The cinema seed (`~/dev/cinema/films.json` + `pick-film.sh`)
+- The cinema seed (`~/dev/learn.claude-code/films.json` + `pick-film.sh`)
 - Your user-level `~/.claude/CLAUDE.md` from lesson 3 — this lesson's project-level file *composes* with it
 - The cinema on a feature branch with a draft PR open (lesson 4)
 - The project-level `.claude/settings.json` from lesson 5
@@ -32,12 +32,14 @@ The hierarchy:
 
 You can also point to other files using `@filename` syntax. A single line `@AGENTS.md` in `CLAUDE.md` means "load AGENTS.md at the same time" — useful if you've already got an `AGENTS.md` (as we do in this very repo) and don't want to duplicate.
 
+**A practice I lean on across my own projects:** write the bulk of the project context into `AGENTS.md` (the open standard for *any* coding agent, not just Claude Code), then have a one-line `CLAUDE.md` that says `@AGENTS.md`. One source of truth, multiple agents reading it. The cinema follows the simpler "CLAUDE.md is the canonical file" pattern for the lesson, but the AGENTS-first pattern is what I'd reach for on a real project where more than one tool might read the context.
+
 ## Starting the Pour — `/init`
 
 Inside the cinema, run:
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude
 ```
 
@@ -117,7 +119,7 @@ It also mentions files we haven't built yet (`install.sh`, `films-validate.sh`, 
 
 ## Progressive Disclosure — The Real Discipline
 
-The mistake I made on my first proper `CLAUDE.md` was treating it as a wiki page. I wrote a long, well-organised document explaining the architecture, the API endpoints, the database schema, the deployment process. It was a lovely document. Claude ignored half of it.
+The temptation with a project-level CLAUDE.md is to treat it as a wiki page — explain the architecture, list every endpoint, walk through the deployment, document every convention you can think of. The result is a lovely document Claude reads the first thirty lines of and then summarises the rest into a vibe. Optimising the size of CLAUDE files is an ongoing discipline; mine is still a work in progress.
 
 The fix is *progressive disclosure*: don't put information in `CLAUDE.md` — put a *pointer* to it.
 
@@ -150,7 +152,7 @@ This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get fol
 ## Have a Go — Add CLAUDE.md to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json
 ├── pick-film.sh
 ├── CLAUDE.md             ← lesson 6 adds this
@@ -159,7 +161,7 @@ This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get fol
 ```
 
 1. `/init` in the cinema. Read every line of the generated file before saving.
-2. Replace the generated content with the cinema version above (or `cp docs/04-claude-md-project-context/solution/CLAUDE.md ~/dev/cinema/`).
+2. Replace the generated content with the cinema version above (or `cp docs/04-claude-md-project-context/solution/CLAUDE.md ~/dev/learn.claude-code/`).
 3. Start a new session and ask Claude something only the `CLAUDE.md` can answer correctly: *"What schema do films.json entries follow?"* or *"What's the mood convention?"*. Confirm the answer matches the file you just wrote.
 4. Ask it a question the `CLAUDE.md` doesn't cover (e.g. *"How many films are currently in the catalogue?"*) and watch it `Read` `films.json` to find out — `CLAUDE.md` for the rules, the code for the detail.
 5. Commit the new `CLAUDE.md` to your feature branch and push:

@@ -1,12 +1,12 @@
 ---
 title: "MCP Servers"
 series: claude-code
-order: 12
+order: 13
 description: "Implement the lesson-7 plan — wire a local SQLite MCP server into the cinema so Claude can query films through SQL while films.json stays the human-editable source of truth"
-canonical_url: https://hungovercoders.com/training/claude-code/12-mcp-servers
+canonical_url: https://hungovercoders.com/training/claude-code/13-mcp-servers
 ---
 
-I wanted Claude to answer *"which mood has the fewest films?"* without shelling out to `jq` and parsing the result. The data already lived in `films.json`; the query language I wanted was SQL. The Model Context Protocol — MCP — is the pipe between an AI tool and an external system that speaks something other than the agent's native tool set. In this lesson the cinema gets one MCP server (`mcp-server-sqlite`) pointed at a local `cinema.db` built from `films.json`. The plan we wrote in lesson 7 with `--permission-mode plan` becomes the thing we wire up here.
+MCP is the pipe between Claude Code and an external system that speaks something other than the agent's native tool set. The one I lean on hardest in real work is the **Linear MCP** — I use it to write plans out to Linear for peer refinement once a design is settled, then have agents action the resulting issues with context from the related projects and initiatives. For the cinema we'll wire a simpler one — a local SQLite MCP server pointed at a `cinema.db` built from `films.json` — so Claude can answer *"which mood has the fewest films?"* in SQL instead of shelling out to `jq` and parsing the result. The plan we wrote in lesson 7 with `--permission-mode plan` becomes the thing we wire up here.
 
 ## Pre-Requisites
 
@@ -38,7 +38,7 @@ The plan from lesson 7 specifies SQLite, with `films.json` as the editable sourc
 
 Two files do all the wiring.
 
-`~/dev/cinema/.mcp.json`:
+`~/dev/learn.claude-code/.mcp.json`:
 
 ```json
 {
@@ -55,11 +55,11 @@ Two files do all the wiring.
 }
 ```
 
-The `${CLAUDE_PROJECT_DIR}` interpolates to the project root at runtime, so the server resolves to `~/dev/cinema/cinema.db` whatever directory the agent is operating in. `uvx` launches the SQLite MCP server in an ephemeral environment — no global install, no version drift.
+The `${CLAUDE_PROJECT_DIR}` interpolates to the project root at runtime, so the server resolves to `~/dev/learn.claude-code/cinema.db` whatever directory the agent is operating in. `uvx` launches the SQLite MCP server in an ephemeral environment — no global install, no version drift.
 
 The build script that creates the database from `films.json`:
 
-`~/dev/cinema/scripts/build-cinema-db.sh`:
+`~/dev/learn.claude-code/scripts/build-cinema-db.sh`:
 
 ```bash
 #!/bin/bash
@@ -91,8 +91,8 @@ echo "cinema.db rebuilt: $(sqlite3 "$DB" 'SELECT COUNT(*) FROM films') films."
 Run it once after cloning the kit:
 
 ```bash
-chmod +x ~/dev/cinema/scripts/build-cinema-db.sh
-~/dev/cinema/scripts/build-cinema-db.sh
+chmod +x ~/dev/learn.claude-code/scripts/build-cinema-db.sh
+~/dev/learn.claude-code/scripts/build-cinema-db.sh
 ```
 
 ```text
@@ -117,7 +117,7 @@ Either path lands the server. The committed `.mcp.json` is the team-friendly ver
 Open a session in the cinema:
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude
 ```
 
@@ -145,13 +145,23 @@ Each MCP server exposes a set of tool definitions, and *every tool definition co
 Two mitigations:
 
 1. **Tool Search** — built-in to Claude Code on Sonnet 4+ and Opus 4. When tool definitions exceed 10% of the context window, the agent dynamically loads only the tool schemas it needs for the current task. Drops context usage from ~72,000 tokens to ~8,700 in the typical case. You don't need to enable this; it activates automatically when the threshold is hit.
-2. **Be selective about which servers are connected.** You don't need GitHub, Postgres, Puppeteer, and Brave Search all loaded for a session that's just querying cinema.db. Favour project scope so servers are only on when you're in the right repo — `.mcp.json` does exactly that. The cinema's server only loads inside `~/dev/cinema/`; everywhere else, it isn't there.
+2. **Be selective about which servers are connected.** You don't need GitHub, Postgres, Puppeteer, and Brave Search all loaded for a session that's just querying cinema.db. Favour project scope so servers are only on when you're in the right repo — `.mcp.json` does exactly that. The cinema's server only loads inside `~/dev/learn.claude-code/`; everywhere else, it isn't there.
 
 ## The Bit the Docs Don't Mention
 
-First time I wired the SQLite MCP I forgot to rebuild the DB after using `/add-film` to add a row. The MCP server kept returning the pre-`/add-film` row count because the DB hadn't been regenerated. The fix is conscious: `films.json` is the source of truth, `cinema.db` is a derived projection, and the projection is stale until you run `build-cinema-db.sh`. That's a deliberate tradeoff — automatic sync via a watcher would be cleverer, but the manual rebuild keeps the kit small and the source-of-truth direction one-way. Live with the build step; gain the predictability.
+The cinema's one-way sync (films.json → cinema.db via `build-cinema-db.sh`) is the kind of gotcha worth knowing about for *any* MCP server that wraps a derived projection: when you mutate the source of truth, the derived store is stale until you rebuild. The MCP server happily returns the old data without warning you it's behind. The fix is conscious: keep one direction (JSON is the source, the DB is the projection) and run the rebuild step before you trust the next MCP answer. Automatic sync via a watcher would be cleverer; the manual rebuild keeps the kit small and the source-of-truth direction one-way. Live with the build step; gain the predictability.
 
 The other quiet thing: if a server fails to start, the agent silently doesn't get its tools — there's no loud error in the session. Check `/mcp` early in any session if you're expecting a server to be available and the agent is acting like it isn't. `claude mcp list` from the shell shows the same information from outside the session.
+
+## MCP vs `gh` / `psql` — When to Reach for Which
+
+A real question I had once the Linear MCP was wired: when *should* I add an MCP server for something like GitHub vs just letting Claude use the `gh` CLI on demand? The honest answer that came out of using both:
+
+- **`gh` (or `psql`, or any CLI) is fine when the interaction is occasional, one-shot, and read-mostly.** "Look at PR 142, summarise the diff" — `gh pr view 142` does the job. No MCP needed. I've never felt the GitHub MCP add anything for this shape.
+- **MCP earns its keep when the integration is *bidirectional and repeated in the same shape*** — write plans to Linear, action issues with project context, cross-reference related initiatives. That's the Linear MCP case, and it's the case where wiring once and getting structured tools every session pays for itself.
+- **MCP also wins when the *tool surface* matters** — Claude reasons better when it can call `mcp__linear__create_issue` than when it has to construct the right `gh` invocation each time. Typed tool definitions are easier on the agent than free-form Bash.
+
+Rule of thumb: if you'd reach for the CLI three times a week in the same way, the MCP earns its keep. If it's once a fortnight, the CLI is fine.
 
 ## When to Reach for an MCP Server
 
@@ -164,15 +174,15 @@ Not every integration belongs as an MCP server. The honest criteria:
 ## Have a Go — Wire the Cinema's MCP
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
-├── .mcp.json                          ← lesson 12 adds
+├── .mcp.json                          ← lesson 13 adds
 ├── scripts/
-│   └── build-cinema-db.sh             ← lesson 12 adds
+│   └── build-cinema-db.sh             ← lesson 13 adds
 └── cinema.db                          ← generated, not committed
 ```
 
-1. Drop in `.mcp.json` and `scripts/build-cinema-db.sh` (or `cp -r docs/10-mcp-servers/solution/. ~/dev/cinema/`).
+1. Drop in `.mcp.json` and `scripts/build-cinema-db.sh` (or `cp -r docs/10-mcp-servers/solution/. ~/dev/learn.claude-code/`).
 2. `chmod +x scripts/build-cinema-db.sh && ./scripts/build-cinema-db.sh`. Confirm `cinema.db` is created with the right row count.
 3. Inside `claude`, run `/mcp` and confirm `cinema-db` is loaded.
 4. Ask the agent the question from the lesson-7 plan: *"Which mood currently has the fewest films?"* Watch the SQL fly.
@@ -181,7 +191,7 @@ Not every integration belongs as an MCP server. The honest criteria:
 
 ```bash
 git add .mcp.json scripts/build-cinema-db.sh
-git commit -m "lesson 12: MCP server + cinema.db build script"
+git commit -m "lesson 13: MCP server + cinema.db build script"
 git push
 ```
 
@@ -191,6 +201,6 @@ MCP is the most value-per-line-of-config feature in Claude Code. One install com
 
 The cost discipline matters. Token cost compounds across servers, and it's easy to end up with a session that's 60% tool definitions before you've typed anything. The 10% Tool Search threshold helps, but the right habit is: *use the smallest set of MCP servers that does the job*. The cinema's single SQLite server is exactly this — one server, one well-scoped data source, project-scoped so it never pollutes other repos.
 
-What I'd do differently next time: I'd resist the urge to install every MCP server I read about. Twenty servers in `~/.claude.json` is a costume; one well-chosen server in a per-project `.mcp.json` is a tool.
+What I'd do differently next time: nothing radical — sticking with one or two well-chosen servers (Linear for me; SQLite for the cinema) and reaching for `gh` and friends from the shell for everything else has worked well. The temptation to install every MCP server you read about is real, but a session loaded with twenty servers is a costume; one well-chosen server in a per-project `.mcp.json` is a tool.
 
-On to lesson 13, fellow hungovercoder — let's pour the whole round and turn the agent loose.
+On to lesson 14, fellow hungovercoder — let's pour the whole round and turn the agent loose.

@@ -35,7 +35,7 @@ Skills live in the same two locations as slash commands:
 ~/.claude/skills/<name>/SKILL.md          Personal, available across projects
 ```
 
-Project skills get shared with the team. Personal skills are yours. The cinema's two new skills are project-scoped — they only make sense inside `~/dev/cinema/`. Personal skills would be your `/standup`, `/lint`, `/draft` — the cross-cutting ones that apply anywhere.
+Project skills get shared with the team. Personal skills are yours. The cinema's two new skills are project-scoped — they only make sense inside `~/dev/learn.claude-code/`. Personal skills would be your `/standup`, `/lint`, `/draft` — the cross-cutting ones that apply anywhere.
 
 ## The Bit That Confused Me — Skills vs Slash Commands
 
@@ -65,7 +65,7 @@ This is brilliant for skills that *help*. It's dangerous for skills that *do thi
 
 The cinema's `/add-film` skill is a *write* — it appends a new film to `films.json`. Writes are the precise category where you want a deliberate keystroke, not a model decision. Two frontmatter fields do the work: `allowed-tools` limits the toolbox to `Read` and `Edit` only (no Bash, no rm), and `disable-model-invocation: true` means the skill only fires when the human types `/add-film`.
 
-`~/dev/cinema/.claude/skills/add-film/SKILL.md`:
+`~/dev/learn.claude-code/.claude/skills/add-film/SKILL.md`:
 
 ```markdown
 ---
@@ -108,7 +108,7 @@ The agent reads `films.json`, edits in the new row, and stops. The Edit can't go
 
 The cinema's `/pair` skill reads both `films.json` and `CLAUDE.md` to recommend a snack, a drink, and a co-watcher archetype for a given film or mood. It's a great example of the difference a skill makes — a plain slash command can reference `$ARGUMENTS` and tell Claude what to do, but a skill can tell Claude to *read these specific files* as part of every invocation. The skill becomes a tiny program with its own data sources.
 
-`~/dev/cinema/.claude/skills/pair/SKILL.md`:
+`~/dev/learn.claude-code/.claude/skills/pair/SKILL.md`:
 
 ```markdown
 ---
@@ -163,12 +163,14 @@ Notice `/pair` doesn't have `disable-model-invocation` set. It's read-only — t
 
 ## The Bit the Docs Don't Mention
 
-I'll be honest, the history of "commands vs skills" tripped me up for a couple of days. The two used to be genuinely distinct — different directories, different capabilities, different invocation models. Then Anthropic unified them: both produce a `/slash-command` interface, both can be auto-invoked, both support the same frontmatter fields. The naming inconsistency in the docs hasn't fully caught up, so you'll see articles from 2025 treating them as separate things. **In 2026, treat them as the same thing with different file shapes.** A skill is just "a slash command that lives in a directory with friends".
+The history of "commands vs skills" is the bit most worth surfacing for newcomers. The two used to be genuinely distinct — different directories, different capabilities, different invocation models. Then Anthropic unified them: both produce a `/slash-command` interface, both can be auto-invoked, both support the same frontmatter fields. The naming inconsistency in the docs hasn't fully caught up, so you'll see articles from 2025 treating them as separate things. **In 2026, treat them as the same thing with different file shapes.** A skill is just "a slash command that lives in a directory with friends".
+
+The first proper skill I built was for **ODCS data contract creation** — the Open Data Contract Standard. The job was simple: when I asked Claude to draft a data contract it kept giving me JSON schemas, which isn't what ODCS is. I needed a fully fledged and linted ODCS document every time. A skill let me bundle the prompt with the standard's reference material, lock the output shape, and stop having to re-correct the agent on every invocation. That's the moment skills earned their keep over a plain slash command for me — I had supporting files I wanted Claude to read every time. The hungovercoders content library itself (the thing this series is partly built with) is another skill suite — `hc-write-lessons`, `hc-launch`, `hc-review-blog`, and so on. The pattern that emerged from a couple of those: **start as commands when you're prototyping; promote to skills once conversation tells you the workflow needs supporting files or tighter safety.** Skills were the better investment for me; commands were the right first step.
 
 ## Have a Go — Add the Two Skills to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── .claude/
     ├── ...
@@ -177,7 +179,7 @@ I'll be honest, the history of "commands vs skills" tripped me up for a couple o
         └── pair/SKILL.md          ← lesson 9 adds
 ```
 
-1. Create both skills above. Or `cp -r docs/07-skills/solution/. ~/dev/cinema/` to drop them in.
+1. Create both skills above. Or `cp -r docs/07-skills/solution/. ~/dev/learn.claude-code/` to drop them in.
 2. Fire `/add-film "Pride" 2014 wales 119` and confirm a new row appears at the end of `films.json`.
 3. Try to trigger `/add-film` *without* typing it — phrase a question like *"I just watched a great film called Pride from 2014, add it to the catalogue"* and notice the agent will *not* auto-invoke the skill because of `disable-model-invocation: true`. It'll suggest you run the command yourself.
 4. Fire `/pair "Hot Fuzz"` and watch the agent `Read` both `films.json` and `CLAUDE.md` before answering.
@@ -196,6 +198,6 @@ Skills are the right shape for anything more than a one-shot prompt. The ability
 
 The risk is the same as with any "AI picks the action" feature: you have to be deliberate about which skills you let Claude reach for itself. `disable-model-invocation: true` is the load-bearing setting that separates "I want this skill ready when asked" from "I want Claude to use this when it judges fit". Get into the habit of setting it on anything irreversible from day one.
 
-What I'd do differently next time: I'd skip writing any plain slash commands altogether and go straight to skills, even for one-file prompts. The directory overhead is trivial; the upgrade path when you eventually need a supporting file is free. Future-me would thank past-me for not having two parallel directories of half-the-same-thing.
+What I'd do differently next time: I'd skip writing any plain slash commands altogether and go straight to skills, even for one-file prompts. The directory overhead is trivial; the upgrade path when you eventually need a supporting file is free. Future-me would thank past-me for not having two parallel directories of half-the-same-thing. And I'd lean into the *conversational refinement* shape sooner — the workflows that matter most to me ended up being interactive ones where the agent and I refine output together while the skill keeps me consistent. That shift from "prompt and accept" to "interview and refine" is what unlocked skills for my real work.
 
 On to lesson 10, fellow hungovercoder — let's put a bouncer on the cinema door.

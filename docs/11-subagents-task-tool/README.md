@@ -6,7 +6,7 @@ description: "Add the cinema's /audit skill — three parallel Explore subagents
 canonical_url: https://hungovercoders.com/training/claude-code/11-subagents-task-tool
 ---
 
-I wanted Claude to audit `films.json` for duplicate titles, mood drift away from the conventions in `CLAUDE.md`, and any rows the lesson-10 hook would have rejected if they'd been written today — *without* filling my main context window with three full reads of the file and three full chains of reasoning. Subagents are the fix. The Task tool lets the main session spawn three junior Claudes in parallel, hand each one a narrow question, and get back one unified report. In this lesson the cinema gets its `audit` skill, which is itself a skill that spawns three subagents.
+Quick honesty pass: subagents and the Task tool are the bit of Claude Code I'm most excited to wire into real work — this lesson is where I get to use them deliberately for the first time on a project that matters. The job: audit `films.json` for duplicate titles, mood drift away from the conventions in `CLAUDE.md`, and any rows the lesson-10 hook would have rejected if they'd been written today — *without* filling my main context window with three full reads of the file and three full chains of reasoning. Subagents are the fix. The Task tool lets the main session spawn three junior Claudes in parallel, hand each one a narrow question, and get back one unified report. In this lesson the cinema gets its `audit` skill, which is itself a skill that spawns three subagents — and it'll be my first real use of the Task tool too.
 
 ## Pre-Requisites
 
@@ -26,6 +26,8 @@ A subagent is a named, isolated Claude instance. It runs *inside* your Claude Co
 The parent calls a subagent via the `Task` tool. The subagent does its work — reads files, runs greps, even spawns its own tool calls — and returns *one final summary* to the parent. Everything in the middle stays in the subagent's window; the parent's context only sees the result.
 
 That's the killer property: **context isolation**. A 400-file search that would have filled your main window with 50,000 tokens becomes a 200-token answer in the parent context. The subagent did the work; you got the conclusion.
+
+![Subagent context isolation diagram. At the top, the parent session with a small focused context window. Below it, three subagent windows (each an Explore agent: find duplicates, find mood drift, find field issues), each with its own isolated context that contains the files it read and the work it did. Task-tool arrows show the parent dispatching three jobs in parallel; summary-only return arrows show each subagent sending back a short paragraph. The combined result: 47k tokens of subagent work stayed in their own windows, only about 600 tokens of summary landed in the parent context.](/assets/training/claude-code/subagent-isolation.svg)
 
 ## When to Send Someone to the Bar
 
@@ -47,7 +49,7 @@ There's a **general-purpose** agent for open-ended research. There's a **Plan** 
 
 Here's a lovely shape — a *skill that spawns subagents*. The `audit` skill is a single user-facing invocation that delegates its actual work to three Explore agents in parallel. The reader fires `/audit`; three subagents run; one unified report comes back.
 
-`~/dev/cinema/.claude/skills/audit/SKILL.md`:
+`~/dev/learn.claude-code/.claude/skills/audit/SKILL.md`:
 
 ```markdown
 ---
@@ -104,16 +106,16 @@ The cinema doesn't need a custom subagent — the built-in Explore agent does ex
 
 ## The Bit the Docs Don't Mention
 
-First time I used subagents I assumed they were a free speed-up. They're not free. Each subagent is *another Claude API call* — costs tokens, takes wall-clock time to spin up. For a 10-file search you'd burn more on the subagent overhead than on doing the grep inline. **The rule of thumb: subagents earn their keep when the inline alternative would put more than ~5,000 tokens of noise into the parent context.** Below that, just do the work inline.
+**Subagents aren't a free speed-up.** Each subagent is *another Claude API call* — costs tokens, takes wall-clock time to spin up. For a 10-file search you'd burn more on the subagent overhead than on doing the grep inline. **The rule of thumb: subagents earn their keep when the inline alternative would put more than ~5,000 tokens of noise into the parent context.** Below that, just do the work inline.
 
 The cinema's audit barely clears that bar — `films.json` is small. The reason the skill still uses subagents is that the *parallelism* makes the audit finish in one wall-clock pass instead of three sequential passes, and the parent context stays cleaner for the next prompt. As `films.json` grows past 50 rows, the case for the audit-as-subagents shape gets stronger; below 10 rows, you could honestly do it inline and skip the overhead. The shape teaches the pattern, not the optimum.
 
-The other quiet thing: subagents return a *summary*, not the raw result. If the summary is wrong or incomplete, the parent session has no way to inspect the underlying work. I've had subagents tell me "I found three matches" when I knew there were five — because the subagent's internal grep was filtered in a way I didn't ask for. The fix is to be precise in the task description: "list every match verbatim with file and line number" — make the summary structure-explicit, not vibe-based. The audit's three numbered foci do exactly this.
+The other quiet thing: subagents return a *summary*, not the raw result. If the summary is wrong or incomplete, the parent session has no way to inspect the underlying work. A common failure mode is the subagent reporting "I found three matches" when there were really five — the subagent's internal grep filtered in a way you didn't ask for, and the parent has no visibility into the filter. The fix is to be precise in the task description: "list every match verbatim with file and line number" — make the summary structure-explicit, not vibe-based. The audit's three numbered foci do exactly this.
 
 ## Have a Go — Add the Audit Skill to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── .claude/
     └── skills/
@@ -122,7 +124,7 @@ The other quiet thing: subagents return a *summary*, not the raw result. If the 
         └── audit/SKILL.md           ← lesson 11 adds
 ```
 
-1. Drop in the skill (or `cp -r docs/09-subagents-task-tool/solution/. ~/dev/cinema/`).
+1. Drop in the skill (or `cp -r docs/09-subagents-task-tool/solution/. ~/dev/learn.claude-code/`).
 2. Add a few deliberately-dodgy films to your catalogue before running the audit — a duplicate, a mood that doesn't exist in your `CLAUDE.md` conventions, a row with a bad year. Use `/add-film` or edit `films.json` by hand (the lesson-10 hook will refuse anything that breaks the schema; for these tests you need the row to be valid JSON but conceptually dodgy).
 3. Fire `/audit`. Watch the three subagents run. Read the unified report — does it catch what you planted?
 4. Time `/audit` versus running the same three questions inline as separate prompts. Notice the parallelism win on wall-clock and the context-isolation win on token cost.
@@ -141,6 +143,6 @@ Subagents are the right architectural answer to *agents have finite context*. Th
 
 The risk is over-use. Every subagent costs tokens and time, and a session that delegates everything to subagents ends up slower than one that did the work inline. The discipline: spawn a subagent when the alternative would pollute the parent context with material you don't need to read, and not before. The cinema's audit is on the edge of justification for a 5-row catalogue; as the catalogue grows, the case strengthens. That edge-case shape is the right teaching example — it's the line, not the obvious win.
 
-What I'd do differently next time: I'd lean on the built-in **Explore** agent harder. I spent two weeks writing my own subagent prompts for "find X in the codebase" before realising the built-in one was already tuned for exactly that job and didn't need any of my prompt engineering.
+What I'd do differently if I were starting today: I'd lean on the built-in **Explore** agent first before reaching for custom subagent prompts. The built-in is already tuned for "find X in the codebase" and doesn't need any prompt engineering — easy to skip past it and write your own, which is usually wasted effort for that specific job. Custom subagents earn their keep when you've got a *truly* specific shape the built-ins don't cover.
 
-On to lesson 12, fellow hungovercoder — time to plug the external tap into the cinema.
+On to lesson 12, fellow hungovercoder — let's see what's eating the context window before we wire any more tools.

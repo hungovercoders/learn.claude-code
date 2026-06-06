@@ -6,11 +6,11 @@ description: "Install Claude Code, log in, and run the first session inside the 
 canonical_url: https://hungovercoders.com/training/claude-code/02-installation-first-session
 ---
 
-I wanted Claude Code on my machine in less than ten minutes, with no surprises. I'd seen enough "just `npm install -g` and you're away" blog posts to know they usually leave out the bit where the binary isn't on your PATH and you spend a quarter of an hour wondering whether you've broken `node`. So I went looking for the cleanest install path in 2026 — and it turns out Anthropic now ship a native binary that bypasses the npm faff entirely. Let's pour the first one and point it at the cinema seed you planted in lesson 1.
+Installing a CLI in 2026 should be a low-surprise affair, but plenty of "just `npm install -g` and you're away" posts leave out the bit where the binary isn't on your PATH and you spend longer than you should wondering whether you've broken `node`. The cleanest path in 2026 is the native binary Anthropic now ship — it bypasses the npm faff entirely. Let's get the first round in and point Claude Code at the cinema seed you planted in lesson 1.
 
 ## Pre-Requisites
 
-- The cinema seed from lesson 1 (`~/dev/cinema/films.json` + `pick-film.sh`)
+- The cinema seed from lesson 1 (`~/dev/learn.claude-code/films.json` + `pick-film.sh`)
 - macOS, Linux, or Windows (with WSL)
 - A Claude.ai account on the Pro plan or higher (Claude Code isn't on the free tier)
 - A terminal you actually like — iTerm2, Warp, Ghostty, whatever
@@ -83,7 +83,7 @@ Claude Code will use the key and skip the OAuth dance.
 The fastest way to feel what Claude Code is for is to point it at the cinema you set up last lesson and ask it something it has to actually *do*.
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude
 ```
 
@@ -112,7 +112,7 @@ That's the integration — the agent didn't describe what `pick-film.sh` would o
 
 ## The Bit the Docs Don't Mention
 
-First time I ran Claude Code I assumed it would behave like the chat window — type a question, get an answer, move on. The mental adjustment that took me about a session to make: **it's an agent, not a chatbot.** When you ask it something, it doesn't immediately answer — it starts *doing*. It reads files, runs greps, kicks off bash. The "response" is the result of work it actually performed. That's the whole point but it feels surprising the first time because the chat-window habits run deep.
+Coming from the chat-window habit — type a question, get an answer, move on — the mental adjustment Claude Code asks for is **it's an agent, not a chatbot.** When you ask it something, it doesn't immediately answer — it starts *doing*. It reads files, runs greps, kicks off bash. The "response" is the result of work it actually performed. That's the whole point but it feels surprising the first time because the chat-window habits run deep.
 
 The corollary: the more concrete your request, the better. "Improve my code" leaves it guessing what to do. "Find all the places we set a `Content-Type` header and tell me which ones use a different value to the rest" gives it a job. Once you start writing requests like the second one, the agent earns its keep fast.
 
@@ -120,7 +120,7 @@ The corollary: the more concrete your request, the better. "Improve my code" lea
 
 There's no new file to add in this lesson. The deliverable is *proof* — a transcript of Claude Code reading and running code from your cinema repo. Try all four:
 
-1. `cd ~/dev/cinema && claude`. Ask it: *"What does this project do, in one paragraph?"*. Notice it reads `films.json` and `pick-film.sh` before answering.
+1. `cd ~/dev/learn.claude-code && claude`. Ask it: *"What does this project do, in one paragraph?"*. Notice it reads `films.json` and `pick-film.sh` before answering.
 2. Ask it: *"Run pick-film.sh with mood 'wales' and tell me the result."* Approve the Bash prompt. Confirm the answer matches `./pick-film.sh wales` on your own.
 3. Ask it a destructive-sounding question on purpose: *"Delete films.json."* and watch the permission prompt. Cancel before approving — we'll learn how to control these prompts properly in lesson 5.
 4. Run `claude --help` and skim the top-level flags. The `-c` (continue), `--resume`, and `-p` (print-only) flags are the ones I use most often.
@@ -131,6 +131,6 @@ The cinema directory doesn't change in this lesson. Lesson 3 is where the build 
 
 The native binary install is the version I'd recommend without hesitation. The npm path is fine if you've already got the Node ecosystem in your workflow, but for someone coming fresh, "one curl, one auth, done" is the install story I'd want. The fact Anthropic moved to a code-signed native binary is the right call — fewer dependencies, faster updates, less drift.
 
-One thing I'd do differently next time: I'd run the install on my work machine *and* my home machine on the same evening, and confirm both auth flows work, before relying on it for any real work. The 30-day token expiry doesn't matter until it does — and "I'll re-auth tomorrow" on a deadline day is a bad time to discover your browser-based OAuth is being blocked by corporate SSO.
+One thing worth doing on day one: install and authenticate on every machine you'll need Claude Code on — work, home, whatever — in the same week, while you're paying attention. The 30-day token expiry doesn't matter until it does, and "I'll re-auth tomorrow" on a deadline day is a bad time to discover your browser-based OAuth is being blocked by corporate SSO.
 
 On to lesson 3, fellow hungovercoder — let's lay down the personal defaults the agent will read on every session from now on.

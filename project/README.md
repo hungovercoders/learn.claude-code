@@ -33,14 +33,14 @@ and add files as each lesson walks you through them. Each lesson's
 you get stuck you can `cp -r ../docs/06-custom-slash-commands/solution/. .`
 and carry on.
 
-**Clone the end state** — `cp -r learn.claude-code/project/. ~/dev/cinema/`
+**Clone the end state** — `cp -r learn.claude-code/project/. ~/dev/learn.claude-code/`
 gives you the whole thing in one shot. Useful for sanity-checking your
 own build, or for grabbing the cinema as a starter for your own work.
 
 ## Running it
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 chmod +x pick-film.sh install.sh .claude/hooks/films-validate.sh scripts/build-cinema-db.sh
 ./install.sh                 # symlinks .claude/ contents into ~/.claude/
 ./pick-film.sh fun           # one film matching mood "fun"

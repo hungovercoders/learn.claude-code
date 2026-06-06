@@ -2,7 +2,7 @@
 title: "Cheat Sheet"
 series: claude-code
 order: 99
-description: "Keyboard shortcuts, built-in commands, lifecycle events, branch + PR workflow, auto-mode safety checklist, and the cinema-specific commands you've added across the thirteen lessons — one page to keep open while you work"
+description: "Keyboard shortcuts, built-in commands, lifecycle events, branch + PR workflow, auto-mode safety checklist, and the cinema-specific commands you've added across the fourteen lessons — one page to keep open while you work"
 canonical_url: https://hungovercoders.com/training/claude-code/cheatsheet
 ---
 
@@ -45,11 +45,11 @@ claude
 | `--resume <id>` | Resume a specific past session |
 | `-p`, `--print` | One-shot non-interactive prompt, prints result and exits |
 | `--permission-mode <mode>` | Launch in `default` / `acceptEdits` / `plan` / `dontAsk` / `bypassPermissions` |
-| `--dangerously-skip-permissions` | Auto-mode. No prompts. Safe on the cinema by [lesson 13](../13-putting-it-together-auto-mode/) because of the cage. Not safe in general. |
+| `--dangerously-skip-permissions` | Auto-mode. No prompts. Safe on the cinema by [lesson 14](../14-putting-it-together-auto-mode/) because of the cage. Not safe in general. |
 | `--model <id>` | Override session model (e.g. `claude-sonnet-4-6`) |
 | `--help` | All flags |
 
-## Auto-mode + safety ([lesson 13](../13-putting-it-together-auto-mode/))
+## Auto-mode + safety ([lesson 14](../14-putting-it-together-auto-mode/))
 
 Two complementary postures:
 
@@ -58,7 +58,9 @@ Two complementary postures:
 
 Compose them on a project where the cage exists; never on a project where it doesn't.
 
-### The cage checklist (lessons 4–12)
+### The cage checklist (lessons 4–13)
+
+![The full cage in one image: eleven layers stacked from personal posture at the base to bounded external access at the top, with auto-mode as the safe surface that runs on top.](/assets/training/claude-code/cage-stack.svg)
 
 Auto-mode is safe on a project when all of these are in place:
 
@@ -70,7 +72,8 @@ Auto-mode is safe on a project when all of these are in place:
 - [ ] Slash commands and skills with tight `allowed-tools` ([lesson 8](../08-custom-slash-commands/), [lesson 9](../09-skills/))
 - [ ] `disable-model-invocation: true` on anything that writes or has external side effects ([lesson 9](../09-skills/))
 - [ ] PostToolUse hook enforcing the load-bearing invariants ([lesson 10](../10-hooks/))
-- [ ] MCP servers exposing typed tools instead of free-form Bash ([lesson 12](../12-mcp-servers/))
+- [ ] `/context` peeked at and `/compact` discipline applied at session breakpoints ([lesson 12](../12-context-and-cost/))
+- [ ] MCP servers exposing typed tools instead of free-form Bash ([lesson 13](../13-mcp-servers/))
 
 If three or more are missing, drop back to `default` or `acceptEdits` mode.
 
@@ -100,13 +103,13 @@ A worktree is a separate working directory pointing at the same `.git`. Each wor
 
 ```bash
 # Spin a worktree on a new branch at a sibling path
-git worktree add ../cinema-experiment -b feat/experiment
+git worktree add ../learn.claude-code-experiment -b feat/experiment
 
 # List every worktree this repo has
 git worktree list
 
 # Remove a worktree when done (don't rm -rf — leaves stale metadata)
-git worktree remove ../cinema-experiment
+git worktree remove ../learn.claude-code-experiment
 git branch -d feat/experiment
 
 # Clean up after a previous rm -rf if it happened
@@ -138,7 +141,9 @@ When *not* to:
 | `/sandbox` | Toggle the OS-level sandbox |
 | `/plan` | Switch the active session into plan mode ([lesson 7](../07-plan-mode/)) |
 | `/agents` | Manage subagents (definitions live in `.claude/agents/<name>.md`) ([lesson 11](../11-subagents-task-tool/)) |
-| `/mcp` | List MCP servers currently connected and their tools ([lesson 12](../12-mcp-servers/)) |
+| `/context` | Show what's loaded in the current session (system prompt, tools, memory files, messages) with token counts and % usage ([lesson 12](../12-context-and-cost/)) |
+| `/compact` | Summarise the conversation so far and continue with the compressed history — free tokens mid-session ([lesson 12](../12-context-and-cost/)) |
+| `/mcp` | List MCP servers currently connected and their tools ([lesson 13](../13-mcp-servers/)) |
 | `/clear` | Reset the current session's context |
 | `/model` | Switch model mid-session |
 
@@ -155,6 +160,8 @@ When *not* to:
 Rule evaluation: **deny wins**, then `ask`, then `allow`. First match wins within a category. Globs, not regex — `Bash(npm test:*)` does **not** match `npm install`.
 
 ## Settings file hierarchy
+
+![The four settings.json layers (Enterprise, User, Project, Local) shown stacked, with the deny > ask > allow rule precedence sieve on the right.](/assets/training/claude-code/settings-hierarchy.svg)
 
 ```
 1. Enterprise   /Library/Application Support/ClaudeCode/managed-settings.json
@@ -227,7 +234,24 @@ Spawn via the `Task` tool. Built-in agents:
 
 Custom subagents: define via `/agents` or as `.claude/agents/<name>.md`. Rule of thumb: subagents earn their keep when the inline alternative would dump more than ~5,000 tokens of noise into the parent context.
 
-## MCP ([lesson 12](../12-mcp-servers/))
+## Context + cost ([lesson 12](../12-context-and-cost/))
+
+| Command | Use |
+| - | - |
+| `/context` | Show what's loaded and how much window's used. Run at session breakpoints. |
+| `/compact` | Summarise the conversation so far and continue. Free tokens mid-session. |
+| `/checkpoint` | Cinema-specific. Asks the agent to self-audit context and recommend continue / `/compact` / fresh session. |
+| `/clear` | Reset the session entirely. Cheaper than `/compact` when starting a new task. |
+
+Discipline:
+
+- Over 70% and mid-task → `/compact` immediately.
+- New task, unrelated to current session → fresh session, always.
+- CLAUDE.md is loaded *every session* — keep it tight.
+- MCP tools cost system-prompt tokens. Only connect the servers you need for this session.
+- Subagents save context: 50k-token grep in a subagent returns as a 200-token summary.
+
+## MCP ([lesson 13](../13-mcp-servers/))
 
 ```bash
 claude mcp list                              # what's connected
@@ -268,7 +292,7 @@ Resolution order: local → project → user. **Never commit literal tokens** �
 | `<repo>/.github/pull_request_template.md` | PR template — [lesson 4](../04-branch-and-draft-pr/) |
 | `${CLAUDE_PROJECT_DIR}` | Resolves to the project root at runtime (use in settings.json paths) |
 
-## The Cinema Companion — what you typed by lesson thirteen
+## The Cinema Companion — what you typed by lesson fourteen
 
 After the install script:
 
@@ -279,14 +303,15 @@ After the install script:
 | `/add-film "<title>" <year> <mood> <runtime>` | Skill — append to films.json. `disable-model-invocation: true`. ([lesson 9](../09-skills/)) |
 | `/pair <title-or-mood>` | Skill — snack + Tiny Rebel beer + co-watcher archetype ([lesson 9](../09-skills/)) |
 | `/audit` | Skill — three parallel Explore subagents over films.json ([lesson 11](../11-subagents-task-tool/)) |
+| `/checkpoint` | Command — agent self-audits context and recommends continue / `/compact` / fresh ([lesson 12](../12-context-and-cost/)) |
 
 The `films-validate.sh` PostToolUse hook fires automatically on every `Edit|Write` and refuses writes that break the films.json schema.
 
 ```bash
-~/dev/cinema/install.sh             # symlink .claude/* into ~/.claude/
-~/dev/cinema/scripts/build-cinema-db.sh   # rebuild cinema.db for the MCP server
-~/dev/cinema/pick-film.sh <mood>    # still runs from the shell, no claude required
-claude --dangerously-skip-permissions     # auto-mode, safe because of the cage (lesson 13)
+~/dev/learn.claude-code/install.sh             # symlink .claude/* into ~/.claude/
+~/dev/learn.claude-code/scripts/build-cinema-db.sh   # rebuild cinema.db for the MCP server
+~/dev/learn.claude-code/pick-film.sh <mood>    # still runs from the shell, no claude required
+claude --dangerously-skip-permissions     # auto-mode, safe because of the cage (lesson 14)
 ```
 
 ## When in doubt

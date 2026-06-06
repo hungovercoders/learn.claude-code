@@ -6,7 +6,7 @@ description: "Write the personal defaults the agent reads at the start of every 
 canonical_url: https://hungovercoders.com/training/claude-code/03-user-level-claude-md
 ---
 
-I wanted the agent to stop introducing every response with "Great question!" and stop wrapping a one-line answer in three paragraphs of context. I'd been retyping *"be terse, no preamble"* into the opening of every session for a month. The fix is `~/.claude/CLAUDE.md` — a personal defaults file that loads into every session on this machine, in every project, before the agent does anything else. Before we touch the cinema in earnest, set the posture you want the agent to take with you.
+I was repeating myself across sessions with the same development-discipline reminders — *don't work in main, ensure branches, commit and raise a draft PR* — over and over, in every project. That's the kind of repetition `~/.claude/CLAUDE.md` is for: a personal defaults file that loads into every session on this machine, in every project, before the agent does anything else. Whatever you're tired of retyping — workflow rules, response posture, code-style preferences, no emoji — this is where you stop having to. Before we touch the cinema in earnest, set the defaults you want the agent to bring with it.
 
 ## Pre-Requisites
 
@@ -108,11 +108,11 @@ The `/memory` slash command (or `/help` to find the variant on your Claude Code 
 
 ## The Bit the Docs Don't Mention
 
-Two things tripped me up.
+Two things worth knowing — both about *what* belongs in this file, not how to write it.
 
-First, the file size discipline matters more than the docs let on. A 200-line user CLAUDE.md feels reassuring — you've written down every preference you can think of — but the agent compresses long files into a summary in its working context. The first thirty lines get the most attention. **Lead with the rules you'd want followed if only the first thirty lines made it through.** Posture and "never do" first; nice-to-haves later.
+**File size discipline matters more than the docs let on.** A 200-line user CLAUDE.md feels reassuring — you've written down every preference you can think of — but the agent compresses long files into a summary in its working context. The first thirty lines get the most attention. **Lead with the rules you'd want followed if only the first thirty lines made it through.** Posture and "never do" first; nice-to-haves later. (Optimising the size of your CLAUDE.md is an ongoing discipline — mine is still a work in progress, and that's normal.)
 
-Second, this file is *user-level* and global — it composes with *every* project's CLAUDE.md. That means a rule here applies to projects you didn't write the user file for. "No emoji" is universal; "use kebab-case for filenames" is not. If a preference is universal across your work, it belongs here. If it's tied to a specific language, framework, or team, it belongs in the project-level CLAUDE.md (lesson 6).
+**This file is *user-level* and global** — it composes with *every* project's CLAUDE.md. That means a rule here applies to projects you didn't write the user file for. "No emoji" is universal; "use kebab-case for filenames" is not. If a preference is universal across your work, it belongs here. If it's tied to a specific language, framework, or team, it belongs in the project-level CLAUDE.md (lesson 6).
 
 ## How This Loads Alongside the Project File
 
@@ -123,7 +123,22 @@ When you start a session in the cinema (or any repo with a project-level `CLAUDE
 
 If the project file says *"use tabs not spaces in this repo"*, that wins for this repo even though your user file might prefer spaces. The project context overrides at the leaf. The user file sets the default for everything the project file doesn't explicitly cover.
 
-The cinema's project file (lesson 6) describes `films.json`'s schema and `pick-film.sh`'s contract. Your user file sets the posture the agent takes when reading them. They compose. By lesson 13 you've got both files working in concert.
+The cinema's project file (lesson 6) describes `films.json`'s schema and `pick-film.sh`'s contract. Your user file sets the posture the agent takes when reading them. They compose. By lesson 14 you've got both files working in concert.
+
+## Source-Control the File — `datagriff/dotfiles` Style
+
+A practice worth lifting out of the "Have a Go" list because it pays off the moment your machine changes: **source-control your user CLAUDE.md.** Mine lives in a `datagriff/dotfiles` repo at `~/dotfiles/.claude/CLAUDE.md` with a symlink to `~/.claude/CLAUDE.md`. New laptop, fresh install, one clone + one symlink, the agent's defaults follow me.
+
+```bash
+# In your dotfiles repo (create one if you don't have one — five-minute job)
+mkdir -p ~/dotfiles/.claude
+mv ~/.claude/CLAUDE.md ~/dotfiles/.claude/CLAUDE.md
+ln -s ~/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
+git add .claude/CLAUDE.md
+git commit -m "feat: track user CLAUDE.md"
+```
+
+The same advice applies to anything else in `~/.claude/` that has behaviour (the user-level `settings.json` you write in lesson 5; user-level hook scripts; user-level skills) — they all benefit from living in dotfiles and getting symlinked in. **If it has behaviour, source-control it.** That's a hungovercoders rule that long predates AI agents and still works.
 
 ## Have a Go — Plant the Personal Posture
 
@@ -136,8 +151,8 @@ There's no `solution/` directory in this lesson — the deliverable lives outsid
 
 1. Create `~/.claude/CLAUDE.md` with the template above. Edit it to fit you — prune what doesn't apply, add what does. Keep it under 50 lines.
 2. Open Claude Code in any project (the cinema, or another repo you've got handy). Type `/memory` (or `/help` to find the equivalent on your version) and confirm `~/.claude/CLAUDE.md` is listed.
-3. Ask a one-line code question — *"how do I get the current epoch in bash?"* — and watch the response shape. Terse, no preamble, no emoji. If you're getting trailing recap or "Great question!" openers, sharpen the relevant lines in the file and try again.
-4. Source-control the file. Mine lives in `~/dotfiles/.claude/CLAUDE.md` with a symlink to `~/.claude/CLAUDE.md`. The same advice applies to *any* personal config — the user CLAUDE.md is no different. (If you don't have a dotfiles repo yet, that's a fine next side project — but not for this lesson.)
+3. Ask a one-line code question — *"how do I get the current epoch in bash?"* — and watch the response shape. Terse, no preamble, no emoji. If you're getting trailing recap or unwanted openers, sharpen the relevant lines in the file and try again.
+4. Move the file into a dotfiles repo and symlink it back (see the section above). If you don't have a dotfiles repo yet, this is a fine excuse to start one.
 
 The cinema directory doesn't change this lesson. Lesson 4 is where the cinema gets its first piece of remote presence — a feature branch and a draft PR — so that every commit from lesson 5 onwards lands somewhere safe and reviewable.
 
@@ -145,6 +160,6 @@ The cinema directory doesn't change this lesson. Lesson 4 is where the cinema ge
 
 `~/.claude/CLAUDE.md` is the file that most changes how Claude Code feels day-to-day. The agent reads it on every session in every project, so a sharp file improves every interaction — and a sloppy file makes every interaction subtly worse. The discipline is *brevity weighted toward the rules that matter*: posture and the "never do" list in the first thirty lines; the rest is bonus.
 
-What I'd do differently if I were learning this again: I'd write the file before I ever opened a real repo with Claude Code, even if it was rough. The default-default posture is fine, but the first hour of "Great question!" openers and three-paragraph answers to one-line questions is when you build the habit of accepting them — and once that habit is in, the user CLAUDE.md feels like work-to-add rather than friction-to-remove.
+What I'd do differently if I were starting again: I'd write the file before I ever opened a real repo with Claude Code, even if it was rough — and I'd source-control it in dotfiles from day one. The default-default posture is fine, but every session you run before the file exists is one where you're either retyping reminders or accepting outputs that drift from what you'd want. The file feels like work-to-add until it's there; after that it just earns its keep silently on every session.
 
 On to lesson 4, fellow hungovercoder — let's get the cinema onto a feature branch with a draft PR before anything else lands.

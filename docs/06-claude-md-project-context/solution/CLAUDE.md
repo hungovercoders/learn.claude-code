@@ -6,8 +6,8 @@ A small CLI for picking a film by mood, plus a Claude Code kit that
 extends it. Bash + jq + a JSON catalogue. No Python, no Node, no
 dependencies beyond `jq`.
 
-The kit grows across the eleven `learn.claude-code` lessons — by
-lesson eleven this directory holds the picker, two slash commands,
+The kit grows across the fourteen `learn.claude-code` lessons — by
+lesson fourteen this directory holds the picker, three slash commands,
 two skills, a validation hook, an MCP wiring, and an install script
 that symlinks the whole `.claude/` directory into `~/.claude/`.
 

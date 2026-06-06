@@ -37,13 +37,13 @@ Hooks communicate with Claude Code via *exit code* and via *what they print to s
 - **Exit 2** — **blocking error.** Claude Code halts the action; the contents of *stderr* are fed back to Claude as feedback. Use this for guardrails — the hook denies the tool call.
 - **Any other non-zero** — non-blocking error. The hook failed but Claude continues. Stderr is shown to the human, not to Claude.
 
-The stderr-not-stdout detail is the bit I got wrong the first time. I wrote a PreToolUse hook that printed the deny reason to stdout and exited 2 — Claude got blocked but had no idea why, because the message went to the wrong stream. Print to stderr, always, when you want Claude to read the feedback.
+The stderr-not-stdout detail is the bit most newcomers get wrong. A common mistake is writing the deny reason to stdout and exiting 2 — Claude gets blocked but has no idea why, because the message went to the wrong stream. **Print to stderr, always, when you want Claude to read the feedback.** Even the official Anthropic tutorials don't quite emphasise it, which is why it's the first thing to flag.
 
 ## Wiring Up the Cinema Door
 
 Hooks live in `settings.json` under a `hooks` key. They can be at the user level (`~/.claude/settings.json`), project level (`.claude/settings.json`), or local-override (`.claude/settings.local.json`). The cinema's hook is project-scoped — it knows the *cinema's* schema specifically. A general JSON validator would live at user level instead.
 
-The hook itself: `~/dev/cinema/.claude/hooks/films-validate.sh`:
+The hook itself: `~/dev/learn.claude-code/.claude/hooks/films-validate.sh`:
 
 ```bash
 #!/bin/bash
@@ -86,7 +86,7 @@ exit 0
 ```
 
 ```bash
-chmod +x ~/dev/cinema/.claude/hooks/films-validate.sh
+chmod +x ~/dev/learn.claude-code/.claude/hooks/films-validate.sh
 ```
 
 The `case "$file"` switch is doing the cinema-scoping. It only runs the jq schema check when `films.json` was the file edited; for anything else, the hook is a no-op exit 0. That means the hook can sit in the project's PostToolUse list without slowing every edit — it does ~5ms of pattern-match work, then exits.
@@ -95,7 +95,7 @@ The `case "$file"` switch is doing the cinema-scoping. It only runs the jq schem
 
 Lesson 5 wired the `permissions` block. Lesson 10 adds the `hooks` block alongside it. The full project `settings.json`:
 
-`~/dev/cinema/.claude/settings.json`:
+`~/dev/learn.claude-code/.claude/settings.json`:
 
 ```json
 {
@@ -140,7 +140,7 @@ Two tests. First: trigger an invalid write through `/add-film`:
 
 Second: edit a valid row by hand or by `/add-film "Pride" 2014 wales 119`. The hook fires, jq parses cleanly, schema check passes, exit 0. Silent success.
 
-The hook is *project-scoped* on purpose. The cinema's schema is the cinema's business. Drop the same hook into another repo and the `case` switch makes it a no-op there (no `films.json`, no validation). That's why the hook lives inside `~/dev/cinema/.claude/hooks/`, not in `~/.claude/hooks/`. **The shape generalises** — every project gets its own schema-checking PostToolUse hook for its own load-bearing JSON files, each kept inside the project where it belongs.
+The hook is *project-scoped* on purpose. The cinema's schema is the cinema's business. Drop the same hook into another repo and the `case` switch makes it a no-op there (no `films.json`, no validation). That's why the hook lives inside `~/dev/learn.claude-code/.claude/hooks/`, not in `~/.claude/hooks/`. **The shape generalises** — every project gets its own schema-checking PostToolUse hook for its own load-bearing JSON files, each kept inside the project where it belongs.
 
 ## A Brief Tour of the Other Patterns
 
@@ -169,9 +169,9 @@ Each of these is one shell script and three lines of `settings.json`. The shape 
 
 ## The Bit the Docs Don't Mention
 
-This is the bit the docs don't quite emphasise: **exit 2 reads stderr, not stdout**. I wasted a Tuesday morning on this. My PreToolUse hook was blocking calls correctly but Claude had no idea why, because I'd `echo "reason for block"` instead of `echo "reason for block" >&2`. The agent saw the block, didn't see the message, and just retried the same command. Once I redirected to stderr, the agent got the feedback and adapted on the next try.
+**Exit 2 reads stderr, not stdout** — already flagged above but worth repeating because it's the single most common hook bug. Echo to `>&2` when you want Claude to read the feedback. Echo to stdout when you only want the human to see it. Mix them up and you'll have a hook that blocks correctly but Claude has no idea why and just retries the same command.
 
-The other quiet thing: don't put expensive work in `PreToolUse`. It fires before *every* tool call, so a 200ms hook adds 200ms × N to your session latency. The cinema's hook is `PostToolUse` *and* short-circuits with `case` for non-films.json files, which keeps it well under 10ms on the no-op path.
+The other quiet thing: **don't put expensive work in `PreToolUse`.** It fires before *every* tool call, so a 200ms hook adds 200ms × N to your session latency. The cinema's hook is `PostToolUse` *and* short-circuits with `case` for non-films.json files, which keeps it well under 10ms on the no-op path. Honest disclosure on my side: the cinema's hook is the first hook I've written *in anger* for a real-ish project — every other hook I've touched has been in Anthropic's own tutorials. The cinema is where I find out which of these gotchas actually bites in practice.
 
 ## When the Bouncer Isn't the Answer
 
@@ -184,7 +184,7 @@ A hook is not always the right answer.
 ## Have a Go — Wire the Cinema's Hook
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── .claude/
     ├── settings.json                    ← updated with hooks block
@@ -192,8 +192,8 @@ A hook is not always the right answer.
         └── films-validate.sh            ← lesson 10 adds
 ```
 
-1. Drop in the hook and the updated `settings.json`. Or `cp -r docs/08-hooks/solution/. ~/dev/cinema/` for the lazy path.
-2. `chmod +x ~/dev/cinema/.claude/hooks/films-validate.sh` — the most-skipped step. If it isn't executable, the hook silently doesn't fire and you'll be debugging a regex for ten minutes.
+1. Drop in the hook and the updated `settings.json`. Or `cp -r docs/08-hooks/solution/. ~/dev/learn.claude-code/` for the lazy path.
+2. `chmod +x ~/dev/learn.claude-code/.claude/hooks/films-validate.sh` — the most-skipped step. If it isn't executable, the hook silently doesn't fire and you'll be debugging a regex that wasn't the problem.
 3. Try `/add-film "Bad" 999 BIG 10000`. Watch the hook block and the feedback get passed back to Claude.
 4. Try `/add-film "Pride" 2014 wales 119`. Watch it succeed silently.
 5. (Optional) Add the user-level `guard-rm.sh` from above to `~/.claude/hooks/` and `~/.claude/settings.json`. Different scope, same shape.

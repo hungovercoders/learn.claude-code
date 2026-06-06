@@ -5,7 +5,7 @@
 ## Cage layers ticked
 
 Each lesson of learn.claude-code adds one safety layer that makes
-auto-mode (lesson 13) safer. Tick as the layer lands.
+auto-mode (lesson 14) safer. Tick as the layer lands.
 
 - [x] Lesson 4 — Branch + draft PR. `main` untouchable; changes visible on remote.
 - [ ] Lesson 5 — Permission modes. Project-scoped allow + deny rules.
@@ -15,8 +15,9 @@ auto-mode (lesson 13) safer. Tick as the layer lands.
 - [ ] Lesson 9 — Skills. `disable-model-invocation` on writes.
 - [ ] Lesson 10 — Hooks. Schema enforcement on every write to films.json.
 - [ ] Lesson 11 — Subagents. Context isolation on the audit.
-- [ ] Lesson 12 — MCP servers. Bounded external access via typed tools.
-- [ ] Lesson 13 — install.sh + auto-mode proof.
+- [ ] Lesson 12 — Context discipline. `/checkpoint` command + `/compact` habit.
+- [ ] Lesson 13 — MCP servers. Bounded external access via typed tools.
+- [ ] Lesson 14 — install.sh + auto-mode proof.
 
 ## Test plan
 

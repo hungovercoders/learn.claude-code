@@ -6,7 +6,7 @@ description: "Write the cinema's first two slash commands — /film-pick and /fi
 canonical_url: https://hungovercoders.com/training/claude-code/08-custom-slash-commands
 ---
 
-I wanted to stop typing the same six-sentence prompt every time I asked Claude to pick a film for the evening. Three sentences setting the rules, two pointing at `films.json`, one closing line. By the end of the week I'd typed it eight times. The fix is a custom slash command: write the prompt once as a markdown file, fire it with `/your-name` from anywhere. This lesson is two of them — `/film-pick` (a thin wrapper around `pick-film.sh`) and `/film-suggest` (Claude-reasoned recommendation). Both live in the cinema and get used through the rest of the series.
+Custom slash commands are the first proper bit of *workflow design* you do for yourself in Claude Code — the moment a repeated prompt becomes a one-line invocation, the agent feels less like a chatbot you negotiate with and more like a tool you sharpened. This lesson is two of them — `/film-pick` (a thin wrapper around `pick-film.sh`) and `/film-suggest` (Claude-reasoned recommendation). Both live in the cinema and get used through the rest of the series. A note on my own evolution: the first few workflows I built started here, as plain slash commands, and only graduated to *skills* (lesson 9) when conversation showed me they needed supporting files or tighter safety. Commands are the on-ramp; skills are where the journey lands.
 
 ## Pre-Requisites
 
@@ -25,7 +25,7 @@ Two locations:
 ~/.claude/commands/<name>.md          Personal. Available in every project.
 ```
 
-Project commands live with the repo, get shared with the team, and version themselves alongside your code. The cinema's commands are project-scoped — they only make sense inside `~/dev/cinema/` because they reference `films.json`. Personal commands are your own — your `/standup`, your `/fix-tests`, your `/lint`. Lesson 7 covers the skills directory, which is the newer cousin of this pattern.
+Project commands live with the repo, get shared with the team, and version themselves alongside your code. The cinema's commands are project-scoped — they only make sense inside `~/dev/learn.claude-code/` because they reference `films.json`. Personal commands are your own — your `/standup`, your `/fix-tests`, your `/lint`. Lesson 7 covers the skills directory, which is the newer cousin of this pattern.
 
 ## Pouring Your Own Cocktail — The Frontmatter
 
@@ -51,7 +51,7 @@ disable-model-invocation: false
 
 The first command is the thinnest possible wrapper: shell out to `pick-film.sh` and show the result. No reasoning, no creativity — just turn `/film-pick wales` into the same answer `./pick-film.sh wales` would have produced.
 
-`~/dev/cinema/.claude/commands/film-pick.md`:
+`~/dev/learn.claude-code/.claude/commands/film-pick.md`:
 
 ```markdown
 ---
@@ -87,7 +87,7 @@ The `$ARGUMENTS` placeholder gets replaced with whatever you typed after the com
 
 The first command was a wrapper. The second is *reasoning*. Same data, different output: hand Claude the catalogue and ask for a recommendation with a one-line justification, rather than a deterministic first-match.
 
-`~/dev/cinema/.claude/commands/film-suggest.md`:
+`~/dev/learn.claude-code/.claude/commands/film-suggest.md`:
 
 ```markdown
 ---
@@ -123,14 +123,14 @@ Two commands, two postures. `/film-pick` is the bartender pouring exactly what's
 
 ## The Bit the Docs Don't Mention
 
-First time I wrote a slash command I assumed `$ARGUMENTS` worked like shell expansion. It doesn't quite. `$ARGUMENTS` is a literal string substitution — everything after the command name goes in as one blob. Quotes are *preserved* in the substitution, not consumed by it. If you type `/film-suggest "knackered Tuesday"`, the body sees `"knackered Tuesday"` *with* the quotes. For most cases this doesn't matter; for the cases where you're trying to do something clever with arguments, it'll trip you up.
+`$ARGUMENTS` is not shell expansion — it's a **literal string substitution**. Everything after the command name goes in as one blob, with quotes *preserved*. Type `/film-suggest "knackered Tuesday"` and the body sees `"knackered Tuesday"` *with* the quotes. For most cases this doesn't matter; for the cases where you're trying to do something clever with arguments, it'll trip you up if you imported shell habits. A useful sanity check is to echo `$ARGUMENTS` back to yourself the first time you write a command that depends on the precise shape.
 
 The second quiet thing: command files are *also* read into context when the agent is browsing for help. If you write a huge prose document inside a command file, it inflates the agent's context on every session that lists the commands. Keep them tight. Both cinema commands above are under 15 lines for this reason.
 
 ## Have a Go — Add the Two Commands to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json
 ├── pick-film.sh
 ├── CLAUDE.md
@@ -142,7 +142,7 @@ The second quiet thing: command files are *also* read into context when the agen
         └── film-suggest.md       ← lesson 8 adds
 ```
 
-1. Create the two files above. Or `cp -r docs/06-custom-slash-commands/solution/. ~/dev/cinema/` if you'd rather not retype.
+1. Create the two files above. Or `cp -r docs/06-custom-slash-commands/solution/. ~/dev/learn.claude-code/` if you'd rather not retype.
 2. Inside the cinema, type `/` and confirm both commands show up with their descriptions.
 3. Compare the two: `/film-pick fun` and `/film-suggest fun` against the same catalogue. Watch how the deterministic wrapper differs from the reasoned suggestion.
 4. Try the empty-result path on both: `/film-pick disco`. `pick-film.sh` returns "No film for mood: disco" — `/film-pick` suggests a closer mood, `/film-suggest` suggests adding `disco` to the catalogue. Same input, different shape of helpfulness.
@@ -159,8 +159,8 @@ git push
 
 Custom slash commands are the second-most-useful feature in Claude Code, after `CLAUDE.md`. They let you turn *prompts you'd otherwise retype* into reusable, version-controlled, share-with-the-team primitives. The `allowed-tools` field is what makes them safe to use in real codebases — without it, every command would carry the blast radius of a free-form session.
 
-The thing that surprised me: once I had `/film-pick` and `/film-suggest` in muscle memory I stopped thinking about the catalogue and started thinking about the *interface*. That's a bigger productivity jump than any single command's content. The interface change is the real product.
+The interface change is the real product. Once a repeated workflow becomes `/command-name`, you stop thinking about the workflow's content and start thinking about its *shape* — which arguments matter, what `allowed-tools` it actually needs, whether it should auto-invoke. That's the productivity jump worth the setup cost.
 
-What I'd do differently next time: I'd write the *first* command as a personal one in `~/.claude/commands/` before I tried writing a project command. Project commands tempt you to over-engineer because they're for the team; personal ones force you to keep it shabby and useful, which is the right starting energy.
+What I'd do differently next time: I'd write the *first* command as a personal one in `~/.claude/commands/` before I tried writing a project command. Project commands tempt you to over-engineer because they're for the team; personal ones force you to keep them shabby and useful, which is the right starting energy. And if you find yourself adding supporting files or wanting tighter safety, promote it to a skill — that's lesson 9.
 
 On to lesson 9, fellow hungovercoder — let's meet skills, the newer cousin who shares a flat with slash commands.

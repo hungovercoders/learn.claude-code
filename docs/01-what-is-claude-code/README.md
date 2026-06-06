@@ -2,11 +2,11 @@
 title: "What is Claude Code?"
 series: claude-code
 order: 1
-description: "An honest first look at Anthropic's terminal-based coding agent, the eleven moving parts you'll meet across the series, and the Cinema Companion you'll build as we go"
+description: "An honest first look at Anthropic's terminal-based coding agent, the moving parts you'll meet across the series, and the Cinema Companion you'll build as we go"
 canonical_url: https://hungovercoders.com/training/claude-code/01-what-is-claude-code
 ---
 
-I wanted to stop tab-switching between my editor and a chat window every five minutes. I'd been doing the dance for a year — paste code into Claude.ai, copy the suggestion back, run it, paste the error, copy the fix back. By the end of a Friday afternoon I'd done it forty times and could feel the keyboard shortcut wearing into my thumb. So when Anthropic shipped Claude Code — an agent that *lives in the terminal next to your code* — I cracked it open the same week. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
+I'll be honest about why I'm here. I was happy using Copilot in an agentic chat interface and felt I was doing OK there. What made me reach for Claude Code was outside pressure: the industry trumpets and increased usage around me made me want to see what the fuss was about and ensure I was skilled in something becoming increasingly common. The love came later — it's now awesome, including straight from the terminal, and using it with multi-threaded terminal tools like [cmux](https://github.com/coder/cmux) or [zed](https://zed.dev) has really opened my eyes. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
 
 ## Texting a Mate vs Sitting Next to One
 
@@ -16,12 +16,12 @@ Claude Code is the same mate, sat at the desk next to you. They can `ls` your re
 
 That distinction is most of the point. The chat window doesn't know what's in your `src/`. Claude Code does — because it can `ls` and `grep` and `Read` like you do. You stop describing your codebase and start letting the agent see it.
 
-## What's Actually in the Glass
+## What Ships With Claude Code
 
 Out of the box you get:
 
 - **Tool use.** It runs `Bash`, edits files, searches with `grep`, reads files, fetches URLs. Every action is a tool call you can see and (by default) approve.
-- **CLAUDE.md** — a project file you fill in once that gives the agent persistent context. Code style, the things to avoid, the things to always do. It's the recipe card it reads before pouring anything.
+- **CLAUDE.md** — a project file you fill in once that gives the agent persistent context. Code style, the things to avoid, the things to always do. It's the recipe card the agent reads before doing anything.
 - **Slash commands.** Type `/init`, `/permissions`, `/agents`, `/help`. You can write your own — markdown files in `.claude/commands/` that fire on a slash.
 - **Skills.** The newer cousin of slash commands. A folder under `.claude/skills/` with a `SKILL.md` and any supporting scripts. Claude can pick them up automatically when the task fits.
 - **Hooks.** Shell scripts that fire before or after tool calls. The bouncer at the door — useful for guardrails, audit logs, or auto-running formatters.
@@ -33,21 +33,23 @@ You'll meet every one of those in this series — each as a concrete thing you a
 
 ## What We're Building — the Cinema Companion
 
-Each lesson adds one file (or one set of files) to one growing kit. By lesson eleven you'll have a small Cinema Companion that picks a film by mood, validates its own catalogue, pairs the pick with a snack and a drink, and runs from any directory on your machine.
+Each lesson adds one file (or one set of files) to one growing kit. By lesson fourteen you'll have a small Cinema Companion that picks a film by mood, validates its own catalogue, pairs the pick with a snack and a drink, and runs from any directory on your machine.
 
 The seed is two files — `films.json` and `pick-film.sh`. They are the same two files my [launch blog post](https://hungovercoders.com/blog/2026-05-25-building-a-film-picker-with-claude-code) ships, which is the twenty-minute appetiser version of this series. The tutorial extends them. You don't need to have read the blog first; the seed below is the whole starting point.
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json        ← lesson 1
 └── pick-film.sh      ← lesson 1
 ```
 
-By lesson eleven that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point.
+By lesson fourteen that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point — here's the full kit as it'll sit when you reach the capstone:
+
+![The Cinema Companion kit — how the pieces compose. Directory tree on the left with films.json, pick-film.sh, CLAUDE.md, the commands, skills and hooks folders, and the MCP wiring. Annotation cards on the right show how each piece is consumed: CLAUDE.md as context the agent reads on every session, commands and skills with tight allowed-tools, the films-validate hook on PostToolUse, and the cinema-db MCP server.](/assets/training/claude-code/kit-composition.svg)
 
 ## The Bit the Docs Don't Mention
 
-I'll be honest — the first time I let Claude Code loose I gave it a task in my home directory by mistake and watched it try to `find . -name "*.tsx"` against my entire `~`. It didn't break anything because the default permissions made it ask before each Bash call. But I felt my chest tighten while I waited. **The permissions system is real and you should learn it before you turn anything off.** Lesson three exists for a reason and it's not optional reading.
+Lesson 13 has a real story about getting into an auto-edit "accept changes" loop without thinking — pressing yes through what turned out to be a force push that rewrote history on a repo. The takeaway from that story is the whole shape of this series: **getting guardrails in with an intent to use auto mode as a discipline is a better goal than lazily pressing 2 over and over.** The permissions system is the first guardrail and lesson 5 is where it goes in. It's not optional reading.
 
 ## When to Reach for Claude Code (and When Not To)
 
@@ -63,13 +65,13 @@ Stay in the chat window when:
 - You're brainstorming an idea, not editing code
 - You don't have a codebase open — Claude Code without files is just a worse chat
 
-Most working developers I know end up using both. Pub on the way home, kit at home on a Sunday afternoon. They do different jobs.
+Most working developers I know end up using both. The chat window for the quick stuff, Claude Code for anything that lives in a real codebase. They do different jobs.
 
 ## Have a Go — Plant the Seed
 
 This lesson's deliverable is the smallest possible thing: a working film picker with no Claude Code in it yet. Two files, eight lines of bash, five films of catalogue. Lesson two installs Claude Code and points it at this directory.
 
-`~/dev/cinema/films.json`:
+`~/dev/learn.claude-code/films.json`:
 
 ```json
 [
@@ -81,7 +83,7 @@ This lesson's deliverable is the smallest possible thing: a working film picker 
 ]
 ```
 
-`~/dev/cinema/pick-film.sh`:
+`~/dev/learn.claude-code/pick-film.sh`:
 
 ```bash
 #!/bin/bash
@@ -95,10 +97,11 @@ jq -r --arg m "$mood" '
 ```
 
 ```bash
-mkdir -p ~/dev/cinema
-# Paste the two files above into ~/dev/cinema/, then:
-chmod +x ~/dev/cinema/pick-film.sh
-~/dev/cinema/pick-film.sh wales
+mkdir -p ~/dev/learn.claude-code
+cd ~/dev/learn.claude-code
+# Paste the two files above into this directory, then:
+chmod +x pick-film.sh
+./pick-film.sh wales
 ```
 
 ```text
@@ -108,12 +111,13 @@ Hedd Wyn (1992) — 123min
 Or, if you'd rather skip the typing and copy from the repo:
 
 ```bash
-git clone https://github.com/hungovercoders/learn.claude-code.git
-cp -r learn.claude-code/docs/01-what-is-claude-code/solution/. ~/dev/cinema/
-chmod +x ~/dev/cinema/pick-film.sh
+git clone https://github.com/hungovercoders/learn.claude-code.git ~/dev/learn.claude-code
+cd ~/dev/learn.claude-code
+cp -r docs/01-what-is-claude-code/solution/. .
+chmod +x pick-film.sh
 ```
 
-Both paths leave you with the same `~/dev/cinema/` — eight lines of bash and a small JSON file. That's the canvas. The next ten lessons paint Claude Code onto it.
+Both paths leave you sat in the same `~/dev/learn.claude-code/` — eight lines of bash and a small JSON file. (The clone path also gives you `docs/`, `project/`, and the rest of this tutorial as reference material alongside; the manual path keeps your workspace empty.) That's the canvas. The next thirteen lessons paint Claude Code onto it.
 
 Also worth a skim before lesson two:
 
@@ -123,8 +127,8 @@ Also worth a skim before lesson two:
 
 ## My Verdict at the End of Lesson One
 
-Claude Code is the version of an AI assistant I actually use every day. Not because the model is better than the one in the chat window — same model under the hood — but because *the integration is the product*. The agent sees what I see, runs what I'd run, and reads the same errors I'd read. That changes the work. The chat window is a clever consultant; Claude Code is a junior dev who stayed for the next round.
+I use Claude Code all the time now for parallel threads of work, and development output and idea delivery is through the roof. I still need to harden up the tooling to make rapid change safe in all the places — which is exactly why the cinema we're about to build is small and scoped. The hello world of the SDLC in isolation before tackling complex codebases is the right place to learn the discipline.
 
-What I'd do differently if I were learning this again: I'd spend less time reading the docs and more time pointing it at a real repo from day one. The shape of the tool only makes sense once it's working on something you actually care about. Hence the cinema — small enough to fit in your head, big enough by lesson eleven to feel like a workflow.
+What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase, but with the discipline now, the move is to set up the guardrails and race for auto-mode proficiency as quickly as possible. That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The next thirteen lessons are that race, run small.
 
 On to lesson 2, fellow hungovercoder — let's get the first round in.
