@@ -6,7 +6,7 @@ description: "Install Claude Code, log in, and run the first session inside the 
 canonical_url: https://hungovercoders.com/training/claude-code/02-installation-first-session
 ---
 
-I wanted Claude Code on my machine in less than ten minutes, with no surprises. I'd seen enough "just `npm install -g` and you're away" blog posts to know they usually leave out the bit where the binary isn't on your PATH and you spend a quarter of an hour wondering whether you've broken `node`. So I went looking for the cleanest install path in 2026 — and it turns out Anthropic now ship a native binary that bypasses the npm faff entirely. Let's pour the first one and point it at the cinema seed you planted in lesson 1.
+Installing a CLI in 2026 should be a low-surprise affair, but plenty of "just `npm install -g` and you're away" posts leave out the bit where the binary isn't on your PATH and you spend longer than you should wondering whether you've broken `node`. The cleanest path in 2026 is the native binary Anthropic now ship — it bypasses the npm faff entirely. Let's get the first round in and point Claude Code at the cinema seed you planted in lesson 1.
 
 ## Pre-Requisites
 
@@ -112,7 +112,7 @@ That's the integration — the agent didn't describe what `pick-film.sh` would o
 
 ## The Bit the Docs Don't Mention
 
-First time I ran Claude Code I assumed it would behave like the chat window — type a question, get an answer, move on. The mental adjustment that took me about a session to make: **it's an agent, not a chatbot.** When you ask it something, it doesn't immediately answer — it starts *doing*. It reads files, runs greps, kicks off bash. The "response" is the result of work it actually performed. That's the whole point but it feels surprising the first time because the chat-window habits run deep.
+Coming from the chat-window habit — type a question, get an answer, move on — the mental adjustment Claude Code asks for is **it's an agent, not a chatbot.** When you ask it something, it doesn't immediately answer — it starts *doing*. It reads files, runs greps, kicks off bash. The "response" is the result of work it actually performed. That's the whole point but it feels surprising the first time because the chat-window habits run deep.
 
 The corollary: the more concrete your request, the better. "Improve my code" leaves it guessing what to do. "Find all the places we set a `Content-Type` header and tell me which ones use a different value to the rest" gives it a job. Once you start writing requests like the second one, the agent earns its keep fast.
 
@@ -131,6 +131,6 @@ The cinema directory doesn't change in this lesson. Lesson 3 is where the build 
 
 The native binary install is the version I'd recommend without hesitation. The npm path is fine if you've already got the Node ecosystem in your workflow, but for someone coming fresh, "one curl, one auth, done" is the install story I'd want. The fact Anthropic moved to a code-signed native binary is the right call — fewer dependencies, faster updates, less drift.
 
-One thing I'd do differently next time: I'd run the install on my work machine *and* my home machine on the same evening, and confirm both auth flows work, before relying on it for any real work. The 30-day token expiry doesn't matter until it does — and "I'll re-auth tomorrow" on a deadline day is a bad time to discover your browser-based OAuth is being blocked by corporate SSO.
+One thing worth doing on day one: install and authenticate on every machine you'll need Claude Code on — work, home, whatever — in the same week, while you're paying attention. The 30-day token expiry doesn't matter until it does, and "I'll re-auth tomorrow" on a deadline day is a bad time to discover your browser-based OAuth is being blocked by corporate SSO.
 
 On to lesson 3, fellow hungovercoder — let's lay down the personal defaults the agent will read on every session from now on.

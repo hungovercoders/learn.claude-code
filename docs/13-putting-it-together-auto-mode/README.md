@@ -174,6 +174,14 @@ gh pr view --web
 
 The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 13 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt. And if you ran the demo inside a worktree, the nuclear option is one line — `cd ~/dev/cinema && git worktree remove ../cinema-automode && git branch -D feat/automode-demo` — and the entire experiment is gone, your main build untouched.
 
+## The Honest Moment That Earned the Cage
+
+This is the moment to land the honest story that justifies the whole twelve-lesson cage we just built. Mine:
+
+> I got in an auto-edit "accept changes" loop without thinking and kept pressing yes without planning or reading correctly. I ended up doing a force push and rewriting history on a repo, so I lost all public lineage. Luckily it wasn't an important repo, but it made me realise: it's very easy to give brain over. **Getting guardrails in with an intent to use auto mode as a discipline is a better goal than lazily pressing 2 over and over.**
+
+That's the lesson I learned the hard way and that this whole series is the cure for. Every cage layer from lessons 4–12 — branch isolation, deny rules, project CLAUDE.md, allowed-tools narrowing, hooks, MCP — exists precisely so the *next* time the agent ends up in an accept loop, the loop runs against a cage instead of an open repo. Force-pushing inside this cage costs you nothing — the worktree gets removed, the branch gets reset, the PR diff shows you exactly what happened. Force-pushing without the cage cost me public lineage. The series exists so you don't pay that tax.
+
 ## The Bit the Docs Don't Mention
 
 Two things the docs don't quite spell out about auto-mode.
@@ -203,16 +211,16 @@ Claude Code earns its keep when the pieces stop feeling like separate features a
 
 The big takeaway across the thirteen lessons: **the agent isn't the product, the cage you build around it is**. The model is the same model that powers Claude.ai. What makes Claude Code different is that it sits inside a configurable, scriptable, version-controllable shell where you can encode the way *you* work, the rules of *this* project, and the boundaries the agent must not cross — and then let it run inside those boundaries unsupervised. That's the destination the series was always aiming at. You can't fake the cage; the cage is yours.
 
-## Where the Cinema Shape Goes Next
+## Where the Cinema Shape Goes Next — Library, or Just a Skill?
 
-The cinema shape generalises. The same pattern — a small data file, a script that operates on it, a `CLAUDE.md` that explains it, skills that wrap it, a hook that polices it, an MCP server for queryable views, a branch + draft PR — fits a hundred other workflows. Three real ones I've used the shape for:
+The cinema shape generalises, but it's worth being honest about *when* it generalises into a whole library vs *when* you just want a single skill. The library shape — multiple skills + voice/reference files + a hook + an install script + a CLAUDE.md — is the right reach when the use case has **several composing pieces** that share state. The single-skill shape is the right reach when the use case has **one focused job** and one prompt.
 
-- **A writing library.** Replace `films.json` with `voice/style-guide.md`, the slash commands with `/draft` and `/polish`, the schema hook with a word-count log. The hungovercoders content library at `~/dev/hungovercoders/library/` is built on exactly this shape. Auto-mode on it writes a publishable draft in fifteen minutes.
-- **A release-notes library.** `changelogs/<version>.md` as the catalogue, `/release-notes` skill that bundles the most recent tag, a hook that refuses pushes without an unreleased entry. Auto-mode runs it on every PR merge.
-- **A code-review library.** A `voice/review-style.md` as the rules, a `/review` skill that walks a diff against them, a hook that logs review outcomes per repo. Auto-mode on a PR pre-reviews the diff before a human ever sees it.
+**The one I've actually built — a writing library.** The hungovercoders content library at `~/dev/hungovercoders/library/` is the cinema's shape repotted into a media workflow: `voice/datagriff-voice-guide.md` plus `voice/facts/<topic>.md` source-of-truth files (replacing `films.json`); `hc-write-lessons`, `hc-launch`, `hc-review-blog`, `hc-review-series`, `hc-social`, and `hc-datagriff-interview` skills (replacing the `/film-pick`/`/film-suggest`/`/pair` set); install script symlinks everything into `~/.claude/`. Multiple skills, shared reference files, real workflow — the library shape earns its keep here because the pieces compose into the same daily job. This is the one place I've gone full library, and it's been the right call.
 
-Each of those is the cinema's shape, repotted into a different domain. The directories are different; the *cage* is the same. You build one of these and the second one takes a tenth of the time — the install script and the settings.json wiring carry over, and so does the auto-mode confidence you earned on the cinema.
+**Two more shapes where I'd reach for *just a skill*, not a library.** Release-notes generation — a `/release-notes` skill that reads the most recent tag and shapes the output — is one focused job. No supporting files beyond the prompt, no shared state, no install script needed. Same for a code-review skill that walks a diff against a short review-style guide. Both useful; both would just be `~/.claude/skills/<name>/SKILL.md` files, not full libraries. **A skill is the cinema-shape minus the install script and the supporting cast.** Reach for it when one prompt does the job; promote to a library when the workflow grows pieces that want to live together.
 
-What I'd do differently if I were starting thirteen lessons ago: I'd build the cinema *first*, before adopting Claude Code for any real work. The series exists because I learned the lessons in the wrong order; you don't have to. Twelve lessons of cage and one weekend afternoon would have saved me the first month of "is it safe to let it run?" hesitation. The setup feels like overhead until you've got it; after that, every session starts from a known-good base, auto-mode is a one-flag decision rather than a stomach-clench, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
+The judgment call is the same one this series taught: **the agent isn't the product, the shape you build around it is.** Sometimes that shape is a library; sometimes that shape is a single skill. The cinema teaches the library shape because it's the bigger reach; once you've internalised it, dialling down to a skill is cheap.
+
+What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase — that's how you find out where the rope is. But with the discipline now, the move is to **set up the guardrails and race for auto-mode proficiency as quickly as possible.** That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The twelve lessons of cage exist so the race is short and the rope doesn't bite. The setup feels like overhead until you've got it; after that every session starts from a known-good base, auto-mode is a one-flag decision rather than a stomach-clench, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
 
 Well done on the series, fellow hungovercoder. Merge the PR, raise a Cwtch, and watch this space for more.

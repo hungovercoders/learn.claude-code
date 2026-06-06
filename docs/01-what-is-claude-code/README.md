@@ -6,7 +6,7 @@ description: "An honest first look at Anthropic's terminal-based coding agent, t
 canonical_url: https://hungovercoders.com/training/claude-code/01-what-is-claude-code
 ---
 
-I wanted to stop tab-switching between my editor and a chat window every five minutes. I'd been doing the dance for a year — paste code into Claude.ai, copy the suggestion back, run it, paste the error, copy the fix back. By the end of a Friday afternoon I'd done it forty times and could feel the keyboard shortcut wearing into my thumb. So when Anthropic shipped Claude Code — an agent that *lives in the terminal next to your code* — I cracked it open the same week. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
+I'll be honest about why I'm here. I was happy using Copilot in an agentic chat interface and felt I was doing OK there. What made me reach for Claude Code was outside pressure: the industry trumpets and increased usage around me made me want to see what the fuss was about and ensure I was skilled in something becoming increasingly common. The love came later — it's now awesome, including straight from the terminal, and using it with multi-threaded terminal tools like cmux or zed has really opened my eyes. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
 
 ## Texting a Mate vs Sitting Next to One
 
@@ -47,7 +47,7 @@ By lesson eleven that directory will also contain a `CLAUDE.md`, two slash comma
 
 ## The Bit the Docs Don't Mention
 
-I'll be honest — the first time I let Claude Code loose I gave it a task in my home directory by mistake and watched it try to `find . -name "*.tsx"` against my entire `~`. It didn't break anything because the default permissions made it ask before each Bash call. But I felt my chest tighten while I waited. **The permissions system is real and you should learn it before you turn anything off.** Lesson three exists for a reason and it's not optional reading.
+Lesson 13 has a real story about getting into an auto-edit "accept changes" loop without thinking — pressing yes through what turned out to be a force push that rewrote history on a repo. The takeaway from that story is the whole shape of this series: **getting guardrails in with an intent to use auto mode as a discipline is a better goal than lazily pressing 2 over and over.** The permissions system is the first guardrail and lesson 5 is where it goes in. It's not optional reading.
 
 ## When to Reach for Claude Code (and When Not To)
 
@@ -123,8 +123,8 @@ Also worth a skim before lesson two:
 
 ## My Verdict at the End of Lesson One
 
-Claude Code is the version of an AI assistant I actually use every day. Not because the model is better than the one in the chat window — same model under the hood — but because *the integration is the product*. The agent sees what I see, runs what I'd run, and reads the same errors I'd read. That changes the work. The chat window is a clever consultant; Claude Code is a junior dev who stayed for the next round.
+I use Claude Code all the time now for parallel threads of work, and development output and idea delivery is through the roof. I still need to harden up the tooling to make rapid change safe in all the places — which is exactly why the cinema we're about to build is small and scoped. The hello world of the SDLC in isolation before tackling complex codebases is the right place to learn the discipline.
 
-What I'd do differently if I were learning this again: I'd spend less time reading the docs and more time pointing it at a real repo from day one. The shape of the tool only makes sense once it's working on something you actually care about. Hence the cinema — small enough to fit in your head, big enough by lesson eleven to feel like a workflow.
+What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase, but with the discipline now, the move is to set up the guardrails and race for auto-mode proficiency as quickly as possible. That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The next twelve lessons are that race, run small.
 
 On to lesson 2, fellow hungovercoder — let's get the first round in.

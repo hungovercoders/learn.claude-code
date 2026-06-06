@@ -154,7 +154,7 @@ That commit shows up on the draft PR. The lesson 4 box stays ticked; the rest ge
 
 ## The Second Layer — Worktrees for Parallel Isolation
 
-The branch + draft PR pattern protects you from the agent touching `main`. It does not protect you from *yourself* — specifically, from the muscle memory mistake of running `git checkout main` in the middle of an active Claude session because you wanted to check something. The session's working tree flips under it, half-staged files vanish into the index of whichever branch you switched to, and ten minutes later you're trying to remember whether `films-validate.sh` lived on `feat/cinema-build` or `feat/experiment`. Been there. Several times.
+The branch + draft PR pattern protects you from the agent touching `main`. It does not protect you from *parallel work on yourself* — specifically, from having multiple pieces of work going on in different terminals against the same repo and accidentally polluting branches as the context flips. I've definitely lived that one — same repo, two terminals, lost track of which branch a half-staged change belonged to.
 
 The fix is **git worktrees**. A worktree is a separate working directory that points at the same `.git` (so it shares history and objects) but has its own branch, its own index, its own staged state. You don't switch branches in one directory; you have a directory per branch. Each Claude session lives in its own working tree and cannot accidentally trip the others.
 
@@ -185,9 +185,17 @@ The experiment runs in a completely separate working directory. If it goes wrong
 
 There's an auto-mode payoff too. Lesson 13 lets the agent run with `--dangerously-skip-permissions`. The safest place to do that on something you genuinely care about is a *fresh worktree* — if the agent does something surprising, the worktree gets removed and your main build is untouched. We'll come back to this in lesson 13.
 
+### "Why Not Just Use Worktrees Always Instead of Branches?"
+
+A fair question the moment you understand worktrees: if a worktree gives me a clean directory per branch, why bother with branches in the first place — why not have one worktree per piece of work, full stop, and skip the branch-swapping discipline entirely?
+
+The honest answer: **branches are the *unit* the rest of git (and GitHub) is built around — push, PR, review, merge.** A worktree is just a *checkout shape* — a separate working directory pointing at a branch. You still need the branch underneath for the PR to exist. So the answer isn't "worktrees replace branches"; it's "worktrees are how you have multiple branches *open at the same time*." When you only have one active piece of work, branches alone are fine — `git switch` and you're done. When you've got two pieces of work that you want both visible and in separate `claude` sessions, that's the worktree case.
+
+The other small reason: worktrees have a tiny maintenance cost — each one creates a directory plus metadata in `.git/worktrees/` that needs cleaning up with `git worktree remove` when you're done. One worktree is fine, ten neglected ones are a mess. Branches are cheaper to leave lying around.
+
 ### The Bit the Docs Don't Mention About Worktrees
 
-Three things tripped me up the first month of using them.
+Three things worth knowing — the first one is what I had to investigate when I tried worktrees and didn't immediately understand the cleanup model.
 
 **Never `rm -rf` a worktree directory.** Use `git worktree remove`. Removing the directory directly leaves stale metadata in `.git/worktrees/` that won't bite you immediately, but accumulates over a few months until `git worktree list` becomes confusing. `git worktree prune` cleans up after the fact — but the discipline is to use `git worktree remove` in the first place.
 
@@ -249,6 +257,6 @@ A small honesty pass: for a one-line config tweak to your personal `~/.claude/se
 
 The pattern is the cheapest insurance Claude Code offers. Three commands at the start of a build (`git checkout -b`, `git push`, `gh pr create --draft`) and a five-second commit-and-push at the end of each lesson. Total overhead: maybe two minutes per lesson, generously. What you gain: a fully reversible build, a remote-visible diff at every step, a structured PR description with the cage checklist as you go, and a load-bearing safety floor for the auto-mode lesson at the end. Worktrees add the second axis: parallel safety. One `git worktree add` and you can run two Claude sessions on the same repo without either one stepping on the other's working state.
 
-What I'd do differently next time: I'd build the branch-and-draft-PR habit into *every* multi-lesson tutorial I work through, not just this one — and I'd reach for `git worktree add` the moment I felt the urge to `git checkout` in the middle of a Claude session. Both habits are tiny in setup cost and saved me hours the second month of daily use.
+What I'd do differently next time: I'd build the branch-and-draft-PR habit into *every* multi-lesson tutorial I work through, not just this one — and I'd reach for `git worktree add` the moment I had two pieces of work that wanted their own terminals instead of doing the "multiple terminals on the same repo" dance and polluting branches. Both habits cost almost nothing to set up; the second one is the one I'm still building muscle memory for.
 
 On to lesson 5, fellow hungovercoder — let's wire the project's first set of allow and deny rules.

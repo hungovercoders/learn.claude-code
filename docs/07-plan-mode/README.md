@@ -6,7 +6,7 @@ description: "The read-only thinking gear that turns Claude from code-vibing too
 canonical_url: https://hungovercoders.com/training/claude-code/07-plan-mode
 ---
 
-I wanted Claude to stop diving in. I'd ask for a refactor and within four seconds it would be three files deep into edits, with a plan I never agreed to. Sometimes that's fine — small tasks reward speed. For anything that spanned more than one file, though, I wanted it to *think first, edit second*. That's exactly what plan mode is for, and it's the mode I now reach for whenever the request would make a senior dev say "give me a minute" before opening the editor. In this lesson we use plan mode for a real job — design the MCP feature we'll wire in lesson 12 — and ship the plan file alongside the cinema as a permanent artefact.
+Plan mode has been smooth for me from the offset, and it's the mode I reach for first on anything bigger than a one-line change. Not because the agent is bad at diving in (sometimes diving in is the right move), but because plan mode turns the session into a *conversation* — Claude reads the relevant files, drafts an approach, hands it back to me, and I get to push on it before any edits land. It's the single feature that helps me have a real conversation with Claude rather than just issuing instructions. In this lesson we use it for a real job — designing the MCP feature we'll wire in lesson 12 — and ship the plan file alongside the cinema as a permanent artefact.
 
 ## Pre-Requisites
 
@@ -86,9 +86,9 @@ In this lesson the plan stays *unexecuted* — we approve the file as a plan, no
 
 ## The Bit the Docs Don't Mention
 
-I'll be honest — plan mode has a few rough edges in 2026 that you'll meet eventually. The biggest one: if you launched with `--dangerously-skip-permissions` and then Shift-Tabbed into plan mode, the `ExitPlanMode` confirmation flow sometimes doesn't transition you back to act mode properly. I've also had sessions where rejecting an `ExitPlanMode` call got interpreted as "do this differently" rather than "stay in plan mode" — the agent occasionally treats the rejection text as new guidance rather than a no.
+Plan mode is the feature I most want to flag as the **dialogue tool**, not just the thinking gear the docs frame it as. Most write-ups treat it as a safety mechanism — read-only so the agent can't break anything while it thinks. That's true and useful, but it undersells the other half: plan mode is where you have the *architecture conversation* with the agent, and that conversation is the whole game on non-trivial work. The plan is a draft you can argue with, sharpen, and hand back. Default-mode work is "agent does, you check." Plan mode is "agent proposes, you agree." Different relationship.
 
-The workaround: when in doubt, type `/plan` again to explicitly re-enter, and avoid combining plan mode with `--dangerously-skip-permissions` in the same session. Use `--permission-mode plan` from a clean launch instead. There's an active [GitHub issue](https://github.com/anthropics/claude-code/issues/32934) on this — worth a skim if you start using plan mode heavily.
+Practical consequence: don't reach for plan mode only on the jobs you're nervous about. Reach for it on the jobs where the *shape* matters — schema choices, file layouts, what to put in scope, what to keep out. Those are the conversations worth having with claude before any code lands.
 
 ## When to Brew a Plan, When to Pour Straight
 
@@ -134,10 +134,8 @@ This is the cinema's first deliberate *time-shifted handoff* — a file written 
 
 ## My Verdict on Plan Mode
 
-Plan mode is the feature that turned Claude Code from "useful for small jobs" to "useful for the jobs I'd usually do solo on a Saturday morning". The discipline it imposes — separating *thinking* from *doing* — is exactly the discipline a good developer already brings to non-trivial work, and the agent benefits from being held to the same standard.
+Plan mode is the feature I've used most consistently from the offset. The discipline it imposes — separating *thinking* from *doing* — is exactly the discipline a good developer already brings to non-trivial work, and the agent benefits from being held to the same standard. Smooth in practice, no rough edges I've hit. The fact you can edit the plan file directly before approval is the killer feature — you stop having to *describe* what you want and start *handing the agent the corrected document*.
 
-The rough edges around `ExitPlanMode` mean I wouldn't yet rely on it for fully unattended automation, but for human-in-the-loop work it's the single biggest quality jump I've found in any AI coding tool. The fact you can edit the plan file directly before approval is the killer feature — you stop having to *describe* what you want and start *handing the agent the corrected document*.
-
-What I'd do differently if I were learning this again: I'd start *every* refactor in plan mode for a fortnight, even the small ones, just to build the habit of reading the plan before approving. Once the habit is there, the cost is tiny and the upside is "I never get surprised by what the agent did".
+What I'd do differently if I were learning this again: nothing here, actually — I reached for plan mode from the start and it's stayed in my muscle memory. If anything I'd encourage a *fellow hungovercoder* coming in fresh to lean on it even on small tasks the first week, just to get the habit of reading the plan before approving. Once that's in, the cost is tiny and the upside is "I never get surprised by what the agent did."
 
 On to lesson 8, fellow hungovercoder — let's pour our own custom cocktails.
