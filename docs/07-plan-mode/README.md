@@ -6,7 +6,7 @@ description: "The read-only thinking gear that turns Claude from code-vibing too
 canonical_url: https://hungovercoders.com/training/claude-code/07-plan-mode
 ---
 
-Plan mode has been smooth for me from the offset, and it's the mode I reach for first on anything bigger than a one-line change. Not because the agent is bad at diving in (sometimes diving in is the right move), but because plan mode turns the session into a *conversation* — Claude reads the relevant files, drafts an approach, hands it back to me, and I get to push on it before any edits land. It's the single feature that helps me have a real conversation with Claude rather than just issuing instructions. In this lesson we use it for a real job — designing the MCP feature we'll wire in lesson 12 — and ship the plan file alongside the cinema as a permanent artefact.
+Plan mode has been smooth for me from the offset, and it's the mode I reach for first on anything bigger than a one-line change. Not because the agent is bad at diving in (sometimes diving in is the right move), but because plan mode turns the session into a *conversation* — Claude reads the relevant files, drafts an approach, hands it back to me, and I get to push on it before any edits land. It's the single feature that helps me have a real conversation with Claude rather than just issuing instructions. In this lesson we use it for a real job — designing the MCP feature we'll wire in lesson 13 — and ship the plan file alongside the cinema as a permanent artefact.
 
 ## Pre-Requisites
 
@@ -70,7 +70,7 @@ What Claude does next:
 5. Writes a plan to `plans/mcp-feature.md`
 6. Calls `ExitPlanMode`
 
-The plan it ought to produce — and the one we use in lesson 12 — is the one shipped in `solution/plans/mcp-feature.md`. Five short sections: **context** (why move to SQLite), **approach** (wire mcp-server-sqlite, build cinema.db from films.json, keep JSON as source of truth, ship a derived view), **out of scope** (no watch-log write path, no auth), **verification** (build script produces N rows, claude lists the table). That's the value — not the plan itself, but the fact that *the lesson-12 execution will match the plan we agreed to here*, because we read it before approving.
+The plan it ought to produce — and the one we use in lesson 13 — is the one shipped in `solution/plans/mcp-feature.md`. Five short sections: **context** (why move to SQLite), **approach** (wire mcp-server-sqlite, build cinema.db from films.json, keep JSON as source of truth, ship a derived view), **out of scope** (no watch-log write path, no auth), **verification** (build script produces N rows, claude lists the table). That's the value — not the plan itself, but the fact that *the lesson-12 execution will match the plan we agreed to here*, because we read it before approving.
 
 ## Editing the Plan, Approving the Plan
 
@@ -130,7 +130,7 @@ git commit -m "lesson 7: plan-mode artefact for the MCP feature"
 git push
 ```
 
-This is the cinema's first deliberate *time-shifted handoff* — a file written today that another session reads next week. The plan-mode artefact is small, but it's the thing that makes lesson 12's wiring feel like execution rather than improvisation.
+This is the cinema's first deliberate *time-shifted handoff* — a file written today that another session reads next week. The plan-mode artefact is small, but it's the thing that makes lesson 13's wiring feel like execution rather than improvisation.
 
 ## My Verdict on Plan Mode
 

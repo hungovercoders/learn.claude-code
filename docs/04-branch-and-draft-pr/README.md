@@ -29,7 +29,7 @@ Three reasons this lesson lives where it does in the series — before permissio
 
 **Reason two: visibility.** Pushing every commit to a draft PR means each lesson's deliverable shows up as a diff on GitHub. You — or anyone else — can read the whole build at any point. Lesson 13's auto-mode demo can fan out across a dozen tool calls; the PR diff at the end is your audit log.
 
-**Reason three: auto-mode safety, which is the real prize.** Lesson 13 lets the agent run with `--dangerously-skip-permissions`. If the agent goes wrong, the only thing protecting your repo's `main` branch is that the agent isn't on it. The branch isolation set up in this lesson is exactly that.
+**Reason three: auto-mode safety, which is the real prize.** Lesson 14 lets the agent run with `--dangerously-skip-permissions`. If the agent goes wrong, the only thing protecting your repo's `main` branch is that the agent isn't on it. The branch isolation set up in this lesson is exactly that.
 
 ## Setting Up the Cinema as a Repo
 
@@ -69,7 +69,7 @@ git push -u origin main
 git checkout -b feat/cinema-build
 ```
 
-This branch is where the entire build lives. By lesson 13 it'll have nine commits from lessons 5–13, plus this lesson's PR template. Push it now so the remote knows about it:
+This branch is where the entire build lives. By lesson 14 it'll have ten commits from lessons 5–14, plus this lesson's PR template. Push it now so the remote knows about it:
 
 ```bash
 git push -u origin feat/cinema-build
@@ -82,7 +82,7 @@ Before you write the first piece of Claude Code config, open the PR. Empty (well
 ```bash
 gh pr create --draft \
   --title "Build out the cinema kit" \
-  --body "Building the Cinema Companion across lessons 5–13. Tracking progress in the PR description as each lesson lands."
+  --body "Building the Cinema Companion across lessons 5–14. Tracking progress in the PR description as each lesson lands."
 ```
 
 ```text
@@ -99,7 +99,7 @@ That URL is where every subsequent lesson's commit will show up. You can leave t
 
 ## The PR Template — A Cage Checklist
 
-A PR template at `.github/pull_request_template.md` populates the description of every new PR opened against the repo. We use it for the cage checklist — one tickable item per safety layer this series adds. As each lesson lands its deliverable, you tick the box; by lesson 13 you can look at the PR description and *see* the cage you've built.
+A PR template at `.github/pull_request_template.md` populates the description of every new PR opened against the repo. We use it for the cage checklist — one tickable item per safety layer this series adds. As each lesson lands its deliverable, you tick the box; by lesson 14 you can look at the PR description and *see* the cage you've built.
 
 `~/dev/learn.claude-code/.github/pull_request_template.md`:
 
@@ -150,7 +150,7 @@ git commit -m "lesson 4: PR template tracking the cage checklist"
 git push
 ```
 
-That commit shows up on the draft PR. The lesson 4 box stays ticked; the rest get ticked as you go. By lesson 13 the PR description is the build's table of contents.
+That commit shows up on the draft PR. The lesson 4 box stays ticked; the rest get ticked as you go. By lesson 14 the PR description is the build's table of contents.
 
 ## The Second Layer — Worktrees for Parallel Isolation
 
@@ -183,7 +183,7 @@ claude
 
 The experiment runs in a completely separate working directory. If it goes wrong you `git worktree remove ../learn.claude-code-experiment` and the failure leaves no trace in the main build. Two parallel `claude` sessions — one in `~/dev/learn.claude-code/` working on the lesson-by-lesson build, one in `~/dev/learn.claude-code-experiment/` exploring — share history through `.git` but can't see each other's uncommitted work. That's the second layer of isolation. The branch protects `main`; the worktree protects parallel work from itself.
 
-There's an auto-mode payoff too. Lesson 13 lets the agent run with `--dangerously-skip-permissions`. The safest place to do that on something you genuinely care about is a *fresh worktree* — if the agent does something surprising, the worktree gets removed and your main build is untouched. We'll come back to this in lesson 13.
+There's an auto-mode payoff too. Lesson 14 lets the agent run with `--dangerously-skip-permissions`. The safest place to do that on something you genuinely care about is a *fresh worktree* — if the agent does something surprising, the worktree gets removed and your main build is untouched. We'll come back to this in lesson 14.
 
 ### "Why Not Just Use Worktrees Always Instead of Branches?"
 
@@ -222,13 +222,13 @@ This is the discipline you carry from here:
 4. `git add`, `git commit -m "lesson N: <one-line description>"`, `git push`.
 5. Tick the matching box in the PR description (edit it on GitHub).
 
-Eleven small commits by the time you reach lesson 13. The PR diff is the whole story.
+Twelve small commits by the time you reach lesson 13. The PR diff is the whole story.
 
 ## The Bit the Docs Don't Mention
 
 Two gotchas worth knowing.
 
-**Don't squash the draft PR mid-series.** GitHub's "Squash and merge" UI is tempting once you've got eight commits — but each lesson's commit is a useful boundary you'll want to keep if you ever come back to debug *which lesson introduced the regression*. Save the squash for the final merge to `main`, after lesson 13. Or merge with a regular merge commit and keep all eleven.
+**Don't squash the draft PR mid-series.** GitHub's "Squash and merge" UI is tempting once you've got eight commits — but each lesson's commit is a useful boundary you'll want to keep if you ever come back to debug *which lesson introduced the regression*. Save the squash for the final merge to `main`, after lesson 13. Or merge with a regular merge commit and keep all twelve.
 
 **Use `gh pr view --json` from Claude Code sessions.** Once you're a few lessons in, the agent can read the PR state directly through `gh` rather than you describing it. *"Read the open draft PR, summarise where I am in the series, and tell me which boxes are still unticked"* becomes a useful prompt by lesson 9.
 

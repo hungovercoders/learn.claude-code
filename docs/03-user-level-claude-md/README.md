@@ -123,7 +123,7 @@ When you start a session in the cinema (or any repo with a project-level `CLAUDE
 
 If the project file says *"use tabs not spaces in this repo"*, that wins for this repo even though your user file might prefer spaces. The project context overrides at the leaf. The user file sets the default for everything the project file doesn't explicitly cover.
 
-The cinema's project file (lesson 6) describes `films.json`'s schema and `pick-film.sh`'s contract. Your user file sets the posture the agent takes when reading them. They compose. By lesson 13 you've got both files working in concert.
+The cinema's project file (lesson 6) describes `films.json`'s schema and `pick-film.sh`'s contract. Your user file sets the posture the agent takes when reading them. They compose. By lesson 14 you've got both files working in concert.
 
 ## Source-Control the File — `datagriff/dotfiles` Style
 

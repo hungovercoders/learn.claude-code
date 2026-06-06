@@ -1,12 +1,12 @@
 ---
 title: "Putting It Together and Safe Auto-Mode"
 series: claude-code
-order: 13
-description: "Wire the cinema's install.sh, then prove the kit makes auto-mode safe — launch with --dangerously-skip-permissions and watch the cage you built across twelve lessons keep the agent honest"
-canonical_url: https://hungovercoders.com/training/claude-code/13-putting-it-together-auto-mode
+order: 14
+description: "Wire the cinema's install.sh, then prove the kit makes auto-mode safe — launch with --dangerously-skip-permissions and watch the cage you built across thirteen lessons keep the agent honest"
+canonical_url: https://hungovercoders.com/training/claude-code/14-putting-it-together-auto-mode
 ---
 
-Across the previous twelve lessons your `~/dev/learn.claude-code/` directory has accumulated a `films.json`, a `pick-film.sh`, a `CLAUDE.md`, a project-level `settings.json` with permissions *and* hooks, two slash commands, three skills, a schema-checking hook, an MCP server wiring, a plan-mode artefact, a feature branch, an open draft PR with a cage checklist, and a user-level `~/.claude/CLAUDE.md` setting the posture for every session. This is the lesson where they stop feeling like twelve separate pieces and start composing — first into one portable workflow you actually use, and then into something you can hand to the agent on auto-mode and *walk away from*. The cage you built is what earns that.
+Across the previous thirteen lessons your `~/dev/learn.claude-code/` directory has accumulated a `films.json`, a `pick-film.sh`, a `CLAUDE.md`, a project-level `settings.json` with permissions *and* hooks, two slash commands, three skills, a schema-checking hook, an MCP server wiring, a plan-mode artefact, a feature branch, an open draft PR with a cage checklist, and a user-level `~/.claude/CLAUDE.md` setting the posture for every session. This is the lesson where they stop feeling like thirteen separate pieces and start composing — first into one portable workflow you actually use, and then into something you can hand to the agent on auto-mode and *walk away from*. The cage you built is what earns that.
 
 ## Pre-Requisites
 
@@ -22,15 +22,16 @@ Across the previous twelve lessons your `~/dev/learn.claude-code/` directory has
 ├── pick-film.sh                   (lesson 1)
 ├── CLAUDE.md                      (lesson 6)
 ├── plans/mcp-feature.md           (lesson 7)
-├── scripts/build-cinema-db.sh     (lesson 12)
-├── .mcp.json                      (lesson 12)
+├── scripts/build-cinema-db.sh     (lesson 13)
+├── .mcp.json                      (lesson 13)
 ├── .github/
 │   └── pull_request_template.md   (lesson 4)
 └── .claude/
     ├── settings.json              (lessons 5, 10)
-    ├── commands/                  (lesson 8)
+    ├── commands/                  (lessons 8, 12)
     │   ├── film-pick.md
-    │   └── film-suggest.md
+    │   ├── film-suggest.md
+    │   └── checkpoint.md
     ├── skills/                    (lessons 9, 11)
     │   ├── add-film/SKILL.md
     │   ├── pair/SKILL.md
@@ -39,7 +40,7 @@ Across the previous twelve lessons your `~/dev/learn.claude-code/` directory has
         └── films-validate.sh
 ```
 
-Plus your `~/.claude/CLAUDE.md` (lesson 3) and the cinema sitting on `feat/cinema-build` with the draft PR you opened in lesson 4. Twelve files of behaviour, one JSON catalogue, one shell script. The Cinema Companion picks films, validates writes, recommends pairings, audits its own data, and queries itself via SQL. The last two things we add are the one that makes it *portable* (install.sh) and the proof that the cage works (auto-mode).
+Plus your `~/.claude/CLAUDE.md` (lesson 3) and the cinema sitting on `feat/cinema-build` with the draft PR you opened in lesson 4. Thirteen files of behaviour, one JSON catalogue, one shell script. The Cinema Companion picks films, validates writes, recommends pairings, audits its own data, and queries itself via SQL. The last two things we add are the one that makes it *portable* (install.sh) and the proof that the cage works (auto-mode).
 
 ## Step 1 — The Install Script
 
@@ -110,7 +111,7 @@ Three commands, five features (CLAUDE.md, two skills, the audit's subagents, the
 
 ## Step 3 — The Cage You Built
 
-Before we turn the agent loose, take stock of what the last twelve lessons earned you. Each lesson added one *cage layer* — a constraint, a guardrail, an enforcement point — that narrows what the agent can do unsupervised. The whole cage:
+Before we turn the agent loose, take stock of what the last thirteen lessons earned you. Each lesson added one *cage layer* — a constraint, a guardrail, an enforcement point — that narrows what the agent can do unsupervised. The whole cage:
 
 | Layer | Where it came from | What it stops |
 | - | - | - |
@@ -123,9 +124,10 @@ Before we turn the agent loose, take stock of what the last twelve lessons earne
 | Write safety belts | Lesson 9 — `disable-model-invocation` on `/add-film` | The agent appending rows on a hunch |
 | Schema enforcement | Lesson 10 — `films-validate.sh` PostToolUse | A bad year, a non-lowercase mood, a 10000-minute runtime |
 | Context isolation | Lesson 11 — `audit` skill spawns subagents | Three full reads of films.json polluting the main window |
-| Bounded external access | Lesson 12 — `.mcp.json` + SQLite | Free-form `sqlite3` shelling out instead of typed queries |
+| Context awareness | Lesson 12 — `/checkpoint` + `/compact` discipline | Long-session quality decay; runaway token cost |
+| Bounded external access | Lesson 13 — `.mcp.json` + SQLite | Free-form `sqlite3` shelling out instead of typed queries |
 
-Ten layers. Each one is small. Together they're the difference between "the agent might do something wrong on its own" and "the agent can run unsupervised on this project because every wrong thing it might do is already blocked."
+Eleven layers. Each one is small. Together they're the difference between "the agent might do something wrong on its own" and "the agent can run unsupervised on this project because every wrong thing it might do is already blocked."
 
 Now we let it run.
 
@@ -172,15 +174,15 @@ Open the PR in your browser:
 gh pr view --web
 ```
 
-The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 13 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt. And if you ran the demo inside a worktree, the nuclear option is one line — `cd ~/dev/learn.claude-code && git worktree remove ../learn.claude-code-automode && git branch -D feat/automode-demo` — and the entire experiment is gone, your main build untouched.
+The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 14 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt. And if you ran the demo inside a worktree, the nuclear option is one line — `cd ~/dev/learn.claude-code && git worktree remove ../learn.claude-code-automode && git branch -D feat/automode-demo` — and the entire experiment is gone, your main build untouched.
 
 ## The Honest Moment That Earned the Cage
 
-This is the moment to land the honest story that justifies the whole twelve-lesson cage we just built. Mine:
+This is the moment to land the honest story that justifies the whole thirteen-lesson cage we just built. Mine:
 
 > I got in an auto-edit "accept changes" loop without thinking and kept pressing yes without planning or reading correctly. I ended up doing a force push and rewriting history on a repo, so I lost all public lineage. Luckily it wasn't an important repo, but it made me realise: it's very easy to give brain over. **Getting guardrails in with an intent to use auto mode as a discipline is a better goal than lazily pressing 2 over and over.**
 
-That's the lesson I learned the hard way and that this whole series is the cure for. Every cage layer from lessons 4–12 — branch isolation, deny rules, project CLAUDE.md, allowed-tools narrowing, hooks, MCP — exists precisely so the *next* time the agent ends up in an accept loop, the loop runs against a cage instead of an open repo. Force-pushing inside this cage costs you nothing — the worktree gets removed, the branch gets reset, the PR diff shows you exactly what happened. Force-pushing without the cage cost me public lineage. The series exists so you don't pay that tax.
+That's the lesson I learned the hard way and that this whole series is the cure for. Every cage layer from lessons 4–13 — branch isolation, deny rules, project CLAUDE.md, allowed-tools narrowing, hooks, MCP — exists precisely so the *next* time the agent ends up in an accept loop, the loop runs against a cage instead of an open repo. Force-pushing inside this cage costs you nothing — the worktree gets removed, the branch gets reset, the PR diff shows you exactly what happened. Force-pushing without the cage cost me public lineage. The series exists so you don't pay that tax.
 
 ## The Bit the Docs Don't Mention
 
@@ -195,21 +197,21 @@ Two things the docs don't quite spell out about auto-mode.
 ```
 ~/dev/learn.claude-code/
 ├── ...
-└── install.sh                    ← lesson 13 adds
+└── install.sh                    ← lesson 14 adds
 ```
 
 1. Drop in `install.sh` (or `cp docs/13-putting-it-together-auto-mode/solution/install.sh ~/dev/learn.claude-code/`).
 2. `chmod +x ~/dev/learn.claude-code/install.sh && ~/dev/learn.claude-code/install.sh`.
 3. Run the three-command hand-driven round inside the cinema. Confirm everything composes.
 4. **Then the proof.** Launch `claude --dangerously-skip-permissions` and hand it the audit-fix-add-pair task above. Watch the hook block bad rows. Watch the deny list block any `rm`. Watch the PR diff fill up.
-5. Tick the lesson 13 box in the PR description on GitHub. Commit, push, tick. The PR is now ready for merge — every box ticked, every commit labelled, every cage layer demonstrated.
+5. Tick the lesson 14 box in the PR description on GitHub. Commit, push, tick. The PR is now ready for merge — every box ticked, every commit labelled, every cage layer demonstrated.
 6. (Optional but recommended) Read the PR diff cold. If a stranger handed you this PR, would you merge it? The whole point of the cage is that the answer can be *yes*.
 
 ## The Verdict on the System as a Whole
 
 Claude Code earns its keep when the pieces stop feeling like separate features and start composing into a workflow you actually use — and then *trust*. The shape that worked for the cinema — *one project repo + a small install script + CLAUDE.md + slash commands + skills + a hook + an MCP server + branch isolation + a draft PR cage checklist* — is the shape that turns "AI agent" into "team member you let work overnight." The portability matters; the composability matters; the source-control matters; the branch isolation matters most.
 
-The big takeaway across the thirteen lessons: **the agent isn't the product, the cage you build around it is**. The model is the same model that powers Claude.ai. What makes Claude Code different is that it sits inside a configurable, scriptable, version-controllable shell where you can encode the way *you* work, the rules of *this* project, and the boundaries the agent must not cross — and then let it run inside those boundaries unsupervised. That's the destination the series was always aiming at. You can't fake the cage; the cage is yours.
+The big takeaway across the fourteen lessons: **the agent isn't the product, the cage you build around it is**. The model is the same model that powers Claude.ai. What makes Claude Code different is that it sits inside a configurable, scriptable, version-controllable shell where you can encode the way *you* work, the rules of *this* project, and the boundaries the agent must not cross — and then let it run inside those boundaries unsupervised. That's the destination the series was always aiming at. You can't fake the cage; the cage is yours.
 
 ## Where the Cinema Shape Goes Next — Library, or Just a Skill?
 
@@ -221,6 +223,6 @@ The cinema shape generalises, but it's worth being honest about *when* it genera
 
 The judgment call is the same one this series taught: **the agent isn't the product, the shape you build around it is.** Sometimes that shape is a library; sometimes that shape is a single skill. The cinema teaches the library shape because it's the bigger reach; once you've internalised it, dialling down to a skill is cheap.
 
-What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase — that's how you find out where the rope is. But with the discipline now, the move is to **set up the guardrails and race for auto-mode proficiency as quickly as possible.** That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The twelve lessons of cage exist so the race is short and the rope doesn't bite. The setup feels like overhead until you've got it; after that every session starts from a known-good base, auto-mode is a one-flag decision rather than a stomach-clench, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
+What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase — that's how you find out where the rope is. But with the discipline now, the move is to **set up the guardrails and race for auto-mode proficiency as quickly as possible.** That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The thirteen lessons of cage exist so the race is short and the rope doesn't bite. The setup feels like overhead until you've got it; after that every session starts from a known-good base, auto-mode is a one-flag decision rather than a stomach-clench, and the agent feels like a tool you sharpened rather than a chatbot you negotiated with.
 
 Well done on the series, fellow hungovercoder. Merge the PR, raise a Cwtch, and watch this space for more.

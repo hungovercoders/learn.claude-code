@@ -33,7 +33,7 @@ You'll meet every one of those in this series — each as a concrete thing you a
 
 ## What We're Building — the Cinema Companion
 
-Each lesson adds one file (or one set of files) to one growing kit. By lesson thirteen you'll have a small Cinema Companion that picks a film by mood, validates its own catalogue, pairs the pick with a snack and a drink, and runs from any directory on your machine.
+Each lesson adds one file (or one set of files) to one growing kit. By lesson fourteen you'll have a small Cinema Companion that picks a film by mood, validates its own catalogue, pairs the pick with a snack and a drink, and runs from any directory on your machine.
 
 The seed is two files — `films.json` and `pick-film.sh`. They are the same two files my [launch blog post](https://hungovercoders.com/blog/2026-05-25-building-a-film-picker-with-claude-code) ships, which is the twenty-minute appetiser version of this series. The tutorial extends them. You don't need to have read the blog first; the seed below is the whole starting point.
 
@@ -43,7 +43,7 @@ The seed is two files — `films.json` and `pick-film.sh`. They are the same two
 └── pick-film.sh      ← lesson 1
 ```
 
-By lesson thirteen that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point.
+By lesson fourteen that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point.
 
 ## The Bit the Docs Don't Mention
 
@@ -115,7 +115,7 @@ cp -r docs/01-what-is-claude-code/solution/. .
 chmod +x pick-film.sh
 ```
 
-Both paths leave you sat in the same `~/dev/learn.claude-code/` — eight lines of bash and a small JSON file. (The clone path also gives you `docs/`, `project/`, and the rest of this tutorial as reference material alongside; the manual path keeps your workspace empty.) That's the canvas. The next twelve lessons paint Claude Code onto it.
+Both paths leave you sat in the same `~/dev/learn.claude-code/` — eight lines of bash and a small JSON file. (The clone path also gives you `docs/`, `project/`, and the rest of this tutorial as reference material alongside; the manual path keeps your workspace empty.) That's the canvas. The next thirteen lessons paint Claude Code onto it.
 
 Also worth a skim before lesson two:
 
@@ -127,6 +127,6 @@ Also worth a skim before lesson two:
 
 I use Claude Code all the time now for parallel threads of work, and development output and idea delivery is through the roof. I still need to harden up the tooling to make rapid change safe in all the places — which is exactly why the cinema we're about to build is small and scoped. The hello world of the SDLC in isolation before tackling complex codebases is the right place to learn the discipline.
 
-What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase, but with the discipline now, the move is to set up the guardrails and race for auto-mode proficiency as quickly as possible. That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The next twelve lessons are that race, run small.
+What I'd do differently if I were starting again: you can't really skip the "use it and see what breaks" phase, but with the discipline now, the move is to set up the guardrails and race for auto-mode proficiency as quickly as possible. That's where maximum throughput lives — embedding the policies then letting rip with development knowing the guardrails are there. The next thirteen lessons are that race, run small.
 
 On to lesson 2, fellow hungovercoder — let's get the first round in.

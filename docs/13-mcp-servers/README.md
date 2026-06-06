@@ -1,9 +1,9 @@
 ---
 title: "MCP Servers"
 series: claude-code
-order: 12
+order: 13
 description: "Implement the lesson-7 plan — wire a local SQLite MCP server into the cinema so Claude can query films through SQL while films.json stays the human-editable source of truth"
-canonical_url: https://hungovercoders.com/training/claude-code/12-mcp-servers
+canonical_url: https://hungovercoders.com/training/claude-code/13-mcp-servers
 ---
 
 MCP is the pipe between Claude Code and an external system that speaks something other than the agent's native tool set. The one I lean on hardest in real work is the **Linear MCP** — I use it to write plans out to Linear for peer refinement once a design is settled, then have agents action the resulting issues with context from the related projects and initiatives. For the cinema we'll wire a simpler one — a local SQLite MCP server pointed at a `cinema.db` built from `films.json` — so Claude can answer *"which mood has the fewest films?"* in SQL instead of shelling out to `jq` and parsing the result. The plan we wrote in lesson 7 with `--permission-mode plan` becomes the thing we wire up here.
@@ -176,9 +176,9 @@ Not every integration belongs as an MCP server. The honest criteria:
 ```
 ~/dev/learn.claude-code/
 ├── ...
-├── .mcp.json                          ← lesson 12 adds
+├── .mcp.json                          ← lesson 13 adds
 ├── scripts/
-│   └── build-cinema-db.sh             ← lesson 12 adds
+│   └── build-cinema-db.sh             ← lesson 13 adds
 └── cinema.db                          ← generated, not committed
 ```
 
@@ -191,7 +191,7 @@ Not every integration belongs as an MCP server. The honest criteria:
 
 ```bash
 git add .mcp.json scripts/build-cinema-db.sh
-git commit -m "lesson 12: MCP server + cinema.db build script"
+git commit -m "lesson 13: MCP server + cinema.db build script"
 git push
 ```
 
@@ -203,4 +203,4 @@ The cost discipline matters. Token cost compounds across servers, and it's easy 
 
 What I'd do differently next time: nothing radical — sticking with one or two well-chosen servers (Linear for me; SQLite for the cinema) and reaching for `gh` and friends from the shell for everything else has worked well. The temptation to install every MCP server you read about is real, but a session loaded with twenty servers is a costume; one well-chosen server in a per-project `.mcp.json` is a tool.
 
-On to lesson 13, fellow hungovercoder — let's pour the whole round and turn the agent loose.
+On to lesson 14, fellow hungovercoder — let's pour the whole round and turn the agent loose.

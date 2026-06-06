@@ -143,4 +143,4 @@ The risk is over-use. Every subagent costs tokens and time, and a session that d
 
 What I'd do differently if I were starting today: I'd lean on the built-in **Explore** agent first before reaching for custom subagent prompts. The built-in is already tuned for "find X in the codebase" and doesn't need any prompt engineering — easy to skip past it and write your own, which is usually wasted effort for that specific job. Custom subagents earn their keep when you've got a *truly* specific shape the built-ins don't cover.
 
-On to lesson 12, fellow hungovercoder — time to plug the external tap into the cinema.
+On to lesson 12, fellow hungovercoder — let's see what's eating the context window before we wire any more tools.

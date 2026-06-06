@@ -147,7 +147,7 @@ You don't have to commit at launch time. Once inside a session:
 - Shift-Tab — cycle through modes (default → acceptEdits → plan → default)
 - `/sandbox` — toggle the OS-level sandbox
 
-My current pattern: **plan mode first to have the design conversation, then drop to default or acceptEdits to execute.** At home where the worst-case blast radius is small I'll trust auto-edits sooner; at work I drop to manually accepting edits until the project's cage is fully built. *That's* the posture that needs the rest of the series — the dontAsk + tight allow-list version is what's coming together by lesson 13.
+My current pattern: **plan mode first to have the design conversation, then drop to default or acceptEdits to execute.** At home where the worst-case blast radius is small I'll trust auto-edits sooner; at work I drop to manually accepting edits until the project's cage is fully built. *That's* the posture that needs the rest of the series — the dontAsk + tight allow-list version is what's coming together by lesson 14.
 
 ## Have a Go — Add the First Claude Config to the Cinema
 
@@ -175,7 +175,7 @@ git commit -m "lesson 5: project-level permissions"
 git push
 ```
 
-The PR now shows the permissions block. Every subsequent lesson commits to the same branch — by lesson 13 the PR diff is the whole story of how the cage got built.
+The PR now shows the permissions block. Every subsequent lesson commits to the same branch — by lesson 14 the PR diff is the whole story of how the cage got built.
 
 The full `solution/` for this lesson is the project-level settings.json above — `cp -r docs/03-permission-modes/solution/. ~/dev/learn.claude-code/` if you'd rather not retype it.
 

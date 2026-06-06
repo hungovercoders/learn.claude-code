@@ -85,12 +85,13 @@ canonical_url: https://hungovercoders.com/training/claude-code/NN-slug
 | 9 | skills | `.claude/skills/add-film/SKILL.md`, `.claude/skills/pair/SKILL.md` | `disable-model-invocation` on writes + tight `allowed-tools` |
 | 10 | hooks | `.claude/hooks/films-validate.sh`, project `.claude/settings.json` (hook wiring) | Schema enforcement — the agent cannot break the catalogue |
 | 11 | subagents-task-tool | `.claude/skills/audit/SKILL.md` | Context isolation |
-| 12 | mcp-servers | `.mcp.json`, `scripts/build-cinema-db.sh` | Bounded external access via typed tools |
-| 13 | putting-it-together-auto-mode | `install.sh` (and `project/README.md` for forkers) | The proof — auto-mode runs safely because of layers 4–12 |
+| 12 | context-and-cost | `.claude/commands/checkpoint.md` | Context awareness — `/context`, `/compact`, and a discipline command for runaway-session prevention |
+| 13 | mcp-servers | `.mcp.json`, `scripts/build-cinema-db.sh` | Bounded external access via typed tools |
+| 14 | putting-it-together-auto-mode | `install.sh` (and `project/README.md` for forkers) | The proof — auto-mode runs safely because of layers 4–13 |
 | 99 | cheatsheet | No solution delta — reference page. Keys, built-in commands, lifecycle events, exit codes, file paths, the cinema-specific commands, the branch/PR workflow, the auto-mode safety checklist. Links each section back to its source lesson. | — |
 
 When adding or restructuring a lesson, update both this table and `project/` so they stay in lockstep. The cheat sheet is a reference *summary*, not a source of truth — when commands or shortcuts change, update the lesson first and then mirror the change in the cheat sheet.
 
 ## Lessons 4 onwards commit + push
 
-Every lesson from 4 onwards ends with a `git commit` + `git push` step. The reader is on a feature branch with a draft PR opened in lesson 4; each subsequent lesson lands one commit on that PR. By lesson 13 the PR diff is the whole build, ready for review or merge. When writing or editing a lesson's "Have a Go", keep this closing step.
+Every lesson from 4 onwards ends with a `git commit` + `git push` step. The reader is on a feature branch with a draft PR opened in lesson 4; each subsequent lesson lands one commit on that PR. By lesson 14 the PR diff is the whole build, ready for review or merge. When writing or editing a lesson's "Have a Go", keep this closing step.
