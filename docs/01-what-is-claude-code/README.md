@@ -8,11 +8,11 @@ canonical_url: https://hungovercoders.com/training/claude-code/01-what-is-claude
 
 I wanted to stop tab-switching between my editor and a chat window every five minutes. I'd been doing the dance for a year — paste code into Claude.ai, copy the suggestion back, run it, paste the error, copy the fix back. By the end of a Friday afternoon I'd done it forty times and could feel the keyboard shortcut wearing into my thumb. So when Anthropic shipped Claude Code — an agent that *lives in the terminal next to your code* — I cracked it open the same week. This lesson is what I'd want a fellow hungovercoder to know before they start, plus the small kit we're going to build across the series so the pieces stop feeling like separate features and start composing.
 
-## Pouring Your Own Pint, Not Ordering at the Bar
+## Texting a Mate vs Sitting Next to One
 
-[Claude.ai](https://claude.ai) is the pub. You walk in, ask for a pint of clarity, and someone behind the bar pours it for you. It's clean, it's friendly, and the staff know what they're doing. But you have to go *to* the pub, you can't take your code with you, and every round starts a fresh tab.
+[Claude.ai](https://claude.ai) is texting a mate who happens to be a brilliant developer. You describe a problem, paste a snippet, and they reply with something useful. They're sharp, they're patient, they know the answer. But they can't see your screen. Every bit of context costs a paste, every error message you forgot to share is a wrong turn, and by the third round-trip you've lost the thread of what you were doing.
 
-Claude Code is the kit you set up at home. It's a CLI tool you install once and run from inside your project. It can read your files, edit them, run `git`, run your tests, search the codebase, kick off a build, and read the result. It's not a chatbot you copy into; it's an agent that *operates on your repo*.
+Claude Code is the same mate, sat at the desk next to you. They can `ls` your repo, `grep` for the function that's calling the broken one, run your test suite, read the failure, edit the file, run the test again. The conversation goes from describing to pointing — *"this thing here, why does it do that?"* — because they're looking at exactly what you're looking at.
 
 That distinction is most of the point. The chat window doesn't know what's in your `src/`. Claude Code does — because it can `ls` and `grep` and `Read` like you do. You stop describing your codebase and start letting the agent see it.
 
