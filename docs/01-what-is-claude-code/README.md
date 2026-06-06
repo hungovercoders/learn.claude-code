@@ -38,7 +38,7 @@ Each lesson adds one file (or one set of files) to one growing kit. By lesson th
 The seed is two files — `films.json` and `pick-film.sh`. They are the same two files my [launch blog post](https://hungovercoders.com/blog/2026-05-25-building-a-film-picker-with-claude-code) ships, which is the twenty-minute appetiser version of this series. The tutorial extends them. You don't need to have read the blog first; the seed below is the whole starting point.
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json        ← lesson 1
 └── pick-film.sh      ← lesson 1
 ```
@@ -69,7 +69,7 @@ Most working developers I know end up using both. The chat window for the quick 
 
 This lesson's deliverable is the smallest possible thing: a working film picker with no Claude Code in it yet. Two files, eight lines of bash, five films of catalogue. Lesson two installs Claude Code and points it at this directory.
 
-`~/dev/cinema/films.json`:
+`~/dev/learn.claude-code/films.json`:
 
 ```json
 [
@@ -81,7 +81,7 @@ This lesson's deliverable is the smallest possible thing: a working film picker 
 ]
 ```
 
-`~/dev/cinema/pick-film.sh`:
+`~/dev/learn.claude-code/pick-film.sh`:
 
 ```bash
 #!/bin/bash
@@ -95,10 +95,11 @@ jq -r --arg m "$mood" '
 ```
 
 ```bash
-mkdir -p ~/dev/cinema
-# Paste the two files above into ~/dev/cinema/, then:
-chmod +x ~/dev/cinema/pick-film.sh
-~/dev/cinema/pick-film.sh wales
+mkdir -p ~/dev/learn.claude-code
+cd ~/dev/learn.claude-code
+# Paste the two files above into this directory, then:
+chmod +x pick-film.sh
+./pick-film.sh wales
 ```
 
 ```text
@@ -108,12 +109,13 @@ Hedd Wyn (1992) — 123min
 Or, if you'd rather skip the typing and copy from the repo:
 
 ```bash
-git clone https://github.com/hungovercoders/learn.claude-code.git
-cp -r learn.claude-code/docs/01-what-is-claude-code/solution/. ~/dev/cinema/
-chmod +x ~/dev/cinema/pick-film.sh
+git clone https://github.com/hungovercoders/learn.claude-code.git ~/dev/learn.claude-code
+cd ~/dev/learn.claude-code
+cp -r docs/01-what-is-claude-code/solution/. .
+chmod +x pick-film.sh
 ```
 
-Both paths leave you with the same `~/dev/cinema/` — eight lines of bash and a small JSON file. That's the canvas. The next twelve lessons paint Claude Code onto it.
+Both paths leave you sat in the same `~/dev/learn.claude-code/` — eight lines of bash and a small JSON file. (The clone path also gives you `docs/`, `project/`, and the rest of this tutorial as reference material alongside; the manual path keeps your workspace empty.) That's the canvas. The next twelve lessons paint Claude Code onto it.
 
 Also worth a skim before lesson two:
 

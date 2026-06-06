@@ -11,7 +11,7 @@ Honest confession to open the lesson: I haven't leveraged permissions very well 
 ## Pre-Requisites
 
 - Claude Code installed and authenticated (lesson 2)
-- The cinema seed from lesson 1 (`~/dev/cinema/films.json` + `pick-film.sh`)
+- The cinema seed from lesson 1 (`~/dev/learn.claude-code/films.json` + `pick-film.sh`)
 - Your user-level `~/.claude/CLAUDE.md` from lesson 3
 - The cinema on a feature branch with a draft PR open (lesson 4) — every settings change in this lesson lands as a commit on that branch
 - A text editor for `settings.json` files
@@ -89,10 +89,10 @@ The rules use glob patterns, not regex. `Bash(npm test:*)` matches `npm test`, `
 The cinema repo is the perfect place to learn project-level config. Lesson 2 asked you to approve `Bash(./pick-film.sh:*)` and `Bash(jq:*)` interactively. Now you'll commit those approvals to the repo so every future cinema session starts with them already trusted — and crucially, *only* in this project. Pour them into `~/.claude/settings.json` and you've widened them to every directory you ever `claude` into; pour them into `.claude/settings.json` in the cinema repo and they only apply when you're working on the cinema.
 
 ```bash
-mkdir -p ~/dev/cinema/.claude
+mkdir -p ~/dev/learn.claude-code/.claude
 ```
 
-`~/dev/cinema/.claude/settings.json`:
+`~/dev/learn.claude-code/.claude/settings.json`:
 
 ```json
 {
@@ -152,7 +152,7 @@ My current pattern: **plan mode first to have the design conversation, then drop
 ## Have a Go — Add the First Claude Config to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json
 ├── pick-film.sh
 └── .claude/
@@ -162,7 +162,7 @@ My current pattern: **plan mode first to have the design conversation, then drop
 Get permissions feeling comfortable before lesson 6:
 
 1. Create `~/.claude/settings.json` with the user-level config from the "Setting the House Rules" section. Open a Claude Code session and run `/permissions` to confirm the rules loaded.
-2. Add `~/dev/cinema/.claude/settings.json` with the project-level config from the "First Cinema Config" section. Start a session in the cinema with `cd ~/dev/cinema && claude` and run `/permissions` again — confirm the project rules stack on top of the user defaults, and that `/permissions` shows the source file each came from.
+2. Add `~/dev/learn.claude-code/.claude/settings.json` with the project-level config from the "First Cinema Config" section. Start a session in the cinema with `cd ~/dev/learn.claude-code && claude` and run `/permissions` again — confirm the project rules stack on top of the user defaults, and that `/permissions` shows the source file each came from.
 3. In the cinema session, ask Claude to run `./pick-film.sh wales`. It should run with no prompt — your project allow-list pre-approved it.
 4. Ask Claude to `rm films.json`. Watch the project deny rule win even though `Bash(rm:*)` would have asked.
 5. Launch with `claude --permission-mode plan` from inside the cinema. Ask it to refactor `pick-film.sh` and watch it refuse to edit anything. We'll properly meet plan mode in lesson 7.
@@ -177,7 +177,7 @@ git push
 
 The PR now shows the permissions block. Every subsequent lesson commits to the same branch — by lesson 13 the PR diff is the whole story of how the cage got built.
 
-The full `solution/` for this lesson is the project-level settings.json above — `cp -r docs/03-permission-modes/solution/. ~/dev/cinema/` if you'd rather not retype it.
+The full `solution/` for this lesson is the project-level settings.json above — `cp -r docs/03-permission-modes/solution/. ~/dev/learn.claude-code/` if you'd rather not retype it.
 
 ## My Verdict on the Permissions Model
 

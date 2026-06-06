@@ -35,7 +35,7 @@ Skills live in the same two locations as slash commands:
 ~/.claude/skills/<name>/SKILL.md          Personal, available across projects
 ```
 
-Project skills get shared with the team. Personal skills are yours. The cinema's two new skills are project-scoped — they only make sense inside `~/dev/cinema/`. Personal skills would be your `/standup`, `/lint`, `/draft` — the cross-cutting ones that apply anywhere.
+Project skills get shared with the team. Personal skills are yours. The cinema's two new skills are project-scoped — they only make sense inside `~/dev/learn.claude-code/`. Personal skills would be your `/standup`, `/lint`, `/draft` — the cross-cutting ones that apply anywhere.
 
 ## The Bit That Confused Me — Skills vs Slash Commands
 
@@ -65,7 +65,7 @@ This is brilliant for skills that *help*. It's dangerous for skills that *do thi
 
 The cinema's `/add-film` skill is a *write* — it appends a new film to `films.json`. Writes are the precise category where you want a deliberate keystroke, not a model decision. Two frontmatter fields do the work: `allowed-tools` limits the toolbox to `Read` and `Edit` only (no Bash, no rm), and `disable-model-invocation: true` means the skill only fires when the human types `/add-film`.
 
-`~/dev/cinema/.claude/skills/add-film/SKILL.md`:
+`~/dev/learn.claude-code/.claude/skills/add-film/SKILL.md`:
 
 ```markdown
 ---
@@ -108,7 +108,7 @@ The agent reads `films.json`, edits in the new row, and stops. The Edit can't go
 
 The cinema's `/pair` skill reads both `films.json` and `CLAUDE.md` to recommend a snack, a drink, and a co-watcher archetype for a given film or mood. It's a great example of the difference a skill makes — a plain slash command can reference `$ARGUMENTS` and tell Claude what to do, but a skill can tell Claude to *read these specific files* as part of every invocation. The skill becomes a tiny program with its own data sources.
 
-`~/dev/cinema/.claude/skills/pair/SKILL.md`:
+`~/dev/learn.claude-code/.claude/skills/pair/SKILL.md`:
 
 ```markdown
 ---
@@ -170,7 +170,7 @@ The first proper skill I built was for **ODCS data contract creation** — the O
 ## Have a Go — Add the Two Skills to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── .claude/
     ├── ...
@@ -179,7 +179,7 @@ The first proper skill I built was for **ODCS data contract creation** — the O
         └── pair/SKILL.md          ← lesson 9 adds
 ```
 
-1. Create both skills above. Or `cp -r docs/07-skills/solution/. ~/dev/cinema/` to drop them in.
+1. Create both skills above. Or `cp -r docs/07-skills/solution/. ~/dev/learn.claude-code/` to drop them in.
 2. Fire `/add-film "Pride" 2014 wales 119` and confirm a new row appears at the end of `films.json`.
 3. Try to trigger `/add-film` *without* typing it — phrase a question like *"I just watched a great film called Pride from 2014, add it to the catalogue"* and notice the agent will *not* auto-invoke the skill because of `disable-model-invocation: true`. It'll suggest you run the command yourself.
 4. Fire `/pair "Hot Fuzz"` and watch the agent `Read` both `films.json` and `CLAUDE.md` before answering.

@@ -22,8 +22,8 @@ This series diverges from the per-lesson-freestanding pattern other `learn.*` re
 
 Two non-negotiables:
 
-1. **Every lesson adds at least one concrete artefact** to the reader's local `cinema/` directory. Even concept-only lessons (`07-plan-mode`, `11-subagents-task-tool`) produce something tangible — a saved plan file, a written audit report.
-2. **Every lesson's deliverable lives in `docs/NN-slug/solution/`** as the *delta* — only the new or changed files for that lesson. A forker who falls behind can `cp -r docs/08-custom-slash-commands/solution/. ~/dev/cinema/` and pick up where the lesson ended. Lessons whose deliverable is *proof* or lives *outside the project tree* (e.g. lesson 2's "run claude in your cinema repo", lesson 3's `~/.claude/CLAUDE.md` template) omit the `solution/` directory entirely.
+1. **Every lesson adds at least one concrete artefact** to the reader's local `learn.claude-code/` workspace directory. Even concept-only lessons (`07-plan-mode`, `11-subagents-task-tool`) produce something tangible — a saved plan file, a written audit report.
+2. **Every lesson's deliverable lives in `docs/NN-slug/solution/`** as the *delta* — only the new or changed files for that lesson. A forker who falls behind can `cp -r docs/08-custom-slash-commands/solution/. ~/dev/learn.claude-code/` and pick up where the lesson ended. Lessons whose deliverable is *proof* or lives *outside the project tree* (e.g. lesson 2's "run claude in your cinema repo", lesson 3's `~/.claude/CLAUDE.md` template) omit the `solution/` directory entirely.
 
 **The auto-mode destination.** The arc is deliberate: each lesson 4 onward adds a *cage layer* that makes auto-mode (`claude --dangerously-skip-permissions` plus the harness Auto Mode bias) incrementally safer on the cinema. Lesson 13 is the proof — launch auto-mode and watch the layers catch every failure mode. When writing or editing a lesson, frame the deliverable not just as "feature N" but as "the layer that lets you trust the agent with X more rope."
 
@@ -64,7 +64,7 @@ canonical_url: https://hungovercoders.com/training/claude-code/NN-slug
 
 **Shell commands in lessons** are shown in fenced code blocks tagged ```bash. Where a command's output matters, show the output in a second block tagged ```text below the command.
 
-**Path conventions** — when a lesson references a file the reader adds, use the exact path inside their cinema repo (`~/dev/cinema/.claude/commands/film-pick.md`). Don't abbreviate. Match the path the `solution/` ships at.
+**Path conventions** — when a lesson references a file the reader adds, use the exact path inside their workspace (`~/dev/learn.claude-code/.claude/commands/film-pick.md`). Don't abbreviate. Match the path the `solution/` ships at. The workspace directory is always `~/dev/learn.claude-code/` — matches what `git clone` produces, so the manual-create and clone-the-repo paths converge. The "cinema" naming stays as the *project metaphor* (the Cinema Companion kit being built), not as a directory name.
 
 **Reader trust** — assume the reader has a terminal and a code editor open, and that they've worked through prior lessons (so the cinema repo already exists from lesson 1). Don't re-explain things from earlier lessons. Do call out anything Claude Code specific that's coming up for the first time.
 

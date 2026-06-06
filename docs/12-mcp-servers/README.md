@@ -38,7 +38,7 @@ The plan from lesson 7 specifies SQLite, with `films.json` as the editable sourc
 
 Two files do all the wiring.
 
-`~/dev/cinema/.mcp.json`:
+`~/dev/learn.claude-code/.mcp.json`:
 
 ```json
 {
@@ -55,11 +55,11 @@ Two files do all the wiring.
 }
 ```
 
-The `${CLAUDE_PROJECT_DIR}` interpolates to the project root at runtime, so the server resolves to `~/dev/cinema/cinema.db` whatever directory the agent is operating in. `uvx` launches the SQLite MCP server in an ephemeral environment — no global install, no version drift.
+The `${CLAUDE_PROJECT_DIR}` interpolates to the project root at runtime, so the server resolves to `~/dev/learn.claude-code/cinema.db` whatever directory the agent is operating in. `uvx` launches the SQLite MCP server in an ephemeral environment — no global install, no version drift.
 
 The build script that creates the database from `films.json`:
 
-`~/dev/cinema/scripts/build-cinema-db.sh`:
+`~/dev/learn.claude-code/scripts/build-cinema-db.sh`:
 
 ```bash
 #!/bin/bash
@@ -91,8 +91,8 @@ echo "cinema.db rebuilt: $(sqlite3 "$DB" 'SELECT COUNT(*) FROM films') films."
 Run it once after cloning the kit:
 
 ```bash
-chmod +x ~/dev/cinema/scripts/build-cinema-db.sh
-~/dev/cinema/scripts/build-cinema-db.sh
+chmod +x ~/dev/learn.claude-code/scripts/build-cinema-db.sh
+~/dev/learn.claude-code/scripts/build-cinema-db.sh
 ```
 
 ```text
@@ -117,7 +117,7 @@ Either path lands the server. The committed `.mcp.json` is the team-friendly ver
 Open a session in the cinema:
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude
 ```
 
@@ -145,7 +145,7 @@ Each MCP server exposes a set of tool definitions, and *every tool definition co
 Two mitigations:
 
 1. **Tool Search** — built-in to Claude Code on Sonnet 4+ and Opus 4. When tool definitions exceed 10% of the context window, the agent dynamically loads only the tool schemas it needs for the current task. Drops context usage from ~72,000 tokens to ~8,700 in the typical case. You don't need to enable this; it activates automatically when the threshold is hit.
-2. **Be selective about which servers are connected.** You don't need GitHub, Postgres, Puppeteer, and Brave Search all loaded for a session that's just querying cinema.db. Favour project scope so servers are only on when you're in the right repo — `.mcp.json` does exactly that. The cinema's server only loads inside `~/dev/cinema/`; everywhere else, it isn't there.
+2. **Be selective about which servers are connected.** You don't need GitHub, Postgres, Puppeteer, and Brave Search all loaded for a session that's just querying cinema.db. Favour project scope so servers are only on when you're in the right repo — `.mcp.json` does exactly that. The cinema's server only loads inside `~/dev/learn.claude-code/`; everywhere else, it isn't there.
 
 ## The Bit the Docs Don't Mention
 
@@ -174,7 +174,7 @@ Not every integration belongs as an MCP server. The honest criteria:
 ## Have a Go — Wire the Cinema's MCP
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 ├── .mcp.json                          ← lesson 12 adds
 ├── scripts/
@@ -182,7 +182,7 @@ Not every integration belongs as an MCP server. The honest criteria:
 └── cinema.db                          ← generated, not committed
 ```
 
-1. Drop in `.mcp.json` and `scripts/build-cinema-db.sh` (or `cp -r docs/10-mcp-servers/solution/. ~/dev/cinema/`).
+1. Drop in `.mcp.json` and `scripts/build-cinema-db.sh` (or `cp -r docs/10-mcp-servers/solution/. ~/dev/learn.claude-code/`).
 2. `chmod +x scripts/build-cinema-db.sh && ./scripts/build-cinema-db.sh`. Confirm `cinema.db` is created with the right row count.
 3. Inside `claude`, run `/mcp` and confirm `cinema-db` is loaded.
 4. Ask the agent the question from the lesson-7 plan: *"Which mood currently has the fewest films?"* Watch the SQL fly.

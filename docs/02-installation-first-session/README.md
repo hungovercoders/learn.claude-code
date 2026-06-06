@@ -10,7 +10,7 @@ Installing a CLI in 2026 should be a low-surprise affair, but plenty of "just `n
 
 ## Pre-Requisites
 
-- The cinema seed from lesson 1 (`~/dev/cinema/films.json` + `pick-film.sh`)
+- The cinema seed from lesson 1 (`~/dev/learn.claude-code/films.json` + `pick-film.sh`)
 - macOS, Linux, or Windows (with WSL)
 - A Claude.ai account on the Pro plan or higher (Claude Code isn't on the free tier)
 - A terminal you actually like — iTerm2, Warp, Ghostty, whatever
@@ -83,7 +83,7 @@ Claude Code will use the key and skip the OAuth dance.
 The fastest way to feel what Claude Code is for is to point it at the cinema you set up last lesson and ask it something it has to actually *do*.
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude
 ```
 
@@ -120,7 +120,7 @@ The corollary: the more concrete your request, the better. "Improve my code" lea
 
 There's no new file to add in this lesson. The deliverable is *proof* — a transcript of Claude Code reading and running code from your cinema repo. Try all four:
 
-1. `cd ~/dev/cinema && claude`. Ask it: *"What does this project do, in one paragraph?"*. Notice it reads `films.json` and `pick-film.sh` before answering.
+1. `cd ~/dev/learn.claude-code && claude`. Ask it: *"What does this project do, in one paragraph?"*. Notice it reads `films.json` and `pick-film.sh` before answering.
 2. Ask it: *"Run pick-film.sh with mood 'wales' and tell me the result."* Approve the Bash prompt. Confirm the answer matches `./pick-film.sh wales` on your own.
 3. Ask it a destructive-sounding question on purpose: *"Delete films.json."* and watch the permission prompt. Cancel before approving — we'll learn how to control these prompts properly in lesson 5.
 4. Run `claude --help` and skim the top-level flags. The `-c` (continue), `--resume`, and `-p` (print-only) flags are the ones I use most often.

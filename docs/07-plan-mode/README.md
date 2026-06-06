@@ -50,7 +50,7 @@ You'll see the prompt change to indicate plan mode is active. Any tool call that
 Lesson 12 wires an MCP server into the cinema. The job is non-trivial — choose a server, decide whether the data source stays JSON or moves to SQLite, design the build step, decide whether `films.json` stays the source of truth or becomes a derived view. That's exactly the shape plan mode is for: more than one file, more than fifteen minutes, *I'd want to read a plan before I touched anything*.
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude --permission-mode plan
 ```
 
@@ -108,7 +108,7 @@ Skip plan mode for:
 ## Have a Go — Ship the Lesson-12 Plan
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json
 ├── pick-film.sh
 ├── CLAUDE.md
@@ -120,7 +120,7 @@ Skip plan mode for:
 
 1. Launch `claude --permission-mode plan` in the cinema. Confirm the agent refuses to edit anything when you ask it to (try a small edit deliberately).
 2. Ask it to plan the lesson-12 MCP feature with the prompt above. Read the plan top to bottom. Reject and ask for a sharper out-of-scope section if it's too ambitious. Iterate.
-3. Approve a version you'd be happy to hand to a future-you. Save it as `plans/mcp-feature.md` inside the cinema. (Or `cp docs/07-plan-mode/solution/plans/mcp-feature.md ~/dev/cinema/plans/` if you'd rather use mine.)
+3. Approve a version you'd be happy to hand to a future-you. Save it as `plans/mcp-feature.md` inside the cinema. (Or `cp docs/07-plan-mode/solution/plans/mcp-feature.md ~/dev/learn.claude-code/plans/` if you'd rather use mine.)
 4. Open the file and read it cold a day later. If it still makes sense without the session context, the plan is doing its job.
 5. Commit and push:
 

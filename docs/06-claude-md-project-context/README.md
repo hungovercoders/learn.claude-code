@@ -10,7 +10,7 @@ Lesson 3 was the personal-defaults CLAUDE.md — the things you'd want true in e
 
 ## Pre-Requisites
 
-- The cinema seed (`~/dev/cinema/films.json` + `pick-film.sh`)
+- The cinema seed (`~/dev/learn.claude-code/films.json` + `pick-film.sh`)
 - Your user-level `~/.claude/CLAUDE.md` from lesson 3 — this lesson's project-level file *composes* with it
 - The cinema on a feature branch with a draft PR open (lesson 4)
 - The project-level `.claude/settings.json` from lesson 5
@@ -39,7 +39,7 @@ You can also point to other files using `@filename` syntax. A single line `@AGEN
 Inside the cinema, run:
 
 ```bash
-cd ~/dev/cinema
+cd ~/dev/learn.claude-code
 claude
 ```
 
@@ -152,7 +152,7 @@ This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get fol
 ## Have a Go — Add CLAUDE.md to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json
 ├── pick-film.sh
 ├── CLAUDE.md             ← lesson 6 adds this
@@ -161,7 +161,7 @@ This is the bit the docs don't quite spell out: `CLAUDE.md` instructions get fol
 ```
 
 1. `/init` in the cinema. Read every line of the generated file before saving.
-2. Replace the generated content with the cinema version above (or `cp docs/04-claude-md-project-context/solution/CLAUDE.md ~/dev/cinema/`).
+2. Replace the generated content with the cinema version above (or `cp docs/04-claude-md-project-context/solution/CLAUDE.md ~/dev/learn.claude-code/`).
 3. Start a new session and ask Claude something only the `CLAUDE.md` can answer correctly: *"What schema do films.json entries follow?"* or *"What's the mood convention?"*. Confirm the answer matches the file you just wrote.
 4. Ask it a question the `CLAUDE.md` doesn't cover (e.g. *"How many films are currently in the catalogue?"*) and watch it `Read` `films.json` to find out — `CLAUDE.md` for the rules, the code for the detail.
 5. Commit the new `CLAUDE.md` to your feature branch and push:

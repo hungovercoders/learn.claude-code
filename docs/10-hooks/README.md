@@ -43,7 +43,7 @@ The stderr-not-stdout detail is the bit most newcomers get wrong. A common mista
 
 Hooks live in `settings.json` under a `hooks` key. They can be at the user level (`~/.claude/settings.json`), project level (`.claude/settings.json`), or local-override (`.claude/settings.local.json`). The cinema's hook is project-scoped — it knows the *cinema's* schema specifically. A general JSON validator would live at user level instead.
 
-The hook itself: `~/dev/cinema/.claude/hooks/films-validate.sh`:
+The hook itself: `~/dev/learn.claude-code/.claude/hooks/films-validate.sh`:
 
 ```bash
 #!/bin/bash
@@ -86,7 +86,7 @@ exit 0
 ```
 
 ```bash
-chmod +x ~/dev/cinema/.claude/hooks/films-validate.sh
+chmod +x ~/dev/learn.claude-code/.claude/hooks/films-validate.sh
 ```
 
 The `case "$file"` switch is doing the cinema-scoping. It only runs the jq schema check when `films.json` was the file edited; for anything else, the hook is a no-op exit 0. That means the hook can sit in the project's PostToolUse list without slowing every edit — it does ~5ms of pattern-match work, then exits.
@@ -95,7 +95,7 @@ The `case "$file"` switch is doing the cinema-scoping. It only runs the jq schem
 
 Lesson 5 wired the `permissions` block. Lesson 10 adds the `hooks` block alongside it. The full project `settings.json`:
 
-`~/dev/cinema/.claude/settings.json`:
+`~/dev/learn.claude-code/.claude/settings.json`:
 
 ```json
 {
@@ -140,7 +140,7 @@ Two tests. First: trigger an invalid write through `/add-film`:
 
 Second: edit a valid row by hand or by `/add-film "Pride" 2014 wales 119`. The hook fires, jq parses cleanly, schema check passes, exit 0. Silent success.
 
-The hook is *project-scoped* on purpose. The cinema's schema is the cinema's business. Drop the same hook into another repo and the `case` switch makes it a no-op there (no `films.json`, no validation). That's why the hook lives inside `~/dev/cinema/.claude/hooks/`, not in `~/.claude/hooks/`. **The shape generalises** — every project gets its own schema-checking PostToolUse hook for its own load-bearing JSON files, each kept inside the project where it belongs.
+The hook is *project-scoped* on purpose. The cinema's schema is the cinema's business. Drop the same hook into another repo and the `case` switch makes it a no-op there (no `films.json`, no validation). That's why the hook lives inside `~/dev/learn.claude-code/.claude/hooks/`, not in `~/.claude/hooks/`. **The shape generalises** — every project gets its own schema-checking PostToolUse hook for its own load-bearing JSON files, each kept inside the project where it belongs.
 
 ## A Brief Tour of the Other Patterns
 
@@ -184,7 +184,7 @@ A hook is not always the right answer.
 ## Have a Go — Wire the Cinema's Hook
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── .claude/
     ├── settings.json                    ← updated with hooks block
@@ -192,8 +192,8 @@ A hook is not always the right answer.
         └── films-validate.sh            ← lesson 10 adds
 ```
 
-1. Drop in the hook and the updated `settings.json`. Or `cp -r docs/08-hooks/solution/. ~/dev/cinema/` for the lazy path.
-2. `chmod +x ~/dev/cinema/.claude/hooks/films-validate.sh` — the most-skipped step. If it isn't executable, the hook silently doesn't fire and you'll be debugging a regex that wasn't the problem.
+1. Drop in the hook and the updated `settings.json`. Or `cp -r docs/08-hooks/solution/. ~/dev/learn.claude-code/` for the lazy path.
+2. `chmod +x ~/dev/learn.claude-code/.claude/hooks/films-validate.sh` — the most-skipped step. If it isn't executable, the hook silently doesn't fire and you'll be debugging a regex that wasn't the problem.
 3. Try `/add-film "Bad" 999 BIG 10000`. Watch the hook block and the feedback get passed back to Claude.
 4. Try `/add-film "Pride" 2014 wales 119`. Watch it succeed silently.
 5. (Optional) Add the user-level `guard-rm.sh` from above to `~/.claude/hooks/` and `~/.claude/settings.json`. Different scope, same shape.

@@ -47,7 +47,7 @@ There's a **general-purpose** agent for open-ended research. There's a **Plan** 
 
 Here's a lovely shape — a *skill that spawns subagents*. The `audit` skill is a single user-facing invocation that delegates its actual work to three Explore agents in parallel. The reader fires `/audit`; three subagents run; one unified report comes back.
 
-`~/dev/cinema/.claude/skills/audit/SKILL.md`:
+`~/dev/learn.claude-code/.claude/skills/audit/SKILL.md`:
 
 ```markdown
 ---
@@ -113,7 +113,7 @@ The other quiet thing: subagents return a *summary*, not the raw result. If the 
 ## Have a Go — Add the Audit Skill to the Cinema
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── .claude/
     └── skills/
@@ -122,7 +122,7 @@ The other quiet thing: subagents return a *summary*, not the raw result. If the 
         └── audit/SKILL.md           ← lesson 11 adds
 ```
 
-1. Drop in the skill (or `cp -r docs/09-subagents-task-tool/solution/. ~/dev/cinema/`).
+1. Drop in the skill (or `cp -r docs/09-subagents-task-tool/solution/. ~/dev/learn.claude-code/`).
 2. Add a few deliberately-dodgy films to your catalogue before running the audit — a duplicate, a mood that doesn't exist in your `CLAUDE.md` conventions, a row with a bad year. Use `/add-film` or edit `films.json` by hand (the lesson-10 hook will refuse anything that breaks the schema; for these tests you need the row to be valid JSON but conceptually dodgy).
 3. Fire `/audit`. Watch the three subagents run. Read the unified report — does it catch what you planted?
 4. Time `/audit` versus running the same three questions inline as separate prompts. Notice the parallelism win on wall-clock and the context-isolation win on token cost.

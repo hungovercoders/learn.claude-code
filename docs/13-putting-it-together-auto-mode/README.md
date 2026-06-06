@@ -6,18 +6,18 @@ description: "Wire the cinema's install.sh, then prove the kit makes auto-mode s
 canonical_url: https://hungovercoders.com/training/claude-code/13-putting-it-together-auto-mode
 ---
 
-Across the previous twelve lessons your `~/dev/cinema/` directory has accumulated a `films.json`, a `pick-film.sh`, a `CLAUDE.md`, a project-level `settings.json` with permissions *and* hooks, two slash commands, three skills, a schema-checking hook, an MCP server wiring, a plan-mode artefact, a feature branch, an open draft PR with a cage checklist, and a user-level `~/.claude/CLAUDE.md` setting the posture for every session. This is the lesson where they stop feeling like twelve separate pieces and start composing — first into one portable workflow you actually use, and then into something you can hand to the agent on auto-mode and *walk away from*. The cage you built is what earns that.
+Across the previous twelve lessons your `~/dev/learn.claude-code/` directory has accumulated a `films.json`, a `pick-film.sh`, a `CLAUDE.md`, a project-level `settings.json` with permissions *and* hooks, two slash commands, three skills, a schema-checking hook, an MCP server wiring, a plan-mode artefact, a feature branch, an open draft PR with a cage checklist, and a user-level `~/.claude/CLAUDE.md` setting the posture for every session. This is the lesson where they stop feeling like twelve separate pieces and start composing — first into one portable workflow you actually use, and then into something you can hand to the agent on auto-mode and *walk away from*. The cage you built is what earns that.
 
 ## Pre-Requisites
 
 - All previous lessons (you don't need to remember every line, but the *shapes* should be familiar)
-- A `~/dev/cinema/` that's grown over the lessons (or `cp -r learn.claude-code/project/. ~/dev/cinema/` for the impatient route — same end state)
+- A `~/dev/learn.claude-code/` that's grown over the lessons (or `cp -r learn.claude-code/project/. ~/dev/learn.claude-code/` for the impatient route — same end state)
 - The draft PR from lesson 4 still open. By the end of this lesson it'll have its final box ticked.
 
 ## The Whole Round — What We've Got
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── films.json                     (lesson 1)
 ├── pick-film.sh                   (lesson 1)
 ├── CLAUDE.md                      (lesson 6)
@@ -43,9 +43,9 @@ Plus your `~/.claude/CLAUDE.md` (lesson 3) and the cinema sitting on `feat/cinem
 
 ## Step 1 — The Install Script
 
-The cinema's behaviour lives in `~/dev/cinema/.claude/`. By default Claude Code only loads project-level skills, commands, and hooks when you're working *inside* `~/dev/cinema/`. Useful — but I want `/pair` and `/film-suggest` available from anywhere on my machine, so I can ask them about a film while I'm in a totally different repo writing a blog post about it. The fix is symlinks: the cinema is still the source of truth, but the user-level Claude Code directories point at it.
+The cinema's behaviour lives in `~/dev/learn.claude-code/.claude/`. By default Claude Code only loads project-level skills, commands, and hooks when you're working *inside* `~/dev/learn.claude-code/`. Useful — but I want `/pair` and `/film-suggest` available from anywhere on my machine, so I can ask them about a film while I'm in a totally different repo writing a blog post about it. The fix is symlinks: the cinema is still the source of truth, but the user-level Claude Code directories point at it.
 
-`~/dev/cinema/install.sh`:
+`~/dev/learn.claude-code/install.sh`:
 
 ```bash
 #!/bin/bash
@@ -71,12 +71,12 @@ echo "The films-validate hook still only fires when settings.json wires it — s
 ```
 
 ```bash
-chmod +x ~/dev/cinema/install.sh
-~/dev/cinema/install.sh
+chmod +x ~/dev/learn.claude-code/install.sh
+~/dev/learn.claude-code/install.sh
 ```
 
 ```text
-cinema kit installed. Slash commands, skills, and hooks symlinked from /Users/dave/dev/cinema.
+cinema kit installed. Slash commands, skills, and hooks symlinked from /Users/dave/dev/learn.claude-code.
 The films-validate hook still only fires when settings.json wires it — see lesson 10.
 ```
 
@@ -136,9 +136,9 @@ Claude Code's `--dangerously-skip-permissions` flag is the CLI side of auto-mode
 Launch — and if you want the extra belt, do it in a fresh worktree spun off your build branch so the entire blast radius is one directory you can delete afterwards:
 
 ```bash
-cd ~/dev/cinema
-git worktree add ../cinema-automode feat/automode-demo
-cd ../cinema-automode
+cd ~/dev/learn.claude-code
+git worktree add ../learn.claude-code-automode feat/automode-demo
+cd ../learn.claude-code-automode
 claude --dangerously-skip-permissions
 ```
 
@@ -172,7 +172,7 @@ Open the PR in your browser:
 gh pr view --web
 ```
 
-The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 13 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt. And if you ran the demo inside a worktree, the nuclear option is one line — `cd ~/dev/cinema && git worktree remove ../cinema-automode && git branch -D feat/automode-demo` — and the entire experiment is gone, your main build untouched.
+The diff is there, every commit labelled, the cage checklist now fully ticked because lesson 13 just landed. That's the audit trail. If anything looks wrong, `git reset --hard origin/feat/cinema-build~4` rolls back the auto-mode session and you start again with a sharper prompt. And if you ran the demo inside a worktree, the nuclear option is one line — `cd ~/dev/learn.claude-code && git worktree remove ../learn.claude-code-automode && git branch -D feat/automode-demo` — and the entire experiment is gone, your main build untouched.
 
 ## The Honest Moment That Earned the Cage
 
@@ -193,13 +193,13 @@ Two things the docs don't quite spell out about auto-mode.
 ## Have a Go — Install, Run, Auto-Mode
 
 ```
-~/dev/cinema/
+~/dev/learn.claude-code/
 ├── ...
 └── install.sh                    ← lesson 13 adds
 ```
 
-1. Drop in `install.sh` (or `cp docs/13-putting-it-together-auto-mode/solution/install.sh ~/dev/cinema/`).
-2. `chmod +x ~/dev/cinema/install.sh && ~/dev/cinema/install.sh`.
+1. Drop in `install.sh` (or `cp docs/13-putting-it-together-auto-mode/solution/install.sh ~/dev/learn.claude-code/`).
+2. `chmod +x ~/dev/learn.claude-code/install.sh && ~/dev/learn.claude-code/install.sh`.
 3. Run the three-command hand-driven round inside the cinema. Confirm everything composes.
 4. **Then the proof.** Launch `claude --dangerously-skip-permissions` and hand it the audit-fix-add-pair task above. Watch the hook block bad rows. Watch the deny list block any `rm`. Watch the PR diff fill up.
 5. Tick the lesson 13 box in the PR description on GitHub. Commit, push, tick. The PR is now ready for merge — every box ticked, every commit labelled, every cage layer demonstrated.

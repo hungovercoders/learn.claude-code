@@ -100,13 +100,13 @@ A worktree is a separate working directory pointing at the same `.git`. Each wor
 
 ```bash
 # Spin a worktree on a new branch at a sibling path
-git worktree add ../cinema-experiment -b feat/experiment
+git worktree add ../learn.claude-code-experiment -b feat/experiment
 
 # List every worktree this repo has
 git worktree list
 
 # Remove a worktree when done (don't rm -rf — leaves stale metadata)
-git worktree remove ../cinema-experiment
+git worktree remove ../learn.claude-code-experiment
 git branch -d feat/experiment
 
 # Clean up after a previous rm -rf if it happened
@@ -283,9 +283,9 @@ After the install script:
 The `films-validate.sh` PostToolUse hook fires automatically on every `Edit|Write` and refuses writes that break the films.json schema.
 
 ```bash
-~/dev/cinema/install.sh             # symlink .claude/* into ~/.claude/
-~/dev/cinema/scripts/build-cinema-db.sh   # rebuild cinema.db for the MCP server
-~/dev/cinema/pick-film.sh <mood>    # still runs from the shell, no claude required
+~/dev/learn.claude-code/install.sh             # symlink .claude/* into ~/.claude/
+~/dev/learn.claude-code/scripts/build-cinema-db.sh   # rebuild cinema.db for the MCP server
+~/dev/learn.claude-code/pick-film.sh <mood>    # still runs from the shell, no claude required
 claude --dangerously-skip-permissions     # auto-mode, safe because of the cage (lesson 13)
 ```
 
