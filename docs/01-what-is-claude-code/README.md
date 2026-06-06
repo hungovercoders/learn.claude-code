@@ -2,7 +2,7 @@
 title: "What is Claude Code?"
 series: claude-code
 order: 1
-description: "An honest first look at Anthropic's terminal-based coding agent, the eleven moving parts you'll meet across the series, and the Cinema Companion you'll build as we go"
+description: "An honest first look at Anthropic's terminal-based coding agent, the moving parts you'll meet across the series, and the Cinema Companion you'll build as we go"
 canonical_url: https://hungovercoders.com/training/claude-code/01-what-is-claude-code
 ---
 
@@ -16,12 +16,12 @@ Claude Code is the same mate, sat at the desk next to you. They can `ls` your re
 
 That distinction is most of the point. The chat window doesn't know what's in your `src/`. Claude Code does — because it can `ls` and `grep` and `Read` like you do. You stop describing your codebase and start letting the agent see it.
 
-## What's Actually in the Glass
+## What Ships With Claude Code
 
 Out of the box you get:
 
 - **Tool use.** It runs `Bash`, edits files, searches with `grep`, reads files, fetches URLs. Every action is a tool call you can see and (by default) approve.
-- **CLAUDE.md** — a project file you fill in once that gives the agent persistent context. Code style, the things to avoid, the things to always do. It's the recipe card it reads before pouring anything.
+- **CLAUDE.md** — a project file you fill in once that gives the agent persistent context. Code style, the things to avoid, the things to always do. It's the recipe card the agent reads before doing anything.
 - **Slash commands.** Type `/init`, `/permissions`, `/agents`, `/help`. You can write your own — markdown files in `.claude/commands/` that fire on a slash.
 - **Skills.** The newer cousin of slash commands. A folder under `.claude/skills/` with a `SKILL.md` and any supporting scripts. Claude can pick them up automatically when the task fits.
 - **Hooks.** Shell scripts that fire before or after tool calls. The bouncer at the door — useful for guardrails, audit logs, or auto-running formatters.
@@ -33,7 +33,7 @@ You'll meet every one of those in this series — each as a concrete thing you a
 
 ## What We're Building — the Cinema Companion
 
-Each lesson adds one file (or one set of files) to one growing kit. By lesson eleven you'll have a small Cinema Companion that picks a film by mood, validates its own catalogue, pairs the pick with a snack and a drink, and runs from any directory on your machine.
+Each lesson adds one file (or one set of files) to one growing kit. By lesson thirteen you'll have a small Cinema Companion that picks a film by mood, validates its own catalogue, pairs the pick with a snack and a drink, and runs from any directory on your machine.
 
 The seed is two files — `films.json` and `pick-film.sh`. They are the same two files my [launch blog post](https://hungovercoders.com/blog/2026-05-25-building-a-film-picker-with-claude-code) ships, which is the twenty-minute appetiser version of this series. The tutorial extends them. You don't need to have read the blog first; the seed below is the whole starting point.
 
@@ -43,7 +43,7 @@ The seed is two files — `films.json` and `pick-film.sh`. They are the same two
 └── pick-film.sh      ← lesson 1
 ```
 
-By lesson eleven that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point.
+By lesson thirteen that directory will also contain a `CLAUDE.md`, two slash commands, three skills, a schema-checking hook, an MCP server wiring, and an `install.sh` that symlinks the whole `.claude/` directory into `~/.claude/`. Each lesson ends with "add this to your cinema repo." Each step is small. The composition is the point.
 
 ## The Bit the Docs Don't Mention
 
@@ -63,7 +63,7 @@ Stay in the chat window when:
 - You're brainstorming an idea, not editing code
 - You don't have a codebase open — Claude Code without files is just a worse chat
 
-Most working developers I know end up using both. Pub on the way home, kit at home on a Sunday afternoon. They do different jobs.
+Most working developers I know end up using both. The chat window for the quick stuff, Claude Code for anything that lives in a real codebase. They do different jobs.
 
 ## Have a Go — Plant the Seed
 
@@ -113,7 +113,7 @@ cp -r learn.claude-code/docs/01-what-is-claude-code/solution/. ~/dev/cinema/
 chmod +x ~/dev/cinema/pick-film.sh
 ```
 
-Both paths leave you with the same `~/dev/cinema/` — eight lines of bash and a small JSON file. That's the canvas. The next ten lessons paint Claude Code onto it.
+Both paths leave you with the same `~/dev/cinema/` — eight lines of bash and a small JSON file. That's the canvas. The next twelve lessons paint Claude Code onto it.
 
 Also worth a skim before lesson two:
 
